@@ -1,0 +1,192 @@
+.rich-editor-root .ck.ck-editor__main > .ck-editor__editable {
+  min-height: 250px;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  background: white;
+}
+
+.dark .rich-editor-root .ck.ck-editor__main > .ck-editor__editable {
+  background: #1e293b; /* slate-800 */
+  color: #e2e8f0; /* slate-200 */
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.rich-editor-root .ck.ck-toolbar {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  background: #f8fafc;
+}
+
+.dark .rich-editor-root .ck.ck-toolbar {
+  background: #0f172a; /* slate-900 */
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .rich-editor-root .ck.ck-toolbar .ck-button {
+  color: #94a3b8; /* slate-400 */
+}
+
+.dark .rich-editor-root .ck.ck-toolbar .ck-button:hover,
+.dark .rich-editor-root .ck.ck-toolbar .ck-button.ck-on {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f8fafc; /* slate-50 */
+}
+
+/* ── Media Library Toolbar Button ── */
+.ck.ck-toolbar .ck-button.ck-media-library-button {
+  position: relative;
+}
+
+.ck.ck-toolbar .ck-button.ck-media-library-button .ck-icon {
+  color: #dc2626;
+}
+
+.ck.ck-toolbar .ck-button.ck-media-library-button:hover {
+  background: #fef2f2 !important;
+}
+
+.ck.ck-toolbar .ck-button.ck-media-library-button:hover .ck-icon {
+  color: #b91c1c;
+}
+
+.dark .ck.ck-toolbar .ck-button.ck-media-library-button .ck-icon {
+  color: #f87171;
+}
+
+.dark .ck.ck-toolbar .ck-button.ck-media-library-button:hover {
+  background: rgba(239, 68, 68, 0.15) !important;
+}
+
+.dark .ck.ck-toolbar .ck-button.ck-media-library-button:hover .ck-icon {
+  color: #ef4444;
+}
+
+/* ── Shortcut Hint Pill ── */
+.re-shortcut-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  color: #94a3b8;
+  user-select: none;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.re-shortcut-hint:hover {
+  opacity: 1;
+}
+
+.re-shortcut-hint kbd {
+  display: inline-block;
+  padding: 1px 5px;
+  font-size: 10px;
+  font-family: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+  color: #64748b;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  box-shadow: 0 1px 0 #cbd5e1;
+  line-height: 1.4;
+}
+
+.dark .re-shortcut-hint kbd {
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.re-shortcut-hint-text {
+  margin-left: 4px;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.dark .re-shortcut-hint-text {
+  color: #64748b;
+}
+
+/* Custom CMS Content Styles */
+.ck-content h1,
+.ck-content h2,
+.ck-content h3,
+.ck-content h4,
+.ck-content h5,
+.ck-content h6 {
+  line-height: 1.2;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.ck-content h1 { font-size: 2.25em; }
+.ck-content h2 { font-size: 1.65em; }
+
+.ck-content .lead {
+  color: #334155;
+  font-size: 1.18em;
+  line-height: 1.65;
+}
+
+.dark .ck-content .lead {
+  color: #cbd5e1;
+}
+
+.ck-content .callout {
+  margin: 1em 0;
+  padding: 12px 14px;
+  border-left: 4px solid #2563eb;
+  background: #eff6ff;
+}
+
+.dark .ck-content .callout {
+  background: rgba(37, 99, 235, 0.1);
+  border-left-color: #3b82f6;
+}
+
+.ck-content .callout-warning {
+  border-left-color: #c2410c;
+  background: #fff7ed;
+}
+
+.dark .ck-content .callout-warning {
+  background: rgba(194, 65, 12, 0.1);
+  border-left-color: #f97316;
+}
+
+.ck-content .text-muted {
+  color: #64748b;
+}
+
+.dark .ck-content .text-muted {
+  color: #94a3b8;
+}
+
+.ck-content .content-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 0.78em;
+  font-weight: 700;
+}
+
+.dark .ck-content .content-badge {
+  background: rgba(29, 78, 216, 0.2);
+  color: #60a5fa;
+}
+
+.ck-content table {
+  border-collapse: collapse;
+}
+
+.ck-content table td,
+.ck-content table th {
+  border-color: #cbd5e1;
+}
+
+.dark .ck-content table td,
+.dark .ck-content table th {
+  border-color: rgba(255,255,255,0.1);
+}

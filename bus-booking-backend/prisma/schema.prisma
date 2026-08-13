@@ -1,0 +1,413 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum StaffRole {
+  SUPER_ADMIN   // sees and manages every site
+  SITE_MANAGER  // scoped to their assigned site(s)
+  COUNTER_AGENT // scoped to their assigned site(s), booking-only
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  EXPIRED
+}
+
+enum PaymentStatus {
+  INITIATED
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum SeatStatus {
+  AVAILABLE
+  HELD
+  BOOKED
+}
+
+// ── Storefronts ─────────────────────────────────────────────
+// One row per branded site. Adding a 4th storefront is a new row here,
+// not new backend code.
+model Site {
+  id           String      @id @default(cuid())
+  slug         String      @unique // used as the X-Site-Id sent by each frontend
+  name         String
+  domain       String      @unique
+  logoUrl      String?
+  themeColor   String?
+  currency     String      @default("NPR")
+  contactPhone String?
+  contactEmail String?
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  staff        StaffSite[]
+  bookings     Booking[]
+}
+
+// ── Staff / admin panel users ───────────────────────────────
+model Staff {
+  id           String      @id @default(cuid())
+  name         String
+  email        String      @unique
+  passwordHash String
+  role         StaffRole   @default(COUNTER_AGENT)
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+
+  sites        StaffSite[]
+}
+
+// join table: which sites a staff member can operate on (empty = all, for SUPER_ADMIN)
+model StaffSite {
+  staffId String
+  siteId  String
+  staff   Staff  @relation(fields: [staffId], references: [id])
+  site    Site   @relation(fields: [siteId], references: [id])
+
+  @@id([staffId, siteId])
+}
+
+// ── Fleet ────────────────────────────────────────────────────
+// Reusable seat-map templates (2x2 seater, sofa, sleeper, etc.) so you
+// define a layout once and reuse it across many buses.
+model SeatLayout {
+  id         String   @id @default(cuid())
+  name       String
+  totalSeats Int
+  layoutJson Json     // e.g. { rows: [...], seats: [{ number: "A1", type: "window" }, ...] }
+  createdAt  DateTime @default(now())
+
+  buses      Bus[]
+}
+
+model Bus {
+  id              String     @id @default(cuid())
+  registrationNo  String     @unique
+  type            String     // e.g. AC Sleeper, Non-AC Seater, VIP Sofa
+  brand           String?    // e.g. Tata, Ashok Leyland
+  model           String?    // e.g. Starbus Ultra
+  manufacturingYear Int?
+  images          String[]   @default([])
+  amenities       String[]   // e.g. ["wifi", "charging", "blanket"]
+  ownerName       String?
+  ownerPhone      String?
+  insuranceNo     String?
+  insuranceExpiry DateTime?
+  fitnessExpiry   DateTime?
+  permitExpiry    DateTime?
+  rcNumber        String?    // Registration Certificate
+  seatLayoutId    String
+  seatLayout      SeatLayout @relation(fields: [seatLayoutId], references: [id])
+  isActive        Boolean    @default(true)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @default(now()) @updatedAt
+
+  schedules       Schedule[]
+  trips           Trip[]
+}
+
+// ── Routes & schedules ──────────────────────────────────────
+model Route {
+  id              String     @id @default(cuid())
+  originCity      String
+  destinationCity String
+  distanceKm      Float?
+  durationMinutes Int?
+  boardingPoints  String[]
+  droppingPoints  String[]
+  createdAt       DateTime   @default(now())
+
+  schedules       Schedule[]
+
+  @@index([originCity, destinationCity])
+}
+
+model Schedule {
+  id            String   @id @default(cuid())
+  routeId       String
+  busId         String
+  departureTime String   // "07:00"
+  daysOfWeek    Int[]    // 0=Sun..6=Sat; empty array = runs every day
+  fare          Decimal  @db.Decimal(10, 2)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  route         Route    @relation(fields: [routeId], references: [id])
+  bus           Bus      @relation(fields: [busId], references: [id])
+  trips         Trip[]
+  fareTiers     FareTier[]
+}
+
+// ── Sellable inventory ──────────────────────────────────────
+// One concrete departure on one date, generated from a Schedule.
+// This is what customers actually search and book.
+model Trip {
+  id         String     @id @default(cuid())
+  scheduleId String
+  busId      String
+  travelDate DateTime   @db.Date
+  status     String     @default("SCHEDULED") // SCHEDULED | CANCELLED | DEPARTED
+  createdAt  DateTime   @default(now())
+
+  schedule   Schedule   @relation(fields: [scheduleId], references: [id])
+  bus        Bus        @relation(fields: [busId], references: [id])
+  seats      TripSeat[]
+  bookings   Booking[]
+  crew       TripCrew[]
+
+  @@unique([scheduleId, travelDate])
+  @@index([travelDate])
+}
+
+// Per-seat inventory row for a trip. This is the table that prevents
+// double-booking — see bookings/seat-lock.service.ts.
+model TripSeat {
+  id         String     @id @default(cuid())
+  tripId     String
+  seatNumber String
+  status     SeatStatus @default(AVAILABLE)
+  heldUntil  DateTime?  // seat hold expiry during checkout
+  bookingId  String?
+
+  trip       Trip       @relation(fields: [tripId], references: [id])
+  booking    Booking?   @relation(fields: [bookingId], references: [id])
+
+  @@unique([tripId, seatNumber])
+}
+
+// ── Bookings, payments, tickets ─────────────────────────────
+model Booking {
+  id            String        @id @default(cuid())
+  bookingRef    String        @unique // human-facing reference, e.g. BK-2K91X
+  siteId        String        // which storefront this came through
+  tripId        String
+  customerName  String
+  customerPhone String
+  customerEmail String?
+  customerId    String?       // nullable for backward compatibility or guest checkouts if needed
+  totalFare     Decimal       @db.Decimal(10, 2)
+  status        BookingStatus @default(PENDING)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  site          Site          @relation(fields: [siteId], references: [id])
+  trip          Trip          @relation(fields: [tripId], references: [id])
+  customer      Customer?     @relation(fields: [customerId], references: [id])
+  passengers    Passenger[]
+  seats         TripSeat[]
+  payment       Payment?
+  ticket        Ticket?
+
+  @@index([siteId])
+  @@index([status])
+  @@index([customerId])
+}
+
+model Passenger {
+  id         String  @id @default(cuid())
+  bookingId  String
+  name       String
+  age        Int?
+  gender     String?
+  seatNumber String
+
+  booking    Booking @relation(fields: [bookingId], references: [id])
+}
+
+// ── Crew & Personnel ────────────────────────────────────────
+
+enum CrewRole {
+  DRIVER
+  HELPER
+  CONDUCTOR
+}
+
+model CrewMember {
+  id             String    @id @default(cuid())
+  name           String
+  phone          String    @unique
+  email          String?
+  licenseNo      String?   // for drivers
+  licenseExpiry  DateTime? // track license expiry
+  address        String?
+  emergencyPhone String?
+  role           CrewRole
+  photoUrl       String?
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  tripAssignments TripCrew[]
+}
+
+model TripCrew {
+  id           String     @id @default(cuid())
+  tripId       String
+  crewMemberId String
+  role         CrewRole   // what role they play on THIS trip
+
+  trip         Trip       @relation(fields: [tripId], references: [id])
+  crewMember   CrewMember @relation(fields: [crewMemberId], references: [id])
+
+  @@unique([tripId, crewMemberId])
+}
+
+model Payment {
+  id           String        @id @default(cuid())
+  bookingId    String        @unique
+  gateway      String        // e.g. esewa, khalti, stripe
+  gatewayTxnId String?       @unique
+  amount       Decimal       @db.Decimal(10, 2)
+  status       PaymentStatus @default(INITIATED)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  booking      Booking       @relation(fields: [bookingId], references: [id])
+}
+
+model Ticket {
+  id        String   @id @default(cuid())
+  bookingId String   @unique
+  qrCode    String
+  pdfUrl    String?
+  issuedAt  DateTime @default(now())
+
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+}
+
+// ── Advanced Fare Management ────────────────────────────────
+
+model FareTier {
+  id            String   @id @default(cuid())
+  scheduleId    String
+  seatType      String   // e.g. "window", "aisle", "sleeper_lower", "sleeper_upper"
+  boardingPoint String?  // null = all boarding points
+  amount        Decimal  @db.Decimal(10, 2)
+
+  schedule      Schedule @relation(fields: [scheduleId], references: [id])
+
+  @@unique([scheduleId, seatType, boardingPoint])
+}
+
+model Coupon {
+  id               String    @id @default(cuid())
+  code             String    @unique
+  discountType     String    // PERCENTAGE or FLAT
+  discountValue    Decimal   @db.Decimal(10, 2)
+  maxUses          Int?
+  usedCount        Int       @default(0)
+  minBookingAmount Decimal?  @db.Decimal(10, 2)
+  validFrom        DateTime
+  validTo          DateTime
+  isActive         Boolean   @default(true)
+  siteId           String?   // null = global coupon across all sites
+  createdAt        DateTime  @default(now())
+}
+
+// ── Customers & CRM ─────────────────────────────────────────
+
+model Customer {
+  id         String    @id @default(cuid())
+  name       String
+  phone      String    @unique
+  email      String?
+  bookings   Booking[]
+  createdAt  DateTime  @default(now())
+}
+
+model CancellationPolicy {
+  id              String   @id @default(cuid())
+  hoursBeforeDep  Int      // e.g. 24 = "if cancelled 24+ hours before departure"
+  refundPercent   Int      // e.g. 80 = "refund 80% of fare"
+  createdAt       DateTime @default(now())
+}
+
+// ── Content Management System (CMS) ─────────────────────────
+
+model Slider {
+  id        String   @id @default(cuid())
+  siteId    String?  // null = global slider
+  title     String
+  subtitle  String?
+  imageUrl  String
+  linkUrl   String?
+  isActive  Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model Blog {
+  id        String   @id @default(cuid())
+  siteId    String?
+  title     String
+  slug      String   @unique
+  excerpt   String?
+  content   String   @db.Text
+  coverImage String?
+  author    String?
+  isPublished Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  siteId    String?
+  name      String
+  role      String?
+  content   String   @db.Text
+  rating    Int      @default(5)
+  avatarUrl String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  siteId    String?
+  name      String
+  role      String
+  bio       String?  @db.Text
+  imageUrl  String?
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+}
+
+model FAQ {
+  id        String   @id @default(cuid())
+  siteId    String?
+  question  String
+  answer    String   @db.Text
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+}
+
+model GalleryImage {
+  id        String   @id @default(cuid())
+  siteId    String?
+  title     String?
+  imageUrl  String
+  category  String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model SiteSetting {
+  id          String   @id @default(cuid())
+  siteId      String?  @unique // null = global default
+  aboutUsText String?  @db.Text
+  contactInfo Json?    // { phone, email, address, facebookUrl, ... }
+  termsText   String?  @db.Text
+  privacyText String?  @db.Text
+  updatedAt   DateTime @updatedAt
+}

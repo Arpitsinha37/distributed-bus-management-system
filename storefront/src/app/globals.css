@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: #F7F4EC;
+  color: #101A33;
+}
+
+/* Boarding-pass stub: dashed perforation with punched circles at each end,
+   the one signature element this UI is built around. */
+.ticket-stub {
+  position: relative;
+  background: #101A33;
+  color: #F7F4EC;
+}
+.ticket-stub::before,
+.ticket-stub::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 24px;
+  height: 24px;
+  background: #F7F4EC;
+  border-radius: 9999px;
+  transform: translateY(-50%);
+}
+.ticket-stub::before { left: -12px; }
+.ticket-stub::after { right: -12px; }
+.ticket-perforation {
+  border-left: 2px dashed rgba(247, 244, 236, 0.35);
+}

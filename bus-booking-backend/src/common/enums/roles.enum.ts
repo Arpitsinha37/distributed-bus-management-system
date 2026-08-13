@@ -1,0 +1,5 @@
+export enum StaffRole {
+  SUPER_ADMIN = 'SUPER_ADMIN',
+  SITE_MANAGER = 'SITE_MANAGER',
+  COUNTER_AGENT = 'COUNTER_AGENT',
+}
