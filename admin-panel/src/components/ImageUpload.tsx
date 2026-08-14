@@ -3,17 +3,19 @@ import { useState, useRef } from 'react';
 import { Upload, X, Loader2, Image as ImageIcon } from 'lucide-react';
 import MediaPickerModal from './MediaPickerModal';
 
+const DEFAULT_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+
 interface ImageUploadProps {
     value: string;
     onChange: (url: string) => void;
     label?: string;
-    apiUrl: string;
-    token: string | null;
+    apiUrl?: string;
+    token?: string | null;
     className?: string;
     previewClass?: string;
 }
 
-export default function ImageUpload({ value, onChange, label = 'Image', apiUrl, token, className = '', previewClass = 'h-32' }: ImageUploadProps) {
+export default function ImageUpload({ value, onChange, label = 'Image', apiUrl = DEFAULT_API_URL, token = null, className = '', previewClass = 'h-32' }: ImageUploadProps) {
     const [uploading, setUploading] = useState(false);
     const [dragOver, setDragOver] = useState(false);
     const [showMediaPicker, setShowMediaPicker] = useState(false);
