@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useStore } from '@/lib/store';
-import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api';
+import { apiGet, apiPost, apiPut, apiPatch, apiDelete } from '@/lib/api';
 import { Plus, Pencil, Trash2, Search, Route as RouteIcon, X } from 'lucide-react';
 
 interface RouteItem { id: string; source: string; destination: string; slug: string; distance?: number; duration?: number; status: string; }
