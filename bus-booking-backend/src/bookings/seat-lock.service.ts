@@ -1,4 +1,4 @@
-import { Injectable, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, OnModuleDestroy, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
 
 // Short-lived distributed lock so two customers can never both select the
@@ -7,8 +7,33 @@ import Redis from 'ioredis';
 // this just fails fast and cheaply before hitting Postgres.
 @Injectable()
 export class SeatLockService implements OnModuleDestroy {
-  private redis = new Redis(process.env.REDIS_URL ?? 'redis://localhost:6379');
+  private readonly logger = new Logger(SeatLockService.name);
+  private redis: Redis | null = null;
   private holdSeconds = Number(process.env.SEAT_HOLD_MINUTES ?? 8) * 60;
+
+  private getRedis(): Redis | null {
+    if (this.redis) return this.redis;
+    try {
+      const url = process.env.REDIS_URL || process.env.REDIS_PRIVATE_URL;
+      if (!url) {
+        this.logger.warn('No REDIS_URL set — seat locking disabled (Postgres is still the source of truth)');
+        return null;
+      }
+      this.redis = new Redis(url, {
+        maxRetriesPerRequest: 3,
+        retryStrategy: (times) => (times > 3 ? null : Math.min(times * 200, 2000)),
+        lazyConnect: true,
+      });
+      this.redis.connect().catch((err) => {
+        this.logger.warn(`Redis connection failed: ${err.message} — seat locking disabled`);
+        this.redis = null;
+      });
+      return this.redis;
+    } catch (err) {
+      this.logger.warn(`Redis init failed: ${(err as Error).message}`);
+      return null;
+    }
+  }
 
   private key(tripId: string, seatNumber: string) {
     return `seat-lock:${tripId}:${seatNumber}`;
@@ -16,29 +41,41 @@ export class SeatLockService implements OnModuleDestroy {
 
   // Returns true if the lock was acquired, false if someone else holds it.
   async acquire(tripId: string, seatNumber: string, holderId: string): Promise<boolean> {
-    const result = await this.redis.set(
-      this.key(tripId, seatNumber),
-      holderId,
-      'EX',
-      this.holdSeconds,
-      'NX',
-    );
-    return result === 'OK';
+    const redis = this.getRedis();
+    if (!redis) return true; // no Redis = allow (DB tx is the real guard)
+    try {
+      const result = await redis.set(
+        this.key(tripId, seatNumber),
+        holderId,
+        'EX',
+        this.holdSeconds,
+        'NX',
+      );
+      return result === 'OK';
+    } catch {
+      return true; // fail open
+    }
   }
 
-  // Only releases the lock if it's still owned by the same holder — avoids
-  // one request releasing a lock a later, unrelated hold just acquired.
+  // Only releases the lock if it's still owned by the same holder
   async release(tripId: string, seatNumber: string, holderId: string): Promise<void> {
-    const script = `
-      if redis.call("GET", KEYS[1]) == ARGV[1] then
-        return redis.call("DEL", KEYS[1])
-      end
-      return 0
-    `;
-    await this.redis.eval(script, 1, this.key(tripId, seatNumber), holderId);
+    const redis = this.getRedis();
+    if (!redis) return;
+    try {
+      const script = `
+        if redis.call("GET", KEYS[1]) == ARGV[1] then
+          return redis.call("DEL", KEYS[1])
+        end
+        return 0
+      `;
+      await redis.eval(script, 1, this.key(tripId, seatNumber), holderId);
+    } catch {
+      // swallow — Postgres is the source of truth
+    }
   }
 
   async onModuleDestroy() {
-    await this.redis.quit();
+    if (this.redis) await this.redis.quit();
   }
 }
+
