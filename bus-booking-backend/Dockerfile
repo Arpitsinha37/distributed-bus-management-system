@@ -29,4 +29,4 @@ COPY --from=builder /app/package.json ./
 EXPOSE 3001
 ENV PORT=3001
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
+CMD ["sh", "-c", "npx prisma db push --skip-generate && node dist/main"]
