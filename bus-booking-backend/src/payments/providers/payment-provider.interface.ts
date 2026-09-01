@@ -16,5 +16,5 @@ export interface WebhookVerificationResult {
 export interface PaymentProvider {
   name: string;
   initiate(bookingId: string, amount: number, currency: string): Promise<InitiatePaymentResult>;
-  verifyWebhook(rawBody: Buffer | string, signatureHeader: string): WebhookVerificationResult;
+  verifyWebhook(rawBody: Buffer | string, signatureHeader: string): Promise<WebhookVerificationResult>;
 }

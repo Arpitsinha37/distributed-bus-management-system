@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Plug, Plus, Save, X, Trash2 } from 'lucide-react';
 import { apiGet, apiPost, apiDelete } from '@/lib/api';
-import useStore from '@/lib/store';
+import { useStore } from '@/lib/store';
 
 type SeatType = 'seat' | 'sleeper' | 'empty' | 'door' | 'driver';
 

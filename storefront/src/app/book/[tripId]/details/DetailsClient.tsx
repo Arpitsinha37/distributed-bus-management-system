@@ -5,6 +5,17 @@ import { useBookingStore } from '@/lib/store';
 import { TripDetail, Passenger } from '@/lib/types';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import { MapPin, Users, Phone } from 'lucide-react';
+
+/* Star-burst SVG icon */
+const StarBurst = () => (
+  <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+    <path
+      d="M8 0C8 0 7.32 2.42 7.32 4C7.32 5.58 8 8 8 8C8 8 5.58 7.32 4 7.32C2.42 7.32 0 8 0 8C0 8 .68 5.58 .68 4C.68 2.42 0 0 0 0C0 0 2.42 .68 4 .68C5.58 .68 8 0 8 0Z"
+      fill="#0D2E37"
+    />
+  </svg>
+);
 
 export default function DetailsClient({ trip }: { trip: TripDetail }) {
   const router = useRouter();
@@ -26,9 +37,9 @@ export default function DetailsClient({ trip }: { trip: TripDetail }) {
   // Redirect if no seats selected
   useEffect(() => {
     if (selectedSeats.length === 0) {
-      router.push(`/book/${trip.tripId}`);
+      router.push(`/`);
     }
-  }, [selectedSeats, router, trip.tripId]);
+  }, [selectedSeats, router]);
 
   if (selectedSeats.length === 0) return null;
 
@@ -64,19 +75,24 @@ export default function DetailsClient({ trip }: { trip: TripDetail }) {
   const totalFare = selectedSeats.length * Number(trip.fare);
 
   return (
-    <form onSubmit={handleHoldSeats} className="flex flex-col md:flex-row gap-8">
+    <form onSubmit={handleHoldSeats} className="flex flex-col lg:flex-row gap-8">
       {/* Forms Section */}
       <div className="flex-1 space-y-8">
         
         {/* Points Selection */}
-        <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Boarding & Dropping</h2>
+        <div className="glass rounded-3xl p-8 md:p-10">
+          <h2 className="text-xl font-display font-bold text-white mb-8 flex items-center gap-3">
+            <MapPin className="w-5 h-5 text-brand-green" />
+            Boarding & Dropping
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Boarding Point</label>
+              <label className="block text-[0.6875rem] font-semibold text-white/30 uppercase tracking-[0.15em] mb-3">
+                Boarding Point
+              </label>
               <select 
                 required
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="input-dark-simple"
                 value={boardingPoint || ''}
                 onChange={(e) => setPoints(e.target.value, droppingPoint || '')}
               >
@@ -87,10 +103,12 @@ export default function DetailsClient({ trip }: { trip: TripDetail }) {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Dropping Point</label>
+              <label className="block text-[0.6875rem] font-semibold text-white/30 uppercase tracking-[0.15em] mb-3">
+                Dropping Point
+              </label>
               <select 
                 required
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="input-dark-simple"
                 value={droppingPoint || ''}
                 onChange={(e) => setPoints(boardingPoint || '', e.target.value)}
               >
@@ -104,28 +122,37 @@ export default function DetailsClient({ trip }: { trip: TripDetail }) {
         </div>
 
         {/* Passenger Details */}
-        <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Passenger Details</h2>
+        <div className="glass rounded-3xl p-8 md:p-10">
+          <h2 className="text-xl font-display font-bold text-white mb-8 flex items-center gap-3">
+            <Users className="w-5 h-5 text-brand-green" />
+            Traveler Details
+          </h2>
           <div className="space-y-8">
             {selectedSeats.map((seat, index) => (
-              <div key={seat} className="border-b border-gray-100 last:border-0 pb-6 last:pb-0">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="bg-red-100 text-red-800 text-sm font-bold px-3 py-1 rounded-full">Seat {seat}</span>
+              <div key={seat} className="border-b border-white/[0.06] last:border-0 pb-8 last:pb-0">
+                <div className="flex items-center gap-3 mb-6">
+                  <span className="bg-brand-green/10 border border-brand-green/20 text-brand-green text-xs uppercase tracking-widest font-bold px-3 py-1 rounded-full">
+                    Seat {seat}
+                  </span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-bold text-gray-700 mb-2">Full Name</label>
+                    <label className="block text-[0.6875rem] font-semibold text-white/30 uppercase tracking-[0.15em] mb-3">
+                      Full Name
+                    </label>
                     <input 
                       type="text" 
                       required
                       placeholder="e.g. John Doe"
                       value={passengers[index]?.name || ''}
                       onChange={(e) => handlePassengerChange(index, 'name', e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500"
+                      className="input-dark-simple"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">Age</label>
+                    <label className="block text-[0.6875rem] font-semibold text-white/30 uppercase tracking-[0.15em] mb-3">
+                      Age
+                    </label>
                     <input 
                       type="number" 
                       required
@@ -133,7 +160,7 @@ export default function DetailsClient({ trip }: { trip: TripDetail }) {
                       placeholder="e.g. 25"
                       value={passengers[index]?.age || ''}
                       onChange={(e) => handlePassengerChange(index, 'age', e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500"
+                      className="input-dark-simple"
                     />
                   </div>
                 </div>
@@ -143,38 +170,48 @@ export default function DetailsClient({ trip }: { trip: TripDetail }) {
         </div>
 
         {/* Contact Details */}
-        <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Contact Information</h2>
-          <p className="text-sm text-gray-500 mb-6">Your ticket will be sent to these contact details.</p>
+        <div className="glass rounded-3xl p-8 md:p-10">
+          <h2 className="text-xl font-display font-bold text-white mb-2 flex items-center gap-3">
+            <Phone className="w-5 h-5 text-brand-green" />
+            Contact Information
+          </h2>
+          <p className="text-sm text-white/40 mb-8 ml-8">Your ticket will be sent to these details.</p>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
-              <label className="block text-sm font-bold text-gray-700 mb-2">Contact Name</label>
+              <label className="block text-[0.6875rem] font-semibold text-white/30 uppercase tracking-[0.15em] mb-3">
+                Contact Name
+              </label>
               <input 
                 type="text" 
                 required
                 value={customerInfo.name}
                 onChange={(e) => setCustomerInfo({ ...customerInfo, name: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="input-dark-simple"
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Phone Number</label>
+              <label className="block text-[0.6875rem] font-semibold text-white/30 uppercase tracking-[0.15em] mb-3">
+                Phone Number
+              </label>
               <input 
                 type="tel" 
                 required
                 value={customerInfo.phone}
                 onChange={(e) => setCustomerInfo({ ...customerInfo, phone: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="input-dark-simple"
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Email Address</label>
+              <label className="block text-[0.6875rem] font-semibold text-white/30 uppercase tracking-[0.15em] mb-3">
+                Email Address
+              </label>
               <input 
                 type="email" 
                 required
                 value={customerInfo.email}
                 onChange={(e) => setCustomerInfo({ ...customerInfo, email: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="input-dark-simple"
               />
             </div>
           </div>
@@ -182,37 +219,40 @@ export default function DetailsClient({ trip }: { trip: TripDetail }) {
       </div>
 
       {/* Summary Sidebar */}
-      <div className="md:w-96">
-        <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 sticky top-24">
-          <h3 className="text-xl font-bold text-gray-900 mb-6 pb-6 border-b border-gray-100">Journey Summary</h3>
-          <div className="space-y-4 mb-8">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-500 text-sm font-medium">Route</span>
-              <span className="font-bold text-gray-900">{trip.route.origin} to {trip.route.destination}</span>
+      <div className="lg:w-96">
+        <div className="glass-static rounded-3xl p-8 md:p-10 sticky top-28">
+          <h3 className="text-xl font-display font-bold text-white mb-6 pb-6 border-b border-white/[0.06]">
+            Journey Summary
+          </h3>
+          
+          <div className="space-y-5 mb-8">
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-white/40 font-medium">Route</span>
+              <span className="font-semibold text-white text-right max-w-[150px]">{trip.route.origin} to {trip.route.destination}</span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-500 text-sm font-medium">Departure</span>
-              <span className="font-bold text-gray-900">{trip.departureTime}</span>
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-white/40 font-medium">Departure</span>
+              <span className="font-semibold text-white">{trip.departureTime}</span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-500 text-sm font-medium">Bus Type</span>
-              <span className="font-bold text-gray-900">{trip.bus.type}</span>
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-white/40 font-medium">Class</span>
+              <span className="font-semibold text-brand-green">{trip.bus.type}</span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-500 text-sm font-medium">Selected Seats</span>
-              <span className="font-bold text-gray-900">{selectedSeats.join(', ')}</span>
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-white/40 font-medium">Seats</span>
+              <span className="font-semibold text-white">{selectedSeats.join(', ')}</span>
             </div>
           </div>
           
-          <div className="bg-gray-50 p-4 rounded-2xl mb-8">
+          <div className="bg-white/[0.04] p-5 rounded-2xl mb-8">
             <div className="flex justify-between items-end">
-              <span className="text-gray-500 font-medium">Total Fare</span>
-              <span className="text-3xl font-bold text-red-600">NPR {totalFare.toLocaleString()}</span>
+              <span className="text-white/40 font-medium text-sm">Total Fare</span>
+              <span className="text-2xl font-display font-bold text-brand-green">NPR {totalFare.toLocaleString()}</span>
             </div>
           </div>
 
           {error && (
-            <div className="mb-4 p-4 bg-red-50 text-red-700 text-sm rounded-xl border border-red-100">
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl">
               {error}
             </div>
           )}
@@ -220,9 +260,11 @@ export default function DetailsClient({ trip }: { trip: TripDetail }) {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-red-600/20 disabled:shadow-none"
+            className="btn-accent w-full justify-center py-4 text-sm disabled:opacity-50"
           >
-            {isLoading ? 'Securing Seats...' : 'Proceed to Payment'}
+            {isLoading ? 'Securing Seats...' : (
+              <>Proceed to Payment <StarBurst /></>
+            )}
           </button>
         </div>
       </div>

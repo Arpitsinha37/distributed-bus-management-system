@@ -1,24 +1,50 @@
 import type { Metadata } from 'next';
-import { Space_Grotesk, Inter, Space_Mono } from 'next/font/google';
+import { Outfit, Inter } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 
-const display = Space_Grotesk({ subsets: ['latin'], variable: '--font-display', weight: ['500', '700'] });
-const body = Inter({ subsets: ['latin'], variable: '--font-body' });
-const mono = Space_Mono({ subsets: ['latin'], variable: '--font-mono', weight: ['400', '700'] });
+const outfit = Outfit({
+  subsets: ['latin'],
+  variable: '--font-display',
+  weight: ['300', '400', '500', '600', '700', '800'],
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-body',
+  weight: ['300', '400', '500', '600'],
+});
 
 export const metadata: Metadata = {
-  title: 'SpeedX - Bus Booking',
-  description: 'Search buses and book your seat.',
+  title: 'Pokhara Travels | Premium Bus Booking — Pokhara to Kathmandu',
+  description:
+    'Book your luxury bus journey from Pokhara to Kathmandu with real-time seat selection, live tracking, and instant confirmation. Travel through the Himalayas in comfort.',
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png' }
+    ]
+  },
+  manifest: '/site.webmanifest',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <body className={`${display.variable} ${body.variable} ${mono.variable} font-body bg-gray-50 flex flex-col min-h-screen`}>
+      <body
+        className={`${outfit.variable} ${inter.variable} font-body flex flex-col min-h-screen bg-slate-50`}
+      >
         <Header />
-        <main className="flex-1 w-full max-w-5xl mx-auto">{children}</main>
+        <main className="flex-1 w-full">{children}</main>
         <Footer />
       </body>
     </html>

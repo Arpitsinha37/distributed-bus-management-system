@@ -5,6 +5,9 @@ import { BookingsService } from '../bookings/bookings.service';
 import { StripeProvider } from './providers/stripe.provider';
 import { PaymentProvider } from './providers/payment-provider.interface';
 
+import { EsewaProvider } from './providers/esewa.provider';
+import { KhaltiProvider } from './providers/khalti.provider';
+
 @Injectable()
 export class PaymentsService {
   private providers: Record<string, PaymentProvider>;
@@ -13,14 +16,20 @@ export class PaymentsService {
     private prisma: PrismaService,
     private bookingsService: BookingsService,
     stripeProvider: StripeProvider,
+    esewaProvider: EsewaProvider,
+    khaltiProvider: KhaltiProvider,
   ) {
-    this.providers = { stripe: stripeProvider };
-    // add esewa/khalti providers the same way once implemented
+    this.providers = { 
+      stripe: stripeProvider,
+      esewa: esewaProvider,
+      khalti: khaltiProvider,
+    };
   }
 
   async initiate(bookingId: string, gateway: string) {
     const booking = await this.prisma.booking.findUniqueOrThrow({ where: { id: bookingId } });
     const provider = this.providers[gateway];
+    if (!provider) throw new Error(`Unsupported gateway: ${gateway}`);
     const result = await provider.initiate(booking.id, Number(booking.totalFare), 'NPR');
 
     await this.prisma.payment.create({
@@ -40,7 +49,8 @@ export class PaymentsService {
   // double-crediting anything.
   async handleWebhook(gateway: string, rawBody: Buffer | string, signatureHeader: string) {
     const provider = this.providers[gateway];
-    const verified = provider.verifyWebhook(rawBody, signatureHeader);
+    if (!provider) throw new Error(`Unsupported gateway: ${gateway}`);
+    const verified = await provider.verifyWebhook(rawBody, signatureHeader);
 
     const payment = await this.prisma.payment.findUnique({ where: { gatewayTxnId: verified.gatewayTxnId } });
     if (!payment || payment.status !== 'INITIATED') return; // already processed or unknown — no-op

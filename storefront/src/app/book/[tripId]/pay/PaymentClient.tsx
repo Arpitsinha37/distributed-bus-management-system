@@ -47,22 +47,45 @@ export default function PaymentClient({ trip }: { trip: TripDetail }) {
     setIsLoading(true);
     setError('');
     try {
-      // In a real app, you would initiate payment with gateway, 
-      // then on success call confirm endpoint. We mock success here.
-      const res = await api.post(`/bookings/${bookingId}/mock-pay`, {
-        gateway,
-        gatewayTxnId: `TXN-${Math.floor(Math.random() * 1000000)}`
+      // Call the real payment initiation endpoint
+      const res = await api.post(`/payments/${gateway}/initiate`, {
+        bookingId
       });
 
-      if (res.data.status === 'CONFIRMED') {
-        const confirmedBookingRef = res.data.bookingRef;
-        reset(); // Clear store
-        router.push(`/ticket/${confirmedBookingRef}`);
+      if (gateway === 'esewa') {
+         // eSewa returns clientSecret (base64 encoded form data) and redirectUrl
+         const formData = JSON.parse(atob(res.data.clientSecret));
+         
+         // Create a form dynamically and submit it
+         const form = document.createElement('form');
+         form.setAttribute('method', 'POST');
+         form.setAttribute('action', res.data.redirectUrl);
+         for (const key in formData) {
+             const hiddenField = document.createElement('input');
+             hiddenField.setAttribute('type', 'hidden');
+             hiddenField.setAttribute('name', key);
+             hiddenField.setAttribute('value', formData[key]);
+             form.appendChild(hiddenField);
+         }
+         document.body.appendChild(form);
+         form.submit();
+      } else if (gateway === 'khalti') {
+         // Khalti returns a redirectUrl
+         window.location.href = res.data.redirectUrl;
+      } else {
+         // Fallback/Mock for card or unsupported for now
+         const mock = await api.post(`/bookings/${bookingId}/mock-pay`, {
+           gateway,
+           gatewayTxnId: `TXN-${Math.floor(Math.random() * 1000000)}`
+         });
+         if (mock.data.status === 'CONFIRMED') {
+           reset();
+           router.push(`/ticket/${mock.data.bookingRef}`);
+         }
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Payment failed. Please try again.');
-    } finally {
-      setIsLoading(false);
+      setError(err.response?.data?.message || 'Payment initiation failed. Please try again.');
+      setIsLoading(false); // only reset loading if failed, otherwise we are redirecting
     }
   };
 

@@ -1,170 +1,365 @@
-import { Bus, MapPin, Calendar, Star } from 'lucide-react';
 import Link from 'next/link';
-import { api } from '@/lib/api';
+import {
+  Bus,
+  MapPin,
+  Shield,
+  Wifi,
+  Armchair,
+  Zap,
+  Clock,
+  Star,
+  ChevronRight,
+  Users,
+  Mountain,
+  Snowflake,
+  Moon,
+  Coffee
+} from 'lucide-react';
+import BookingFlow from '@/components/booking/BookingFlow';
 
-async function getHomeData() {
-  try {
-    const headers = { 'X-Site-Id': process.env.NEXT_PUBLIC_SITE_ID };
-    const [slidersRes, testimonialsRes] = await Promise.all([
-      api.get('/cms/sliders', { headers }),
-      api.get('/cms/testimonials', { headers }),
-    ]);
-    return {
-      sliders: slidersRes.data || [],
-      testimonials: testimonialsRes.data || []
-    };
-  } catch (error) {
-    return { sliders: [], testimonials: [] };
-  }
-}
+/* Star-burst SVG icon */
+const StarBurst = () => (
+  <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+    <path
+      d="M8 0C8 0 7.32 2.42 7.32 4C7.32 5.58 8 8 8 8C8 8 5.58 7.32 4 7.32C2.42 7.32 0 8 0 8C0 8 .68 5.58 .68 4C.68 2.42 0 0 0 0C0 0 2.42 .68 4 .68C5.58 .68 8 0 8 0Z"
+      fill="currentColor"
+    />
+  </svg>
+);
 
-export default async function Home() {
-  const { sliders, testimonials } = await getHomeData();
-  const heroImage = sliders.length > 0 
-    ? sliders[0].imageUrl 
-    : "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=2069&auto=format&fit=crop";
-    
-  const heroTitle = sliders.length > 0 ? sliders[0].title : "Your Journey,\nPerfectly Planned.";
-  const heroSubtitle = sliders.length > 0 ? sliders[0].subtitle : "Book premium buses instantly across the country with instant confirmation and live seat selection.";
-
+export default function Home() {
   return (
-    <div className="flex flex-col gap-0 w-full pb-10">
-      {/* Hero Section */}
-      <section className="relative bg-gray-900 text-white overflow-hidden pb-32 -mx-6 md:-mx-12 lg:-mx-40 px-6 md:px-12 lg:px-40 rounded-b-3xl">
-        <div 
-          className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-overlay"
-          style={{ backgroundImage: `url('${heroImage}')` }}
-        ></div>
-        <div className="relative max-w-5xl mx-auto pt-24 pb-12">
-          <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-6 whitespace-pre-line leading-tight">
-            {heroTitle}
+    <div className="w-full">
+      {/* ═══════════════════════════════════════════════════════
+          HERO SECTION — Full viewport with stunning mountain image
+      ═══════════════════════════════════════════════════════ */}
+      <section
+        className="hero-image flex flex-col items-center justify-center text-center px-6"
+        style={{ backgroundImage: "url('/images/hero.jpg')" }}
+      >
+        <div className="pt-32 pb-16 md:pt-40 md:pb-16 max-w-5xl mx-auto w-full">
+          <p className="text-[0.6875rem] font-semibold text-[#E31837] uppercase tracking-[0.25em] mb-6">
+            Pokhara — Kathmandu
+          </p>
+          <h1 className="text-[clamp(2.5rem,6vw,5.5rem)] font-display font-bold text-white leading-[1.05] tracking-tight mb-6">
+            Night Tourist Bus
           </h1>
-          <p className="text-xl md:text-2xl font-medium max-w-2xl opacity-90">
-            {heroSubtitle}
+          <p className="text-lg md:text-xl text-white/90 max-w-xl mx-auto leading-relaxed mb-10">
+            Wake up in your destination. Book VIP Sofa seats and enjoy a comfortable 10-hour night journey across Nepal.
+          </p>
+          
+          {/* Booking search bar now embedded seamlessly in the hero */}
+          <BookingFlow />
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          STATS BAR
+      ═══════════════════════════════════════════════════════ */}
+      <section className="max-w-[90rem] mx-auto px-6 md:px-12 py-16 section-border">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          {[
+            { num: '7:00 PM', label: 'Daily Departure', icon: Moon },
+            { num: '10h', label: 'Avg Travel Time', icon: Clock },
+            { num: 'VIP', label: 'Sofa Configuration', icon: Armchair },
+            { num: 'Rs. 1200+', label: 'Starting Fare', icon: Bus },
+          ].map((s, i) => (
+            <div key={i} className="text-center md:text-left">
+              <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
+                <s.icon className="w-5 h-5 text-[#E31837]/60" />
+                <span className="text-3xl md:text-4xl font-display font-bold text-slate-800">
+                  {s.num}
+                </span>
+              </div>
+              <p className="text-[0.8125rem] text-slate-500">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          ROUTE SHOWCASE — Image cards
+      ═══════════════════════════════════════════════════════ */}
+      <section className="max-w-[90rem] mx-auto px-6 md:px-12 py-20">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-12">
+          <div className="md:col-span-3">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-5 h-5 rounded-full border border-slate-200 flex items-center justify-center">
+                <Mountain className="w-2.5 h-2.5 text-slate-800/60" />
+              </div>
+              <span className="text-[0.8125rem] font-medium text-slate-500 tracking-wide">
+                Night Service
+              </span>
+            </div>
+          </div>
+          <div className="md:col-span-9">
+            <h2 className="text-3xl md:grid-cols-5xl font-display font-bold text-slate-800 mb-4">
+              Rest through the highway
+            </h2>
+            <p className="text-lg text-slate-500 max-w-xl leading-relaxed">
+              Save daylight hours by traveling overnight. Depart in the evening and arrive fresh at 5:30 AM.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Card 1 */}
+          <div className="img-card h-[400px] md:h-[500px] group cursor-pointer">
+            <img
+              src="/images/vip-sofa-bus.jpg"
+              alt="VIP Sofa Bus interior with comfortable seats"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors duration-700" />
+            <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
+              <p className="text-[0.6875rem] font-semibold text-[#E31837] uppercase tracking-[0.15em] mb-2">
+                Departs 7:00 PM
+              </p>
+              <h3 className="text-2xl md:text-3xl font-display font-bold text-slate-800 mb-2">
+                Pokhara → Kathmandu
+              </h3>
+              <p className="text-slate-500 text-sm mb-4">
+                Board at Tourist Bus Park (Rashtriya Bank Chowk)
+              </p>
+            </div>
+          </div>
+
+          {/* Card 2 */}
+          <div className="img-card h-[400px] md:h-[500px] group cursor-pointer">
+            <img
+              src="/images/Sofa-Bus-Nepal-2.jpg"
+              alt="Night Tourist Bus exterior"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors duration-700" />
+            <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
+              <p className="text-[0.6875rem] font-semibold text-[#E31837] uppercase tracking-[0.15em] mb-2">
+                Arrives 5:30 AM
+              </p>
+              <h3 className="text-2xl md:text-3xl font-display font-bold text-slate-800 mb-2">
+                Drop-off Locations
+              </h3>
+              <p className="text-slate-500 text-sm mb-4">
+                Thankot, Kalanki, Swayambhu, Balaju, Sorakhutte
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          HOW IT WORKS
+      ═══════════════════════════════════════════════════════ */}
+      <section className="max-w-[90rem] mx-auto px-6 md:px-12 py-20 section-border">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-14">
+          <div className="md:col-span-3">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-5 h-5 rounded-full border border-slate-200 flex items-center justify-center">
+                <Zap className="w-2.5 h-2.5 text-slate-800/60" />
+              </div>
+              <span className="text-[0.8125rem] font-medium text-slate-500 tracking-wide">
+                How It Works
+              </span>
+            </div>
+          </div>
+          <div className="md:col-span-9">
+            <h2 className="text-3xl md:text-5xl font-display font-bold text-slate-800">
+              Book in 4 simple steps
+            </h2>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {[
+            {
+              step: '01',
+              title: 'Search',
+              desc: 'Select Pokhara to Kathmandu.',
+              icon: MapPin,
+            },
+            {
+              step: '02',
+              title: 'Select Seat',
+              desc: 'Choose your VIP Sofa seat (2/1 or 2/2 config).',
+              icon: Armchair,
+            },
+            {
+              step: '03',
+              title: 'Confirm & Pay',
+              desc: 'Fill your details and make secure payment.',
+              icon: Shield,
+            },
+            {
+              step: '04',
+              title: 'Sleep',
+              desc: 'Board at 6:30 PM. Sleep through the journey!',
+              icon: Moon,
+            },
+          ].map((item, i) => (
+            <div
+              key={i}
+              className="glass rounded-2xl p-8 group hover:border-brand-green/20 transition-all duration-500"
+            >
+              <div className="w-10 h-10 rounded-xl bg-[#E31837]/10 border border-brand-green/20 flex items-center justify-center mb-6 group-hover:bg-[#E31837]/15 transition-colors">
+                <item.icon className="w-4.5 h-4.5 text-[#E31837]" />
+              </div>
+              <div className="text-3xl font-display font-bold text-slate-600 mb-4 group-hover:text-[#E31837] transition-colors duration-500">
+                {item.step}
+              </div>
+              <div className="text-lg font-display font-semibold text-white mb-2">
+                {item.title}
+              </div>
+              <div className="text-[0.875rem] text-white/60 leading-relaxed">
+                {item.desc}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          FEATURES — Premium amenities
+      ═══════════════════════════════════════════════════════ */}
+      <section className="max-w-[90rem] mx-auto px-6 md:px-12 py-20">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-14">
+          <div className="md:col-span-3">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-5 h-5 rounded-full border border-slate-200 flex items-center justify-center">
+                <Star className="w-2.5 h-2.5 text-slate-800/60" />
+              </div>
+              <span className="text-[0.8125rem] font-medium text-slate-500 tracking-wide">
+                VIP Amenities
+              </span>
+            </div>
+          </div>
+          <div className="md:col-span-9">
+            <h2 className="text-3xl md:text-5xl font-display font-bold text-slate-800 mb-4">
+              Rest in absolute luxury
+            </h2>
+            <p className="text-lg text-slate-500 max-w-xl leading-relaxed">
+              Our night buses are heavily customized for maximum sleeping comfort and safety on the highway.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {[
+            { icon: Armchair, title: 'VIP Sofa Seats', desc: 'Choose between 2/1 solo luxury seats or 2/2 premium double seats with deep recline.' },
+            { icon: Snowflake, title: 'A/C & Heating', desc: 'Climate-controlled cabins ensure comfort during cold Himalayan nights.' },
+            { icon: Zap, title: 'USB Ports', desc: 'Keep your devices charged overnight with individual charging ports.' },
+            { icon: Wifi, title: 'Free Wi-Fi', desc: 'Stay connected throughout your journey, even through the valleys.' },
+            { icon: Coffee, title: 'Night Stop', desc: 'Safely scheduled restroom and refreshment breaks during the night.' },
+            { icon: Clock, title: 'Reporting Time', desc: 'Arrive by 6:30 PM for a smooth boarding and luggage loading process.' },
+          ].map((f, i) => (
+            <div key={i} className="feature-card">
+              <div className="icon-wrap">
+                <f.icon className="w-5 h-5 text-[#E31837]" />
+              </div>
+              <h3 className="text-slate-800 font-display font-semibold text-lg mb-2">
+                {f.title}
+              </h3>
+              <p className="text-slate-500 text-[0.875rem] leading-relaxed">
+                {f.desc}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          SCENIC PARALLAX BANNER
+      ═══════════════════════════════════════════════════════ */}
+      <section
+        className="parallax-banner flex items-center justify-center text-center px-6"
+        style={{ backgroundImage: "url('/images/about-mountain.jpg')" }}
+      >
+        <div className="max-w-3xl py-24">
+          <p className="text-[0.6875rem] font-semibold text-[#E31837] uppercase tracking-[0.25em] mb-4">
+            Maximize Your Time
+          </p>
+          <h2 className="text-3xl md:text-5xl font-display font-bold text-white leading-tight mb-6">
+            Wake up fresh in Kathmandu
+          </h2>
+          <p className="text-white/90 text-lg leading-relaxed mb-8">
+            Why lose a day to travel? Our night service ensures you don't miss a single hour of your vacation.
           </p>
         </div>
       </section>
 
-      {/* Search Widget */}
-      <section className="max-w-5xl w-full mx-auto -mt-20 relative z-10 px-4">
-        <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100">
-          <form action="/search" method="GET" className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-            
-            {/* Origin */}
-            <div className="flex flex-col space-y-2">
-              <label htmlFor="origin" className="text-xs font-bold text-gray-500 uppercase tracking-wider">From</label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input 
-                  type="text" 
-                  name="origin" 
-                  id="origin" 
-                  required
-                  placeholder="e.g. Kathmandu" 
-                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-colors text-gray-900 font-medium placeholder-gray-400"
-                />
+      {/* ═══════════════════════════════════════════════════════
+          TESTIMONIALS
+      ═══════════════════════════════════════════════════════ */}
+      <section className="max-w-[90rem] mx-auto px-6 md:px-12 py-20">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-14">
+          <div className="md:col-span-3">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-5 h-5 rounded-full border border-slate-200 flex items-center justify-center">
+                <Users className="w-2.5 h-2.5 text-slate-800/60" />
               </div>
+              <span className="text-[0.8125rem] font-medium text-slate-500 tracking-wide">
+                Testimonials
+              </span>
             </div>
-
-            {/* Destination */}
-            <div className="flex flex-col space-y-2">
-              <label htmlFor="destination" className="text-xs font-bold text-gray-500 uppercase tracking-wider">To</label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input 
-                  type="text" 
-                  name="destination" 
-                  id="destination" 
-                  required
-                  placeholder="e.g. Pokhara" 
-                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-colors text-gray-900 font-medium placeholder-gray-400"
-                />
-              </div>
-            </div>
-
-            {/* Date */}
-            <div className="flex flex-col space-y-2">
-              <label htmlFor="date" className="text-xs font-bold text-gray-500 uppercase tracking-wider">Date</label>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input 
-                  type="date" 
-                  name="date" 
-                  id="date" 
-                  required
-                  min={new Date().toISOString().split('T')[0]}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-colors text-gray-900 font-medium"
-                />
-              </div>
-            </div>
-
-            {/* Submit */}
-            <button 
-              type="submit" 
-              className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-red-600/20 transition-all active:scale-95 flex items-center justify-center gap-2"
-            >
-              <Bus className="w-5 h-5" />
-              Search Buses
-            </button>
-          </form>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section className="max-w-5xl mx-auto w-full py-24">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-          <div className="text-center group">
-            <div className="w-20 h-20 mx-auto bg-red-50 text-red-600 rounded-3xl flex items-center justify-center mb-6 group-hover:-translate-y-2 transition-transform duration-300">
-              <Bus className="w-10 h-10" />
-            </div>
-            <h3 className="text-xl font-bold mb-3 text-gray-900">Premium Fleet</h3>
-            <p className="text-gray-500 leading-relaxed">Travel in luxury with our modern, well-maintained fleet equipped with VIP sofa seats and modern amenities.</p>
           </div>
-          <div className="text-center group">
-            <div className="w-20 h-20 mx-auto bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mb-6 group-hover:-translate-y-2 transition-transform duration-300">
-              <MapPin className="w-10 h-10" />
-            </div>
-            <h3 className="text-xl font-bold mb-3 text-gray-900">Extensive Network</h3>
-            <p className="text-gray-500 leading-relaxed">Connecting major cities with convenient boarding points and reliable drop-offs.</p>
-          </div>
-          <div className="text-center group">
-            <div className="w-20 h-20 mx-auto bg-green-50 text-green-600 rounded-3xl flex items-center justify-center mb-6 group-hover:-translate-y-2 transition-transform duration-300">
-              <Calendar className="w-10 h-10" />
-            </div>
-            <h3 className="text-xl font-bold mb-3 text-gray-900">Instant Booking</h3>
-            <p className="text-gray-500 leading-relaxed">Secure your seats instantly with live availability mapping and lightning-fast checkout.</p>
+          <div className="md:col-span-9">
+            <h2 className="text-3xl md:text-5xl font-display font-bold text-slate-800">
+              What travelers say
+            </h2>
           </div>
         </div>
-      </section>
 
-      {/* Testimonials */}
-      {testimonials.length > 0 && (
-        <section className="max-w-5xl mx-auto w-full py-16 border-t border-gray-100">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">What Our Travelers Say</h2>
-            <p className="text-gray-500">Trusted by thousands of passengers everyday.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {testimonials.slice(0, 3).map((t: any) => (
-              <div key={t.id} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                <div className="flex text-yellow-400 mb-4">
-                  {[...Array(t.rating)].map((_, i) => <Star key={i} className="w-5 h-5 fill-current" />)}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[
+            {
+              name: 'Aarav Sharma',
+              location: 'Kathmandu',
+              text: 'The VIP solo seats are a game changer. I managed to get a full 8 hours of sleep and arrived fresh for my meeting.',
+              rating: 5,
+            },
+            {
+              name: 'Priya Patel',
+              location: 'Pokhara',
+              text: 'Very safe driving during the night. The heating worked perfectly, and the scheduled rest stop was well-lit and clean.',
+              rating: 5,
+            },
+            {
+              name: 'Marco Rossi',
+              location: 'Italy (Tourist)',
+              text: 'Much better than wasting daytime traveling. The sofa seats recline almost flat. Will definitely book the night bus again.',
+              rating: 4,
+            },
+          ].map((t, i) => (
+            <div key={i} className="testimonial-card">
+              <div className="flex gap-1 mb-4">
+                {Array.from({ length: 5 }).map((_, j) => (
+                  <Star
+                    key={j}
+                    className={`w-4 h-4 ${
+                      j < t.rating
+                        ? 'text-brand-gold fill-brand-gold'
+                        : 'text-slate-300'
+                    }`}
+                  />
+                ))}
+              </div>
+              <p className="text-slate-800/60 text-[0.9375rem] leading-relaxed mb-6">
+                &ldquo;{t.text}&rdquo;
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#E31837]/10 border border-brand-green/20 flex items-center justify-center">
+                  <span className="text-[#E31837] font-display font-bold text-sm">
+                    {t.name.charAt(0)}
+                  </span>
                 </div>
-                <p className="text-gray-600 italic mb-6">"{t.content}"</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center font-bold text-gray-500 overflow-hidden">
-                    {t.avatarUrl ? <img src={t.avatarUrl} alt={t.name} className="w-full h-full object-cover" /> : t.name[0]}
-                  </div>
-                  <div>
-                    <div className="font-bold text-gray-900">{t.name}</div>
-                    <div className="text-sm text-gray-500">{t.role || 'Passenger'}</div>
-                  </div>
+                <div>
+                  <p className="text-slate-800 font-semibold text-sm">{t.name}</p>
+                  <p className="text-slate-400 text-xs">{t.location}</p>
                 </div>
               </div>
-            ))}
-          </div>
-        </section>
-      )}
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

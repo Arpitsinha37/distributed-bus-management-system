@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { UserCheck, Plus, Pencil, Trash2, Search, X } from 'lucide-react';
 import { apiGet, apiPost, apiPatch, apiDelete } from '@/lib/api';
-import useStore from '@/lib/store';
+import { useStore } from '@/lib/store';
 import ImageUpload from '@/components/ImageUpload';
 
 interface CrewMember {

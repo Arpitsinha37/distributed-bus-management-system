@@ -3,7 +3,16 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
-import { Search } from 'lucide-react';
+
+/* Star-burst SVG icon */
+const StarBurst = () => (
+  <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+    <path
+      d="M8 0C8 0 7.32 2.42 7.32 4C7.32 5.58 8 8 8 8C8 8 5.58 7.32 4 7.32C2.42 7.32 0 8 0 8C0 8 .68 5.58 .68 4C.68 2.42 0 0 0 0C0 0 2.42 .68 4 .68C5.58 .68 8 0 8 0Z"
+      fill="#0D2E37"
+    />
+  </svg>
+);
 
 export default function TrackClient() {
   const router = useRouter();
@@ -32,30 +41,35 @@ export default function TrackClient() {
   return (
     <form onSubmit={handleTrack} className="space-y-6">
       <div>
-        <label className="block text-sm font-bold text-gray-700 mb-2">PNR Number</label>
+        <label className="block text-[0.6875rem] font-semibold text-white/30 uppercase tracking-[0.15em] mb-3">
+          PNR Number
+        </label>
         <input 
           type="text" 
           required
           placeholder="e.g. BK-2K91X"
           value={pnr}
           onChange={(e) => setPnr(e.target.value.toUpperCase())}
-          className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500 uppercase"
+          className="input-dark-simple uppercase"
         />
       </div>
+      
       <div>
-        <label className="block text-sm font-bold text-gray-700 mb-2">Phone Number</label>
+        <label className="block text-[0.6875rem] font-semibold text-white/30 uppercase tracking-[0.15em] mb-3">
+          Phone Number
+        </label>
         <input 
           type="tel" 
           required
           placeholder="Phone used during booking"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500"
+          className="input-dark-simple"
         />
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 text-red-700 text-sm rounded-xl border border-red-100">
+        <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl">
           {error}
         </div>
       )}
@@ -63,10 +77,11 @@ export default function TrackClient() {
       <button 
         type="submit" 
         disabled={isLoading}
-        className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-red-600/20 disabled:shadow-none flex justify-center items-center gap-2"
+        className="btn-accent w-full justify-center py-4 text-sm mt-4 disabled:opacity-50"
       >
-        <Search className="w-5 h-5" />
-        {isLoading ? 'Searching...' : 'Track Ticket'}
+        {isLoading ? 'Searching...' : (
+          <>Find Ticket <StarBurst /></>
+        )}
       </button>
     </form>
   );

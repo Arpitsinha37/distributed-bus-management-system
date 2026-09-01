@@ -14,7 +14,7 @@ export class StripeProvider implements PaymentProvider {
     throw new Error('StripeProvider.initiate not implemented — plug in the Stripe SDK');
   }
 
-  verifyWebhook(rawBody: Buffer | string, signatureHeader: string): WebhookVerificationResult {
+  async verifyWebhook(rawBody: Buffer | string, signatureHeader: string): Promise<WebhookVerificationResult> {
     // const event = stripe.webhooks.constructEvent(rawBody, signatureHeader, process.env.STRIPE_WEBHOOK_SECRET);
     // return { gatewayTxnId: event.data.object.id, bookingId: event.data.object.metadata.bookingId, status: ... };
     throw new Error('StripeProvider.verifyWebhook not implemented — plug in the Stripe SDK');

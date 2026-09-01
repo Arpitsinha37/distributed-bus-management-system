@@ -11,6 +11,7 @@ import { SchedulesModule } from './schedules/schedules.module';
 import { TripsModule } from './trips/trips.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { PaymentsModule } from './payments/payments.module';
+import { PaymentModule } from './payment/payment.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { TicketingModule } from './ticketing/ticketing.module';
 import { ReportingModule } from './reporting/reporting.module';
@@ -32,6 +33,7 @@ import { CmsModule } from './cms/cms.module';
     TripsModule,
     BookingsModule,
     PaymentsModule,
+    PaymentModule,
     NotificationsModule,
     TicketingModule,
     ReportingModule,
