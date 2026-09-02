@@ -3,7 +3,9 @@ import { Controller, Get, Post, Body, Query, Param, Req, Res, UseGuards, BadRequ
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { PaymentService } from './payment.service';
 import { EmailService } from '../email/email.service';
-import { JwtAuthGuard, Roles, RolesGuard } from '../common/guards';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
 import { Response } from 'express';
 
 @ApiTags('Payments')
