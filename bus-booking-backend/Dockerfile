@@ -1,4 +1,4 @@
-FROM node:18-slim AS builder
+FROM node:20-slim AS builder
 WORKDIR /app
 
 # Install OpenSSL for Prisma
@@ -13,7 +13,7 @@ RUN npx prisma generate
 COPY . .
 RUN npm run build
 
-FROM node:18-slim AS runner
+FROM node:20-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
