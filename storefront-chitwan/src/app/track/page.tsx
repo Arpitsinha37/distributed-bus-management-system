@@ -3,7 +3,7 @@ import TrackClient from './TrackClient';
 import { Search } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Track Booking | Pokhara Travels',
+  title: 'Track Booking | Chitwan Travels',
   description: 'Track your bus booking status and download your e-ticket.',
 };
 

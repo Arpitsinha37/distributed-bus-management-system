@@ -3,7 +3,7 @@ import CancelClient from './CancelClient';
 import { AlertTriangle } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Cancel Booking | Pokhara Travels',
+  title: 'Cancel Booking | Chitwan Travels',
   description: 'Cancel your bus ticket',
 };
 

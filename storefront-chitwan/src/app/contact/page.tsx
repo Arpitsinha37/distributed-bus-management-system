@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { Mail, Phone, MapPin, MessageSquare } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Contact Us | Pokhara Travels',
+  title: 'Contact Us | Chitwan Travels',
   description: 'Get in touch with our support team.',
 };
 
@@ -45,7 +45,7 @@ export default function ContactPage() {
               <div>
                 <h3 className="text-lg font-display font-semibold text-white mb-1">Email Us</h3>
                 <p className="text-white/40 text-sm mb-2">We typically reply within 24 hours.</p>
-                <a href="mailto:support@pokharatravels.com" className="text-brand-green hover:underline">support@pokharatravels.com</a>
+                <a href="mailto:support@chitwantravels.com" className="text-brand-green hover:underline">support@chitwantravels.com</a>
               </div>
             </div>
 
@@ -57,7 +57,7 @@ export default function ContactPage() {
                 <h3 className="text-lg font-display font-semibold text-white mb-1">Main Office</h3>
                 <p className="text-white/40 text-sm leading-relaxed">
                   Tourist Bus Park<br />
-                  Lakeside, Pokhara<br />
+                  Sauraha, Chitwan<br />
                   Nepal
                 </p>
               </div>

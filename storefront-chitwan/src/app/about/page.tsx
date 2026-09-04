@@ -3,8 +3,8 @@ import { Shield, Mountain, Heart, Star, Users, MapPin } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'About Us | Pokhara Travels',
-  description: 'Learn about our premium bus travel experience between Pokhara and Kathmandu.',
+  title: 'About Us | Chitwan Travels',
+  description: 'Learn about our premium bus travel experience between Chitwan and Kathmandu.',
 };
 
 export default function AboutPage() {
@@ -21,7 +21,7 @@ export default function AboutPage() {
               Elevating the journey across Nepal
             </h1>
             <p className="text-lg text-white/60 leading-relaxed mb-8 max-w-lg">
-              We started Pokhara Travels with a simple belief: the journey between Nepal's two greatest cities should be as beautiful and comfortable as the destinations themselves.
+              We started Chitwan Travels with a simple belief: the journey between Nepal's two greatest cities should be as beautiful and comfortable as the destinations themselves.
             </p>
             <div className="flex gap-4">
               <Link href="/#search-section" className="btn-accent">

@@ -77,7 +77,7 @@ export default function BookingFlow() {
   const [loading, setLoading] = useState(false);
   const [trips, setTrips] = useState<any[]>([]);
 
-  const [origin, setOrigin] = useState('Pokhara');
+  const [origin, setOrigin] = useState('Chitwan');
   const [destination, setDestination] = useState('Kathmandu');
   const [date, setDate] = useState(dayjs().format('YYYY-MM-DD'));
 
