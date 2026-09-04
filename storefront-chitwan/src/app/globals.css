@@ -1,0 +1,433 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Base ─── */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #ffffff;
+  color: #1e293b;
+  overflow-x: hidden;
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #091F26;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 100px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ─── Typography ─── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+/* ─── Decorative Lines ─── */
+.line-h {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+.line-v {
+  width: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ─── Glassmorphic Cards ─── */
+.glass {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 20px 40px -10px rgba(0,0,0,0.2);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+.glass:hover {
+  background: rgba(15, 23, 42, 1);
+  border-color: rgba(227, 24, 55, 0.4);
+}
+
+/* Glassmorphic Card (no hover effect variant) */
+.glass-static {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+/* ─── Accent Button (Brand Green) ─── */
+.btn-accent {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  background: #E31837;
+  color: #1e293b;
+  
+  font-weight: 600;
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 9999px;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-accent:hover {
+  background: #C9132E;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 30px rgba(227, 24, 55, 0.2);
+}
+
+/* ─── Outline Button ─── */
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  background: transparent;
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 9999px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-outline:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+/* ─── Section decorative borders ─── */
+.section-border {
+  position: relative;
+}
+.section-border::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1) 20%, rgba(255,255,255,0.1) 80%, transparent);
+}
+
+/* ─── Hero Image Section ─── */
+.hero-image {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.hero-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.1) 30%,
+    rgba(0, 0, 0, 0.4) 70%,
+    rgba(255, 255, 255, 1) 100%
+  );
+  z-index: 1;
+}
+.hero-image > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* ─── Hero Video Section ─── */
+.hero-video {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+}
+.hero-video > video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+.hero-video::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.45) 0%,
+    rgba(0, 0, 0, 0.2) 30%,
+    rgba(0, 0, 0, 0.5) 70%,
+    rgba(255, 255, 255, 1) 100%
+  );
+  z-index: 1;
+}
+.hero-video > *:not(video) {
+  position: relative;
+  z-index: 2;
+}
+
+/* ─── Parallax Banner ─── */
+.parallax-banner {
+  position: relative;
+  width: 100%;
+  min-height: 500px;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+.parallax-banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(248, 250, 252, 1) 0%,
+    rgba(0, 0, 0, 0.4) 30%,
+    rgba(0, 0, 0, 0.4) 70%,
+    rgba(248, 250, 252, 1) 100%
+  );
+}
+.parallax-banner > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* ─── Image Card Overlay ─── */
+.img-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+}
+.img-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.85) 0%,
+    rgba(0, 0, 0, 0.2) 50%,
+    transparent 100%
+  );
+  transition: all 0.5s ease;
+}
+.img-card:hover::after {
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.9) 0%,
+    rgba(0, 0, 0, 0.3) 50%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
+}
+.img-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* ─── Feature Card ─── */
+.feature-card {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1.25rem;
+  padding: 2rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.feature-card:hover {
+  background: rgba(15, 23, 42, 1);
+  border-color: rgba(227, 24, 55, 0.4);
+  transform: translateY(-4px);
+}
+.feature-card .icon-wrap {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  background: rgba(227, 24, 55, 0.05);
+  border: 1px solid rgba(227, 24, 55, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+  transition: all 0.4s ease;
+}
+.feature-card:hover .icon-wrap {
+  background: rgba(227, 24, 55, 0.1);
+  border-color: rgba(227, 24, 55, 0.2);
+}
+
+/* ─── Testimonial Card ─── */
+.testimonial-card {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  transition: all 0.4s ease;
+}
+.testimonial-card:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* ─── Seat button styles ─── */
+.seat-btn {
+  width: 3.25rem;
+  height: 3.75rem;
+  border-radius: 1rem 1rem 0.5rem 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 700;
+  font-size: 0.75rem;
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+.seat-btn:hover:not(:disabled) {
+  border-color: #E31837;
+  color: #E31837;
+  background: rgba(227, 24, 55, 0.05);
+}
+.seat-btn.selected {
+  background: #E31837;
+  border-color: #E31837;
+  color: #ffffff;
+  box-shadow: 0 4px 20px rgba(227, 24, 55, 0.3);
+}
+.seat-btn:disabled {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.2);
+  cursor: not-allowed;
+}
+
+/* ─── Dark-themed Input Fields ─── */
+.input-dark {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  padding-left: 2.75rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  color: #1e293b;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+.input-dark:focus {
+  outline: none;
+  border-color: rgba(184, 228, 201, 0.4);
+  background: rgba(255, 255, 255, 1);
+}
+.input-dark::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.input-dark-simple {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  color: #1e293b;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+.input-dark-simple:focus {
+  outline: none;
+  border-color: rgba(184, 228, 201, 0.4);
+  background: rgba(255, 255, 255, 1);
+}
+.input-dark-simple::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+/* Select dark theme */
+select.input-dark-simple {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
+}
+select.input-dark-simple option {
+  background: #0D2E37;
+  color: #1e293b;
+}
+
+/* Textarea dark theme */
+textarea.input-dark-simple {
+  resize: vertical;
+  min-height: 140px;
+}
+
+/* ─── Scroll reveal animation ─── */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── Input fields (dark theme color-scheme) ─── */
+input[type="text"],
+input[type="date"],
+input[type="email"],
+input[type="tel"],
+input[type="number"] {
+  color-scheme: dark;
+}
+
+/* ─── Step Process Line ─── */
+.step-line {
+  position: relative;
+}
+.step-line::after {
+  content: '';
+  position: absolute;
+  top: 1.5rem;
+  left: calc(100% + 0.5rem);
+  width: calc(100% - 1rem);
+  height: 1px;
+  background: linear-gradient(90deg, rgba(227, 24, 55, 0.3), rgba(227, 24, 55, 0.05));
+}
+.step-line:last-child::after {
+  display: none;
+}
+
+/* ─── React Day Picker Custom Styles ─── */
+.rdp-root {
+  --rdp-accent-color: #E31837;
+  --rdp-accent-background-color: #fce7eb;
+  --rdp-day-height: 40px;
+  --rdp-day-width: 40px;
+}
+.rdp-day_selected, .rdp-day_selected:focus-visible, .rdp-day_selected:hover {
+  background-color: var(--rdp-accent-color) !important;
+  color: white !important;
+  font-weight: bold;
+}
+.rdp-day_today:not(.rdp-day_selected) {
+  color: var(--rdp-accent-color);
+  font-weight: bold;
+}
+.rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
+  background-color: var(--rdp-accent-background-color);
+  color: var(--rdp-accent-color);
+}
