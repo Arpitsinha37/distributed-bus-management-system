@@ -7,12 +7,19 @@ export class TenantMiddleware implements NestMiddleware {
   constructor(private readonly prisma: PrismaService) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
-    const slug = req.headers['x-site-id'] as string | undefined;
-    if (slug) {
-      // Find the site by slug
-      const site = await this.prisma.site.findUnique({ where: { slug } });
+    const siteIdOrSlug = req.headers['x-site-id'] as string | undefined;
+    if (siteIdOrSlug) {
+      // Find the site by slug or ID
+      const site = await this.prisma.site.findFirst({
+        where: {
+          OR: [
+            { slug: siteIdOrSlug },
+            { id: siteIdOrSlug }
+          ]
+        }
+      });
       if (!site) {
-        return next(new NotFoundException(`Unknown site: ${slug}`));
+        return next(new NotFoundException(`Unknown site: ${siteIdOrSlug}`));
       }
       // Attach the resolved CUID to the request
       (req as any).siteId = site.id;

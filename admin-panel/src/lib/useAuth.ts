@@ -39,6 +39,8 @@ export function useAuth() {
 
     const logout = () => {
         localStorage.removeItem('cms_token');
+        localStorage.removeItem('cms_site_id');
+        localStorage.removeItem('cms_site_name');
         setToken(null);
         router.push('/');
     };
