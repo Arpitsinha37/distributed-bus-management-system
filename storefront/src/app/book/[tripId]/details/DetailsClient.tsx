@@ -2,272 +2,423 @@
 
 import { useRouter } from 'next/navigation';
 import { useBookingStore } from '@/lib/store';
-import { TripDetail, Passenger } from '@/lib/types';
-import { useEffect, useState } from 'react';
+import { TripDetail } from '@/lib/types';
+import { useEffect, useState, useRef } from 'react';
 import { api } from '@/lib/api';
-import { MapPin, Users, Phone } from 'lucide-react';
-
-/* Star-burst SVG icon */
-const StarBurst = () => (
-  <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
-    <path
-      d="M8 0C8 0 7.32 2.42 7.32 4C7.32 5.58 8 8 8 8C8 8 5.58 7.32 4 7.32C2.42 7.32 0 8 0 8C0 8 .68 5.58 .68 4C.68 2.42 0 0 0 0C0 0 2.42 .68 4 .68C5.58 .68 8 0 8 0Z"
-      fill="#0D2E37"
-    />
-  </svg>
-);
+import { ArrowLeft, Clock, Bus } from 'lucide-react';
+import dayjs from 'dayjs';
 
 export default function DetailsClient({ trip }: { trip: TripDetail }) {
   const router = useRouter();
   const { 
     selectedSeats, 
-    passengers, 
-    setPassenger, 
-    customerInfo, 
-    setCustomerInfo,
-    boardingPoint,
-    droppingPoint,
-    setPoints,
     setBookingDetails
   } = useBookingStore();
   
-  const [isLoading, setIsLoading] = useState(false);
+  const [passengerName, setPassengerName] = useState('');
+  const [contact, setContact] = useState('');
+  const [passengerEmail, setPassengerEmail] = useState('');
+  const [selectedPickup, setSelectedPickup] = useState(trip.route.boardingPoints[0] || '');
+  const [selectedDrop, setSelectedDrop] = useState(trip.route.droppingPoints[0] || '');
+  
+  const [paymentMethod, setPaymentMethod] = useState('esewa');
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<{code: string, discountAmount: number} | null>(null);
+  
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  // Redirect if no seats selected
+  // 4-minute Hold Timer (Simulated on Frontend for urgency)
+  const HOLD_DURATION = 4 * 60;
+  const [timeLeft, setTimeLeft] = useState(HOLD_DURATION);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
     if (selectedSeats.length === 0) {
       router.push(`/`);
+      return;
     }
+    timerRef.current = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current!);
+          router.push(`/`);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timerRef.current!);
   }, [selectedSeats, router]);
 
   if (selectedSeats.length === 0) return null;
 
-  const handlePassengerChange = (index: number, field: keyof Passenger, value: string) => {
-    const passenger = passengers[index] || { seatNumber: selectedSeats[index], name: '' };
-    setPassenger(index, { ...passenger, [field]: value });
+  const formatTime = (seconds: number) => {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
-  const handleHoldSeats = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
+  const timerPercent = (timeLeft / HOLD_DURATION) * 100;
+  const isUrgent = timeLeft <= 60;
 
-    try {
-      const res = await api.post('/bookings/hold', {
-        tripId: trip.tripId,
-        seats: selectedSeats,
-        boardingPoint: boardingPoint || trip.route.boardingPoints[0],
-        droppingPoint: droppingPoint || trip.route.droppingPoints[0],
-        customerInfo,
-        passengers
-      });
-      
-      setBookingDetails(res.data.id, res.data.bookingRef, res.data.heldUntil);
-      router.push(`/book/${trip.tripId}/pay`);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to hold seats. They might have been booked by someone else.');
-    } finally {
-      setIsLoading(false);
+  const price = Number(trip.fare);
+  const baseTotal = selectedSeats.length * price;
+  const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+  const totalAmount = Math.max(0, baseTotal - discountAmount);
+
+  const handleApplyCoupon = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (couponCode === 'SAVE10') {
+      setAppliedCoupon({ code: 'SAVE10', discountAmount: baseTotal * 0.1 });
+    } else {
+      setError('Invalid coupon code');
     }
   };
 
-  const totalFare = selectedSeats.length * Number(trip.fare);
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode('');
+  };
+
+  const handleSubmit = async () => {
+      if (!passengerName.trim()) {
+          setError('Please enter passenger name.');
+          return;
+      }
+      if (!contact.trim() || contact.length < 10) {
+          setError('Please enter a valid contact number.');
+          return;
+      }
+
+      setSubmitting(true);
+      setError('');
+
+      try {
+          // 1. Hold seats
+          const holdRes = await api.post('/bookings/hold', {
+              tripId: trip.tripId,
+              seats: selectedSeats,
+              boardingPoint: selectedPickup,
+              droppingPoint: selectedDrop,
+              customerInfo: { name: passengerName, email: passengerEmail, phone: contact },
+              passengers: selectedSeats.map(seat => ({ seatNumber: seat, name: passengerName, age: 30 }))
+          });
+          
+          const bookingId = holdRes.data.id;
+          
+          // 2. Initiate Payment (now using real Paco)
+          const gateway = paymentMethod === 'visa' ? 'paco' : paymentMethod;
+          const payRes = await api.post(`/payments/${gateway}/initiate`, {
+              bookingId
+          });
+
+          if (gateway === 'esewa') {
+              const formData = JSON.parse(atob(payRes.data.clientSecret));
+              const form = document.createElement('form');
+              form.method = 'POST';
+              form.action = payRes.data.redirectUrl;
+              for (const [key, value] of Object.entries(formData)) {
+                  const input = document.createElement('input');
+                  input.type = 'hidden';
+                  input.name = key;
+                  input.value = value as string;
+                  form.appendChild(input);
+              }
+              document.body.appendChild(form);
+              form.submit();
+              return;
+          } else if (gateway === 'khalti' || gateway === 'paco') {
+              window.location.href = payRes.data.redirectUrl;
+              return;
+          } else {
+            // Mock Fallback
+            const mock = await api.post(`/bookings/${bookingId}/mock-pay`, {
+              gateway,
+              gatewayTxnId: `TXN-${Math.floor(Math.random() * 1000000)}`,
+              expectedFare: totalAmount
+            });
+            if (mock.data.status === 'CONFIRMED') {
+              router.push(`/ticket/${mock.data.bookingRef}`);
+            }
+          }
+
+      } catch (err: any) {
+          console.error(err);
+          setError(err.response?.data?.message || 'Something went wrong. Please try again.');
+          setSubmitting(false);
+      }
+  };
 
   return (
-    <form onSubmit={handleHoldSeats} className="flex flex-col lg:flex-row gap-8">
-      {/* Forms Section */}
-      <div className="flex-1 space-y-8">
-        
-        {/* Points Selection */}
-        <div className="glass rounded-3xl p-8 md:p-10">
-          <h2 className="text-xl font-display font-bold text-white mb-8 flex items-center gap-3">
-            <MapPin className="w-5 h-5 text-brand-green" />
-            Boarding & Dropping
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-[0.6875rem] font-semibold text-white/30 uppercase tracking-[0.15em] mb-3">
-                Boarding Point
-              </label>
-              <select 
-                required
-                className="input-dark-simple"
-                value={boardingPoint || ''}
-                onChange={(e) => setPoints(e.target.value, droppingPoint || '')}
-              >
-                <option value="" disabled>Select boarding point</option>
-                {trip.route.boardingPoints.map((pt, i) => (
-                  <option key={i} value={pt}>{pt}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-[0.6875rem] font-semibold text-white/30 uppercase tracking-[0.15em] mb-3">
-                Dropping Point
-              </label>
-              <select 
-                required
-                className="input-dark-simple"
-                value={droppingPoint || ''}
-                onChange={(e) => setPoints(boardingPoint || '', e.target.value)}
-              >
-                <option value="" disabled>Select dropping point</option>
-                {trip.route.droppingPoints.map((pt, i) => (
-                  <option key={i} value={pt}>{pt}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Passenger Details */}
-        <div className="glass rounded-3xl p-8 md:p-10">
-          <h2 className="text-xl font-display font-bold text-white mb-8 flex items-center gap-3">
-            <Users className="w-5 h-5 text-brand-green" />
-            Traveler Details
-          </h2>
-          <div className="space-y-8">
-            {selectedSeats.map((seat, index) => (
-              <div key={seat} className="border-b border-white/[0.06] last:border-0 pb-8 last:pb-0">
-                <div className="flex items-center gap-3 mb-6">
-                  <span className="bg-brand-green/10 border border-brand-green/20 text-brand-green text-xs uppercase tracking-widest font-bold px-3 py-1 rounded-full">
-                    Seat {seat}
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="md:col-span-2">
-                    <label className="block text-[0.6875rem] font-semibold text-white/30 uppercase tracking-[0.15em] mb-3">
-                      Full Name
-                    </label>
-                    <input 
-                      type="text" 
-                      required
-                      placeholder="e.g. John Doe"
-                      value={passengers[index]?.name || ''}
-                      onChange={(e) => handlePassengerChange(index, 'name', e.target.value)}
-                      className="input-dark-simple"
-                    />
+      <div className="w-full">
+          {/* Header */}
+          <div className="fixed top-0 left-0 right-0 z-10 bg-white shadow-md">
+              <div className="p-4 flex items-center max-w-xl mx-auto">
+                  <button onClick={() => router.back()} className="mr-4 text-gray-700 hover:text-red-500 transition-colors">
+                      <ArrowLeft size={18} />
+                  </button>
+                  <h1 className="text-lg font-bold text-gray-800 flex-1">Passenger Details</h1>
+                  <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold border ${
+                      isUrgent
+                          ? 'bg-red-50 text-red-600 border-red-200 animate-pulse'
+                          : 'bg-amber-50 text-amber-600 border-amber-200'
+                  }`}>
+                      <Clock className="w-3 h-3" />
+                      <span>{formatTime(timeLeft)}</span>
                   </div>
-                  <div>
-                    <label className="block text-[0.6875rem] font-semibold text-white/30 uppercase tracking-[0.15em] mb-3">
-                      Age
-                    </label>
-                    <input 
-                      type="number" 
-                      required
-                      min="1" max="120"
-                      placeholder="e.g. 25"
-                      value={passengers[index]?.age || ''}
-                      onChange={(e) => handlePassengerChange(index, 'age', e.target.value)}
-                      className="input-dark-simple"
-                    />
-                  </div>
-                </div>
               </div>
-            ))}
+              <div className="h-1.5 bg-gray-100 relative w-full overflow-hidden">
+                  <div
+                      className={`h-full transition-all duration-1000 ease-linear ${
+                          isUrgent ? 'bg-red-500' : 'bg-amber-400'
+                      }`}
+                      style={{ width: `${timerPercent}%` }}
+                  />
+              </div>
           </div>
-        </div>
 
-        {/* Contact Details */}
-        <div className="glass rounded-3xl p-8 md:p-10">
-          <h2 className="text-xl font-display font-bold text-white mb-2 flex items-center gap-3">
-            <Phone className="w-5 h-5 text-brand-green" />
-            Contact Information
-          </h2>
-          <p className="text-sm text-white/40 mb-8 ml-8">Your ticket will be sent to these details.</p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="md:col-span-2">
-              <label className="block text-[0.6875rem] font-semibold text-white/30 uppercase tracking-[0.15em] mb-3">
-                Contact Name
-              </label>
-              <input 
-                type="text" 
-                required
-                value={customerInfo.name}
-                onChange={(e) => setCustomerInfo({ ...customerInfo, name: e.target.value })}
-                className="input-dark-simple"
-              />
-            </div>
-            <div>
-              <label className="block text-[0.6875rem] font-semibold text-white/30 uppercase tracking-[0.15em] mb-3">
-                Phone Number
-              </label>
-              <input 
-                type="tel" 
-                required
-                value={customerInfo.phone}
-                onChange={(e) => setCustomerInfo({ ...customerInfo, phone: e.target.value })}
-                className="input-dark-simple"
-              />
-            </div>
-            <div>
-              <label className="block text-[0.6875rem] font-semibold text-white/30 uppercase tracking-[0.15em] mb-3">
-                Email Address
-              </label>
-              <input 
-                type="email" 
-                required
-                value={customerInfo.email}
-                onChange={(e) => setCustomerInfo({ ...customerInfo, email: e.target.value })}
-                className="input-dark-simple"
-              />
-            </div>
+          <div className="max-w-xl mx-auto p-4 space-y-4 pt-4">
+
+              {/* Trip Info Card */}
+              <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                  <div className="flex justify-between items-start mb-2">
+                      <div>
+                          <div className="text-sm font-bold text-gray-800">
+                              {selectedSeats.length} Seat(s)
+                          </div>
+                          <div className="text-base font-bold text-gray-900 mt-1 flex items-center gap-2">
+                              <span>{trip.route.origin}</span>
+                              <span className="text-gray-400">→</span>
+                              <span>{trip.route.destination}</span>
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                              {trip.bus?.operator} • {trip.bus?.type}
+                          </div>
+                      </div>
+                  </div>
+                  <div className="flex gap-2 mt-2">
+                      <span className="bg-blue-50 text-blue-600 text-xs px-2 py-1 rounded font-medium flex items-center gap-1">
+                          <Bus className="w-3 h-3" /> {trip.departureTime}
+                      </span>
+                      <span className="bg-green-50 text-green-600 text-xs px-2 py-1 rounded font-medium">
+                          Seats: {selectedSeats.join(', ')}
+                      </span>
+                  </div>
+              </div>
+
+              {/* Passenger Form */}
+              <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                  <h2 className="text-sm font-bold text-gray-800 mb-1">Passenger Details</h2>
+                  <p className="text-xs text-gray-500 mb-4">Fill in passenger information for this booking</p>
+
+                  <div className="space-y-4">
+                      <div>
+                          <label className="text-xs text-gray-500 block mb-1">Full Name *</label>
+                          <input
+                              type="text"
+                              value={passengerName}
+                              onChange={(e) => setPassengerName(e.target.value)}
+                              className="w-full text-sm border-b border-gray-300 focus:border-red-500 outline-none pb-1 font-medium bg-transparent"
+                              placeholder="Enter passenger name"
+                          />
+                      </div>
+
+                      <div>
+                          <label className="text-xs text-gray-500 block mb-1">Contact Number *</label>
+                          <input
+                              type="tel"
+                              value={contact}
+                              onChange={(e) => setContact(e.target.value)}
+                              className="w-full text-sm border-b border-gray-300 focus:border-red-500 outline-none pb-1 font-medium bg-transparent"
+                              placeholder="98XXXXXXXX"
+                          />
+                      </div>
+
+                      <div>
+                          <label className="text-xs text-gray-500 block mb-1">Email Address (Optional)</label>
+                          <input
+                              type="email"
+                              value={passengerEmail}
+                              onChange={(e) => setPassengerEmail(e.target.value)}
+                              className="w-full text-sm border-b border-gray-300 focus:border-red-500 outline-none pb-1 font-medium bg-transparent"
+                              placeholder="For ticket confirmation"
+                          />
+                      </div>
+                  </div>
+              </div>
+
+              {/* Pickup Point Selection */}
+              {trip.route.boardingPoints.length > 0 && (
+                  <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                      <h2 className="text-sm font-bold text-gray-800 mb-3">Pickup Point</h2>
+                      <div className="space-y-2">
+                          {trip.route.boardingPoints.map((p, idx) => (
+                              <label
+                                  key={idx}
+                                  className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${selectedPickup === p
+                                      ? 'border-red-400 bg-red-50'
+                                      : 'border-gray-200 hover:border-gray-300'
+                                      }`}
+                              >
+                                  <div className="flex items-center gap-3">
+                                      <input
+                                          type="radio"
+                                          name="pickup"
+                                          checked={selectedPickup === p}
+                                          onChange={() => setSelectedPickup(p)}
+                                          className="accent-red-500"
+                                      />
+                                      <span className="text-sm font-medium text-gray-800">{p}</span>
+                                  </div>
+                              </label>
+                          ))}
+                      </div>
+                  </div>
+              )}
+
+              {/* Drop Point Selection */}
+              {trip.route.droppingPoints.length > 0 && (
+                  <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                      <h2 className="text-sm font-bold text-gray-800 mb-3">Drop Point</h2>
+                      <div className="space-y-2">
+                          {trip.route.droppingPoints.map((p, idx) => (
+                              <label
+                                  key={idx}
+                                  className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${selectedDrop === p
+                                      ? 'border-red-400 bg-red-50'
+                                      : 'border-gray-200 hover:border-gray-300'
+                                      }`}
+                              >
+                                  <div className="flex items-center gap-3">
+                                      <input
+                                          type="radio"
+                                          name="drop"
+                                          checked={selectedDrop === p}
+                                          onChange={() => setSelectedDrop(p)}
+                                          className="accent-red-500"
+                                      />
+                                      <span className="text-sm font-medium text-gray-800">{p}</span>
+                                  </div>
+                              </label>
+                          ))}
+                      </div>
+                  </div>
+              )}
+
+              {/* Payment Method Selection */}
+              <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                  <h2 className="text-sm font-bold text-gray-800 mb-3">Choose Payment Method</h2>
+                  <div className="space-y-2">
+                      {/* eSewa */}
+                      <label
+                          className={`flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === 'esewa'
+                              ? 'border-green-500 bg-green-50 shadow-sm'
+                              : 'border-gray-200 hover:border-green-300'
+                              }`}
+                      >
+                          <div className="flex items-center gap-3">
+                              <input
+                                  type="radio"
+                                  name="payment"
+                                  checked={paymentMethod === 'esewa'}
+                                  onChange={() => { setPaymentMethod('esewa'); setError(''); }}
+                                  className="accent-green-500 w-4 h-4"
+                              />
+                              <div>
+                                  <span className="text-sm font-bold text-gray-800">eSewa</span>
+                                  <p className="text-xs text-gray-500">Pay with eSewa wallet</p>
+                              </div>
+                          </div>
+                          <span className="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded-lg">Instant</span>
+                      </label>
+
+                      {/* Khalti Wallet */}
+                      <label
+                          className={`flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === 'khalti'
+                              ? 'border-purple-500 bg-purple-50 shadow-sm'
+                              : 'border-gray-200 hover:border-purple-300'
+                              }`}
+                      >
+                          <div className="flex items-center gap-3">
+                              <input
+                                  type="radio"
+                                  name="payment"
+                                  checked={paymentMethod === 'khalti'}
+                                  onChange={() => { setPaymentMethod('khalti'); setError(''); }}
+                                  className="accent-purple-500 w-4 h-4"
+                              />
+                              <div>
+                                  <span className="text-sm font-bold text-gray-800">Khalti Wallet</span>
+                                  <p className="text-xs text-gray-500">Pay with Khalti balance</p>
+                              </div>
+                          </div>
+                          <span className="text-xs font-bold text-purple-600 bg-purple-100 px-2 py-1 rounded-lg">Popular</span>
+                      </label>
+
+                      {/* Visa/Mastercard (Paco) */}
+                      <label
+                          className={`flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === 'visa'
+                              ? 'border-blue-500 bg-blue-50 shadow-sm'
+                              : 'border-gray-200 hover:border-blue-300'
+                              }`}
+                      >
+                          <div className="flex items-center gap-3">
+                              <input
+                                  type="radio"
+                                  name="payment"
+                                  checked={paymentMethod === 'visa'}
+                                  onChange={() => { setPaymentMethod('visa'); setError(''); }}
+                                  className="accent-blue-500 w-4 h-4"
+                              />
+                              <div>
+                                  <span className="text-sm font-bold text-gray-800">Visa / Mastercard</span>
+                                  <p className="text-xs text-gray-500">Credit or Debit cards</p>
+                              </div>
+                          </div>
+                          <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-lg">New</span>
+                      </label>
+                  </div>
+              </div>
+
+              {/* Error Display */}
+              {error && (
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700">
+                      {error}
+                  </div>
+              )}
+
           </div>
-        </div>
+
+          {/* Footer Bar */}
+          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 px-6 flex justify-center items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-20">
+              <div className="max-w-xl w-full flex justify-between items-center">
+                  <div>
+                      <div className="flex items-center gap-2">
+                          <div className="text-xl font-bold text-gray-900">
+                              रू {totalAmount}
+                          </div>
+                          {discountAmount > 0 && (
+                              <span className="text-xs line-through text-gray-400">रू {baseTotal}</span>
+                          )}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                          {selectedSeats.length} Seat(s)
+                      </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                      <button
+                          onClick={handleSubmit}
+                          disabled={submitting}
+                          className="bg-[#EF4F5F] hover:bg-[#d94151] disabled:bg-gray-400 text-white font-bold py-2.5 px-8 rounded-lg text-sm shadow-md transition-transform active:scale-95"
+                      >
+                          {submitting ? 'Processing...' : 'Confirm & Pay'}
+                      </button>
+                  </div>
+              </div>
+          </div>
+
       </div>
-
-      {/* Summary Sidebar */}
-      <div className="lg:w-96">
-        <div className="glass-static rounded-3xl p-8 md:p-10 sticky top-28">
-          <h3 className="text-xl font-display font-bold text-white mb-6 pb-6 border-b border-white/[0.06]">
-            Journey Summary
-          </h3>
-          
-          <div className="space-y-5 mb-8">
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-white/40 font-medium">Route</span>
-              <span className="font-semibold text-white text-right max-w-[150px]">{trip.route.origin} to {trip.route.destination}</span>
-            </div>
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-white/40 font-medium">Departure</span>
-              <span className="font-semibold text-white">{trip.departureTime}</span>
-            </div>
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-white/40 font-medium">Class</span>
-              <span className="font-semibold text-brand-green">{trip.bus.type}</span>
-            </div>
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-white/40 font-medium">Seats</span>
-              <span className="font-semibold text-white">{selectedSeats.join(', ')}</span>
-            </div>
-          </div>
-          
-          <div className="bg-white/[0.04] p-5 rounded-2xl mb-8">
-            <div className="flex justify-between items-end">
-              <span className="text-white/40 font-medium text-sm">Total Fare</span>
-              <span className="text-2xl font-display font-bold text-brand-green">NPR {totalFare.toLocaleString()}</span>
-            </div>
-          </div>
-
-          {error && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl">
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="btn-accent w-full justify-center py-4 text-sm disabled:opacity-50"
-          >
-            {isLoading ? 'Securing Seats...' : (
-              <>Proceed to Payment <StarBurst /></>
-            )}
-          </button>
-        </div>
-      </div>
-    </form>
   );
 }
