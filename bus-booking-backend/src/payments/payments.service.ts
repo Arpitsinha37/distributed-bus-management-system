@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
 import { BookingsService } from '../bookings/bookings.service';
-import { StripeProvider } from './providers/stripe.provider';
 import { PaymentProvider } from './providers/payment-provider.interface';
 
 import { EsewaProvider } from './providers/esewa.provider';
 import { KhaltiProvider } from './providers/khalti.provider';
+import { PacoProvider } from './providers/paco.provider';
 
 @Injectable()
 export class PaymentsService {
@@ -15,14 +15,14 @@ export class PaymentsService {
   constructor(
     private prisma: PrismaService,
     private bookingsService: BookingsService,
-    stripeProvider: StripeProvider,
     esewaProvider: EsewaProvider,
     khaltiProvider: KhaltiProvider,
+    pacoProvider: PacoProvider,
   ) {
     this.providers = { 
-      stripe: stripeProvider,
       esewa: esewaProvider,
       khalti: khaltiProvider,
+      paco: pacoProvider,
     };
   }
 
