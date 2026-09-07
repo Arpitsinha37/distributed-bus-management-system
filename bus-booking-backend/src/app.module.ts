@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { PrismaModule } from './prisma/prisma.module';
@@ -11,15 +11,19 @@ import { SchedulesModule } from './schedules/schedules.module';
 import { TripsModule } from './trips/trips.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { PaymentsModule } from './payments/payments.module';
-import { PaymentModule } from './payment/payment.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { TicketingModule } from './ticketing/ticketing.module';
 import { ReportingModule } from './reporting/reporting.module';
 import { CrewModule } from './crew/crew.module';
 import { CouponsModule } from './coupons/coupons.module';
 import { CmsModule } from './cms/cms.module';
+import { CampaignsModule } from './campaigns/campaigns.module';
+import { TenantMiddleware } from './common/middleware/tenant.middleware';
+
+import { AppController } from './app.controller';
 
 @Module({
+  controllers: [AppController],
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(), // powers the @Cron() jobs: trip generation, hold expiry, payment reconciliation
@@ -33,14 +37,19 @@ import { CmsModule } from './cms/cms.module';
     TripsModule,
     BookingsModule,
     PaymentsModule,
-    PaymentModule,
     NotificationsModule,
     TicketingModule,
     ReportingModule,
     CrewModule,
     CouponsModule,
     CmsModule,
+    CampaignsModule,
   ],
 })
-export class AppModule {}
-
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(TenantMiddleware)
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
+}

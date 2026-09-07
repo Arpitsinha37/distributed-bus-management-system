@@ -6,6 +6,7 @@ import {
     Clock, Zap, CheckCircle2, ChevronRight, Tag, Mail, TrendingUp,
     Filter, LayoutGrid
 } from 'lucide-react';
+import ErrorBanner from '@/components/ErrorBanner';
 
 interface Workflow {
     id: string; name: string; description: string; isActive: boolean;
@@ -18,6 +19,7 @@ export default function AutomationsPage() {
     const { authFetch, API_URL } = useAuth();
     const [workflows, setWorkflows] = useState<Workflow[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [view, setView] = useState<'list' | 'build'>('list');
 
     // Builder State
@@ -42,18 +44,25 @@ export default function AutomationsPage() {
 
     const fetchWorkflows = useCallback(async () => {
         setLoading(true);
+        setError(null);
         try {
             const res = await authFetch(`${API_URL}/automations`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
             setWorkflows(await res.json());
-        } catch (e) { console.error(e); }
+        } catch (e: any) { 
+            setError(e.message || 'Failed to load automations');
+        }
         setLoading(false);
     }, []);
 
     const fetchCampaigns = useCallback(async () => {
         try {
             const res = await authFetch(`${API_URL}/campaigns`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
             setCampaigns(await res.json());
-        } catch (e) { }
+        } catch (e: any) {
+            setError(e.message || 'Failed to load campaigns');
+        }
     }, []);
 
     useEffect(() => { fetchWorkflows(); fetchCampaigns(); }, []);
@@ -138,6 +147,8 @@ export default function AutomationsPage() {
                     </button>
                 )}
             </div>
+
+            <ErrorBanner message={error} />
 
             {view === 'list' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">

@@ -80,5 +80,34 @@ services:
     depends_on:
       - backend
 
+
+  # ─── Storefront Lumbini (Next.js) ──────────────────────
+  storefront-lumbini:
+    build:
+      context: ./storefront-lumbini
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - '3005:3000'
+    environment:
+      NEXT_PUBLIC_API_URL: 'http://localhost:3001/api/v1'
+      NEXT_PUBLIC_SITE_ID: 'ktm-lumbini-services'
+    depends_on:
+      - backend
+
+  # ─── Storefront Chitwan (Next.js) ──────────────────────
+  storefront-chitwan:
+    build:
+      context: ./storefront-chitwan
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - '3004:3000'
+    environment:
+      NEXT_PUBLIC_API_URL: 'http://localhost:3001/api/v1'
+      NEXT_PUBLIC_SITE_ID: 'chitwan-travels'
+    depends_on:
+      - backend
+
 volumes:
   pgdata:

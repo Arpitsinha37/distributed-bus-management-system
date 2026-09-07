@@ -58,7 +58,7 @@ export default function RoutesPage() {
                                     </div>
                                 </td>
                                 <td className="px-5 py-3.5 text-right space-x-2">
-                                    <button onClick={() => { setEditing(r); setForm({ originCity: r.originCity, destinationCity: r.destinationCity, distanceKm: r.distanceKm || 0, durationMinutes: r.durationMinutes || 0, boardingPoints: r.boardingPoints || [], droppingPoints: r.droppingPoints || [] }); setShowModal(true); }} className="p-1.5 text-gray-400 hover:text-blue-500"><Pencil className="w-4 h-4" /></button>
+                                    <button onClick={() => { setEditing(r); setForm({ originCity: r.originCity || '', destinationCity: r.destinationCity || '', distanceKm: r.distanceKm || 0, durationMinutes: r.durationMinutes || 0, boardingPoints: r.boardingPoints || [], droppingPoints: r.droppingPoints || [] }); setShowModal(true); }} className="p-1.5 text-gray-400 hover:text-blue-500"><Pencil className="w-4 h-4" /></button>
                                     <button onClick={() => handleDelete(r.id)} className="p-1.5 text-gray-400 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
                                 </td>
                             </tr>

@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Lint Backend
+        run: npm run lint --workspace=bus-booking-backend
+        continue-on-error: true # Not blocking for MVP
+
+      - name: Build Backend
+        run: npm run build --workspace=bus-booking-backend
+
+      - name: Build Storefronts
+        run: |
+          npm run build --workspace=storefront
+          npm run build --workspace=storefront-chitwan
+          npm run build --workspace=storefront-lumbini
+          npm run build --workspace=admin-panel

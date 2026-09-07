@@ -82,8 +82,9 @@ export class BookingsController {
 
   // MVP ONLY: Mock payment confirmation
   @Post(':id/mock-pay')
-  async mockPay(@Param('id') id: string) {
-    return this.bookingsService.confirmBooking(id);
+  async mockPay(@Param('id') id: string, @Body() body: { expectedFare?: number }, @Req() req: Request) {
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    return this.bookingsService.confirmBookingMock(id, body.expectedFare, ip);
   }
 
   // ── Fare Calculation ───────────────────────────────────────

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useStore } from '@/lib/store';
 import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api';
 import { Plus, Pencil, Trash2, Search, CalendarClock, X, Clock, DollarSign } from 'lucide-react';
+import ErrorBanner from '@/components/ErrorBanner';
 
 interface RouteOption { id: string; originCity: string; destinationCity: string; boardingPoints: string[] }
 interface BusOption { id: string; registrationNo: string; type: string; name: string; }
@@ -29,6 +30,7 @@ export default function SchedulesPage() {
     const [buses, setBuses] = useState<BusOption[]>([]);
     const [routes, setRoutes] = useState<RouteOption[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [editing, setEditing] = useState<ScheduleItem | null>(null);
     const [search, setSearch] = useState('');
@@ -41,19 +43,21 @@ export default function SchedulesPage() {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
     const fetchAll = async () => {
+        setLoading(true);
+        setError(null);
         try {
             const [sRes, bRes, rRes] = await Promise.all([
                 apiGet<{ data: ScheduleItem[] }>('/schedules', accessToken!),
                 apiGet<{ data: BusOption[] }>('/fleet/buses', accessToken!),
-                apiGet<{ data: RouteOption[] }>('/fleet/routes', accessToken!), // wait, earlier I saw routes are in fleet. Oh no, /routes in backend. I'll just use /schedules, /fleet/buses, /routes. Wait, earlier list_dir on src/routes showed it's at root level. 
+                apiGet<{ data: RouteOption[] }>('/routes', accessToken!), // wait, earlier I saw routes are in fleet. Oh no, /routes in backend. I'll just use /schedules, /fleet/buses, /routes. Wait, earlier list_dir on src/routes showed it's at root level. 
             ]);
             setSchedules(sRes.data || []);
             setBuses(bRes.data || []);
             // Quick check: if the API was /routes, we need to know. 
             // In the backend, routes module is in src/routes.
             // Assuming it's '/routes'
-        } catch (err) {
-            console.error(err);
+        } catch (err: any) {
+            setError(err.message || 'Failed to load schedules');
         }
         setLoading(false);
     };
@@ -125,6 +129,8 @@ export default function SchedulesPage() {
                 <input type="text" placeholder="Search by route or bus..." value={search} onChange={e => setSearch(e.target.value)}
                     className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg text-sm focus:ring-2 focus:ring-red-500/30 outline-none" />
             </div>
+
+            <ErrorBanner message={error} />
 
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
                 <table className="w-full text-sm">

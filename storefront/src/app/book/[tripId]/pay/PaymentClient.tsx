@@ -76,7 +76,8 @@ export default function PaymentClient({ trip }: { trip: TripDetail }) {
          // Fallback/Mock for card or unsupported for now
          const mock = await api.post(`/bookings/${bookingId}/mock-pay`, {
            gateway,
-           gatewayTxnId: `TXN-${Math.floor(Math.random() * 1000000)}`
+           gatewayTxnId: `TXN-${Math.floor(Math.random() * 1000000)}`,
+           expectedFare: totalFare
          });
          if (mock.data.status === 'CONFIRMED') {
            reset();

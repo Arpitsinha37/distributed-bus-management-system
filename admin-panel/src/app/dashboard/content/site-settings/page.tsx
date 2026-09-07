@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '@/lib/store';
 import { apiGet, apiPost } from '@/lib/api';
+import ErrorBanner from '@/components/ErrorBanner';
 import { Settings, Save } from 'lucide-react';
 
 interface SiteSetting { id?: string; aboutUsText?: string; contactInfo?: any; termsText?: string; privacyText?: string; }
@@ -11,6 +12,7 @@ export default function SiteSettingsPage() {
     const { accessToken } = useStore();
     const [data, setData] = useState<SiteSetting>({});
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
 
     // Form
@@ -21,6 +23,7 @@ export default function SiteSettingsPage() {
 
     const fetchSettings = async () => {
         try {
+            setError(null);
             const res = await apiGet<SiteSetting>('/cms/settings', accessToken!);
             if (res) {
                 setData(res);
@@ -29,7 +32,7 @@ export default function SiteSettingsPage() {
                 setPrivacy(res.privacyText || '');
                 if (res.contactInfo) setContact({ ...contact, ...res.contactInfo });
             }
-        } catch {}
+        } catch (err: any) { setError(err.message || 'Failed to load settings'); }
         setLoading(false);
     };
     useEffect(() => { fetchSettings(); }, [accessToken]);
@@ -54,6 +57,7 @@ export default function SiteSettingsPage() {
 
     return (
         <div className="max-w-4xl mx-auto pb-10">
+            <ErrorBanner message={error} />
             <div className="flex items-center justify-between mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">

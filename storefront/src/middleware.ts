@@ -4,10 +4,9 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const host = request.headers.get('host') || '';
   
-  // In production, this would be a lookup against a fast KV store (like Vercel KV or Upstash)
-  // or a cached fetch to our backend to map `host` -> `siteId`.
-  // For local development, we default to site ID 1 (the first seeded site).
-  let siteId = '1'; 
+  // Use the environment variable to determine which site this storefront represents.
+  // Defaults to 'pokhara-travels' for local dev backward compatibility.
+  let siteId = process.env.NEXT_PUBLIC_SITE_ID || 'pokhara-travels';
 
   // Example mappings:
   // if (host.includes('bus-brand-a.com')) siteId = '1';

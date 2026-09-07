@@ -208,6 +208,43 @@ export class BookingsService {
     });
   }
 
+  // Mitigated mock payment to prevent abuse until a real card gateway is integrated.
+  private mockPayThrottles = new Map<string, { count: number; expires: number }>();
+  async confirmBookingMock(bookingId: string, expectedFare: number | undefined, ip: string) {
+    const now = Date.now();
+    const throttle = this.mockPayThrottles.get(ip) || { count: 0, expires: now + 60000 };
+    if (throttle.expires < now) {
+      throttle.count = 0;
+      throttle.expires = now + 60000;
+    }
+    if (throttle.count >= 5) {
+      throw new ConflictException('Too many payment attempts from this IP. Please try again later.');
+    }
+    throttle.count++;
+    this.mockPayThrottles.set(ip, throttle);
+
+    const booking = await this.prisma.booking.findUnique({ where: { id: bookingId } });
+    if (!booking) throw new NotFoundException('Booking not found');
+    
+    // Crucial Mitigation: Only allow mock-pay on PENDING bookings.
+    if (booking.status !== 'PENDING') {
+      throw new ConflictException(`Cannot mock-pay a booking with status ${booking.status}`);
+    }
+
+    // Crucial Mitigation: Verify the amount.
+    if (expectedFare !== undefined && Number(booking.totalFare) !== expectedFare) {
+      throw new ConflictException('Fare mismatch in mock-pay');
+    }
+
+    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      await tx.tripSeat.updateMany({
+        where: { bookingId },
+        data: { status: 'BOOKED', heldUntil: null },
+      });
+      return tx.booking.update({ where: { id: bookingId }, data: { status: 'CONFIRMED' } });
+    });
+  }
+
   // Public-safe read for the confirmation page — booking ids are
   // unguessable cuids, but for a customer-lookup-by-ref flow later, gate
   // this behind bookingRef + phone instead of raw id.

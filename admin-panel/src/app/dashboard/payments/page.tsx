@@ -9,6 +9,7 @@ import {
     Download, Eye, Filter, ArrowUpDown, ChevronUp, ChevronDown, 
     X, User, Phone, MapPin, Calendar, Hash, Info, FileText
 } from 'lucide-react';
+import ErrorBanner from '@/components/ErrorBanner';
 
 interface Payment {
     id: string;
@@ -83,6 +84,7 @@ export default function PaymentsPage() {
     const [payments, setPayments] = useState<Payment[]>([]);
     const [stats, setStats] = useState<PaymentStats | null>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [search, setSearch] = useState('');
     const [methodFilter, setMethodFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
@@ -101,6 +103,7 @@ export default function PaymentsPage() {
 
     const fetchPayments = async () => {
         setLoading(true);
+        setError(null);
         try {
             // Fetch more for comprehensive client-side sorting/filtering
             let query = '?limit=200';
@@ -108,7 +111,9 @@ export default function PaymentsPage() {
             if (statusFilter) query += `&status=${statusFilter}`;
             const res = await apiGet<{ data: Payment[] }>(`/payments${query}`, accessToken!);
             setPayments(res.data || []);
-        } catch { }
+        } catch (err: any) {
+            setError(err.message || 'Failed to load payments.');
+        }
         setLoading(false);
     };
 
@@ -123,7 +128,9 @@ export default function PaymentsPage() {
 
             const res = await apiGet<PaymentStats>(`/payments/stats${queryStr}`, accessToken!);
             setStats(res);
-        } catch { }
+        } catch (err: any) {
+            setError(err.message || 'Failed to load payment statistics.');
+        }
     };
 
     useEffect(() => {
@@ -249,6 +256,8 @@ export default function PaymentsPage() {
                     <Download className="w-4 h-4" /> Export CSV
                 </button>
             </div>
+
+            <ErrorBanner message={error} />
 
             {/* Stats Cards */}
             {stats && (

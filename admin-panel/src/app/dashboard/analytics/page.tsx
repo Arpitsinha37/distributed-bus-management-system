@@ -5,6 +5,7 @@ import { useStore } from '@/lib/store';
 import { apiGet } from '@/lib/api';
 import { BarChart3, TrendingUp, Users, Calendar, ArrowUpRight, DollarSign } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
+import ErrorBanner from '@/components/ErrorBanner';
 
 interface OverviewData {
     totalBookings: number;
@@ -30,13 +31,16 @@ export default function AnalyticsPage() {
     const { accessToken } = useStore();
     const [data, setData] = useState<OverviewData | null>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     const fetchOverview = async () => {
+        setLoading(true);
+        setError(null);
         try {
             const res = await apiGet<OverviewData>('/reporting/overview', accessToken!);
             setData(res);
-        } catch (err) {
-            console.error('Failed to fetch analytics', err);
+        } catch (err: any) {
+            setError(err.message || 'Failed to fetch analytics');
         }
         setLoading(false);
     };
@@ -54,7 +58,21 @@ export default function AnalyticsPage() {
         );
     }
 
-    if (!data) return <p className="p-10 text-center text-gray-500">Failed to load analytics data.</p>;
+    if (error || !data) {
+        return (
+            <div className="pb-10">
+                <div className="flex items-center justify-between mb-8">
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <BarChart3 className="w-6 h-6 text-brand-500" /> Analytics Dashboard
+                        </h1>
+                        <p className="text-gray-500 text-sm mt-1">Overview of your business performance</p>
+                    </div>
+                </div>
+                <ErrorBanner message={error || "Failed to load analytics data."} />
+            </div>
+        );
+    }
 
     return (
         <div className="pb-10">

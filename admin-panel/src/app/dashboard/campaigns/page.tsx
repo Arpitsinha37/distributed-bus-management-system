@@ -6,6 +6,7 @@ import {
     AlertCircle, X, ChevronDown, Mail, Target, Users, RefreshCw,
     Wand2, Copy, ArrowRight, Filter, BarChart3, Loader2
 } from 'lucide-react';
+import ErrorBanner from '@/components/ErrorBanner';
 
 // ═══════════════════════════════════════════════════
 // TYPES
@@ -58,6 +59,7 @@ export default function CampaignsPage() {
     // State
     const [campaigns, setCampaigns] = useState<Campaign[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [view, setView] = useState<'list' | 'create'>('list');
 
     // Create form
@@ -96,12 +98,16 @@ export default function CampaignsPage() {
     // ── Fetch Campaigns ──
     const fetchCampaigns = useCallback(async () => {
         setLoading(true);
+        setError(null);
         try {
             const res = await authFetch(`${API_URL}/campaigns`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
             setCampaigns(await res.json());
-        } catch (e) { console.error(e); }
+        } catch (err: any) {
+            setError(err.message || 'Failed to load campaigns');
+        }
         setLoading(false);
-    }, []);
+    }, [API_URL, authFetch]);
 
     useEffect(() => { fetchCampaigns(); }, []);
 
@@ -248,6 +254,8 @@ export default function CampaignsPage() {
                     )}
                 </div>
             </div>
+
+            <ErrorBanner message={error} />
 
             {/* ═══ LIST VIEW ═══ */}
             {view === 'list' && (

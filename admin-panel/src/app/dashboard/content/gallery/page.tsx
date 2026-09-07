@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '@/lib/store';
 import { apiGet, apiPost, apiPatch, apiDelete } from '@/lib/api';
+import ErrorBanner from '@/components/ErrorBanner';
 import { Plus, Pencil, Trash2, Search, Image as ImageIcon, X } from 'lucide-react';
 import ImageUpload from '@/components/ImageUpload';
 
@@ -12,13 +13,14 @@ export default function GalleryPage() {
     const { accessToken } = useStore();
     const [data, setData] = useState<GalleryImage[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [editing, setEditing] = useState<GalleryImage | null>(null);
     const [search, setSearch] = useState('');
     const [form, setForm] = useState({ title: '', imageUrl: '', category: '', order: 0 });
 
     const fetchAll = async () => {
-        try { const res = await apiGet<GalleryImage[]>('/cms/gallery', accessToken!); setData(res || []); } catch {} setLoading(false);
+        try { setError(null); const res = await apiGet<GalleryImage[]>('/cms/gallery', accessToken!); setData(res || []); } catch (err: any) { setError(err.message || 'Failed to load'); } setLoading(false);
     };
     useEffect(() => { fetchAll(); }, [accessToken]);
 
@@ -39,6 +41,7 @@ export default function GalleryPage() {
 
     return (
         <div>
+            <ErrorBanner message={error} />
             <div className="flex items-center justify-between mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">

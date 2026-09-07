@@ -5,9 +5,12 @@ import { createParamDecorator, ExecutionContext, BadRequestException } from '@ne
 // Usage: findTrips(@SiteId() siteId: string) { ... }
 export const SiteId = createParamDecorator((_: unknown, ctx: ExecutionContext): string => {
   const request = ctx.switchToHttp().getRequest();
-  const siteId = request.headers['x-site-id'];
+  
+  // If the TenantMiddleware resolved the slug to a CUID, it will be here.
+  const siteId = request.siteId;
+  
   if (!siteId) {
-    throw new BadRequestException('Missing X-Site-Id header');
+    throw new BadRequestException('Missing or invalid X-Site-Id header');
   }
   return siteId;
 });

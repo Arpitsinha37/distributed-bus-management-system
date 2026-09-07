@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '@/lib/store';
 import { apiGet, apiPost, apiPatch, apiDelete } from '@/lib/api';
+import ErrorBanner from '@/components/ErrorBanner';
 import { Plus, Pencil, Trash2, Search, Users, X, Image as ImageIcon } from 'lucide-react';
 import ImageUpload from '@/components/ImageUpload';
 
@@ -12,13 +13,14 @@ export default function TeamPage() {
     const { accessToken } = useStore();
     const [data, setData] = useState<TeamMember[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [editing, setEditing] = useState<TeamMember | null>(null);
     const [search, setSearch] = useState('');
     const [form, setForm] = useState({ name: '', role: '', bio: '', imageUrl: '', order: 0, isActive: true });
 
     const fetchAll = async () => {
-        try { const res = await apiGet<TeamMember[]>('/cms/team', accessToken!); setData(res || []); } catch {} setLoading(false);
+        try { setError(null); const res = await apiGet<TeamMember[]>('/cms/team', accessToken!); setData(res || []); } catch (err: any) { setError(err.message || 'Failed to load'); } setLoading(false);
     };
     useEffect(() => { fetchAll(); }, [accessToken]);
 
@@ -39,6 +41,7 @@ export default function TeamPage() {
 
     return (
         <div>
+            <ErrorBanner message={error} />
             <div className="flex items-center justify-between mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">

@@ -9,8 +9,8 @@ datasource db {
 }
 
 enum StaffRole {
-  SUPER_ADMIN   // sees and manages every site
-  SITE_MANAGER  // scoped to their assigned site(s)
+  SUPER_ADMIN // sees and manages every site
+  SITE_MANAGER // scoped to their assigned site(s)
   COUNTER_AGENT // scoped to their assigned site(s), booking-only
 }
 
@@ -38,34 +38,34 @@ enum SeatStatus {
 // One row per branded site. Adding a 4th storefront is a new row here,
 // not new backend code.
 model Site {
-  id           String      @id @default(cuid())
-  slug         String      @unique // used as the X-Site-Id sent by each frontend
+  id           String   @id @default(cuid())
+  slug         String   @unique // used as the X-Site-Id sent by each frontend
   name         String
-  domain       String      @unique
+  domain       String   @unique
   logoUrl      String?
   themeColor   String?
-  currency     String      @default("NPR")
+  currency     String   @default("NPR")
   contactPhone String?
   contactEmail String?
-  isActive     Boolean     @default(true)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  staff        StaffSite[]
-  bookings     Booking[]
+  staff    StaffSite[]
+  bookings Booking[]
 }
 
 // ── Staff / admin panel users ───────────────────────────────
 model Staff {
-  id           String      @id @default(cuid())
+  id           String    @id @default(cuid())
   name         String
-  email        String      @unique
+  email        String    @unique
   passwordHash String
-  role         StaffRole   @default(COUNTER_AGENT)
-  isActive     Boolean     @default(true)
-  createdAt    DateTime    @default(now())
+  role         StaffRole @default(COUNTER_AGENT)
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
 
-  sites        StaffSite[]
+  sites StaffSite[]
 }
 
 // join table: which sites a staff member can operate on (empty = all, for SUPER_ADMIN)
@@ -85,50 +85,50 @@ model SeatLayout {
   id         String   @id @default(cuid())
   name       String
   totalSeats Int
-  layoutJson Json     // e.g. { rows: [...], seats: [{ number: "A1", type: "window" }, ...] }
+  layoutJson Json // e.g. { rows: [...], seats: [{ number: "A1", type: "window" }, ...] }
   createdAt  DateTime @default(now())
 
-  buses      Bus[]
+  buses Bus[]
 }
 
 model Bus {
-  id              String     @id @default(cuid())
-  registrationNo  String     @unique
-  type            String     // e.g. AC Sleeper, Non-AC Seater, VIP Sofa
-  brand           String?    // e.g. Tata, Ashok Leyland
-  model           String?    // e.g. Starbus Ultra
+  id                String     @id @default(cuid())
+  registrationNo    String     @unique
+  type              String // e.g. AC Sleeper, Non-AC Seater, VIP Sofa
+  brand             String? // e.g. Tata, Ashok Leyland
+  model             String? // e.g. Starbus Ultra
   manufacturingYear Int?
-  images          String[]   @default([])
-  amenities       String[]   // e.g. ["wifi", "charging", "blanket"]
-  ownerName       String?
-  ownerPhone      String?
-  insuranceNo     String?
-  insuranceExpiry DateTime?
-  fitnessExpiry   DateTime?
-  permitExpiry    DateTime?
-  rcNumber        String?    // Registration Certificate
-  seatLayoutId    String
-  seatLayout      SeatLayout @relation(fields: [seatLayoutId], references: [id])
-  isActive        Boolean    @default(true)
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @default(now()) @updatedAt
+  images            String[]   @default([])
+  amenities         String[] // e.g. ["wifi", "charging", "blanket"]
+  ownerName         String?
+  ownerPhone        String?
+  insuranceNo       String?
+  insuranceExpiry   DateTime?
+  fitnessExpiry     DateTime?
+  permitExpiry      DateTime?
+  rcNumber          String? // Registration Certificate
+  seatLayoutId      String
+  seatLayout        SeatLayout @relation(fields: [seatLayoutId], references: [id])
+  isActive          Boolean    @default(true)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @default(now()) @updatedAt
 
-  schedules       Schedule[]
-  trips           Trip[]
+  schedules Schedule[]
+  trips     Trip[]
 }
 
 // ── Routes & schedules ──────────────────────────────────────
 model Route {
-  id              String     @id @default(cuid())
+  id              String   @id @default(cuid())
   originCity      String
   destinationCity String
   distanceKm      Float?
   durationMinutes Int?
   boardingPoints  String[]
   droppingPoints  String[]
-  createdAt       DateTime   @default(now())
+  createdAt       DateTime @default(now())
 
-  schedules       Schedule[]
+  schedules Schedule[]
 
   @@index([originCity, destinationCity])
 }
@@ -137,34 +137,34 @@ model Schedule {
   id            String   @id @default(cuid())
   routeId       String
   busId         String
-  departureTime String   // "07:00"
-  daysOfWeek    Int[]    // 0=Sun..6=Sat; empty array = runs every day
+  departureTime String // "07:00"
+  daysOfWeek    Int[] // 0=Sun..6=Sat; empty array = runs every day
   fare          Decimal  @db.Decimal(10, 2)
   isActive      Boolean  @default(true)
   createdAt     DateTime @default(now())
 
-  route         Route    @relation(fields: [routeId], references: [id])
-  bus           Bus      @relation(fields: [busId], references: [id])
-  trips         Trip[]
-  fareTiers     FareTier[]
+  route     Route      @relation(fields: [routeId], references: [id])
+  bus       Bus        @relation(fields: [busId], references: [id])
+  trips     Trip[]
+  fareTiers FareTier[]
 }
 
 // ── Sellable inventory ──────────────────────────────────────
 // One concrete departure on one date, generated from a Schedule.
 // This is what customers actually search and book.
 model Trip {
-  id         String     @id @default(cuid())
+  id         String   @id @default(cuid())
   scheduleId String
   busId      String
-  travelDate DateTime   @db.Date
-  status     String     @default("SCHEDULED") // SCHEDULED | CANCELLED | DEPARTED
-  createdAt  DateTime   @default(now())
+  travelDate DateTime @db.Date
+  status     String   @default("SCHEDULED") // SCHEDULED | CANCELLED | DEPARTED
+  createdAt  DateTime @default(now())
 
-  schedule   Schedule   @relation(fields: [scheduleId], references: [id])
-  bus        Bus        @relation(fields: [busId], references: [id])
-  seats      TripSeat[]
-  bookings   Booking[]
-  crew       TripCrew[]
+  schedule Schedule   @relation(fields: [scheduleId], references: [id])
+  bus      Bus        @relation(fields: [busId], references: [id])
+  seats    TripSeat[]
+  bookings Booking[]
+  crew     TripCrew[]
 
   @@unique([scheduleId, travelDate])
   @@index([travelDate])
@@ -177,11 +177,11 @@ model TripSeat {
   tripId     String
   seatNumber String
   status     SeatStatus @default(AVAILABLE)
-  heldUntil  DateTime?  // seat hold expiry during checkout
+  heldUntil  DateTime? // seat hold expiry during checkout
   bookingId  String?
 
-  trip       Trip       @relation(fields: [tripId], references: [id])
-  booking    Booking?   @relation(fields: [bookingId], references: [id])
+  trip    Trip     @relation(fields: [tripId], references: [id])
+  booking Booking? @relation(fields: [bookingId], references: [id])
 
   @@unique([tripId, seatNumber])
 }
@@ -190,24 +190,24 @@ model TripSeat {
 model Booking {
   id            String        @id @default(cuid())
   bookingRef    String        @unique // human-facing reference, e.g. BK-2K91X
-  siteId        String        // which storefront this came through
+  siteId        String // which storefront this came through
   tripId        String
   customerName  String
   customerPhone String
   customerEmail String?
-  customerId    String?       // nullable for backward compatibility or guest checkouts if needed
+  customerId    String? // nullable for backward compatibility or guest checkouts if needed
   totalFare     Decimal       @db.Decimal(10, 2)
   status        BookingStatus @default(PENDING)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
-  site          Site          @relation(fields: [siteId], references: [id])
-  trip          Trip          @relation(fields: [tripId], references: [id])
-  customer      Customer?     @relation(fields: [customerId], references: [id])
-  passengers    Passenger[]
-  seats         TripSeat[]
-  payment       Payment?
-  ticket        Ticket?
+  site       Site        @relation(fields: [siteId], references: [id])
+  trip       Trip        @relation(fields: [tripId], references: [id])
+  customer   Customer?   @relation(fields: [customerId], references: [id])
+  passengers Passenger[]
+  seats      TripSeat[]
+  payment    Payment?
+  ticket     Ticket?
 
   @@index([siteId])
   @@index([status])
@@ -222,7 +222,7 @@ model Passenger {
   gender     String?
   seatNumber String
 
-  booking    Booking @relation(fields: [bookingId], references: [id])
+  booking Booking @relation(fields: [bookingId], references: [id])
 }
 
 // ── Crew & Personnel ────────────────────────────────────────
@@ -238,7 +238,7 @@ model CrewMember {
   name           String
   phone          String    @unique
   email          String?
-  licenseNo      String?   // for drivers
+  licenseNo      String? // for drivers
   licenseExpiry  DateTime? // track license expiry
   address        String?
   emergencyPhone String?
@@ -252,13 +252,13 @@ model CrewMember {
 }
 
 model TripCrew {
-  id           String     @id @default(cuid())
+  id           String   @id @default(cuid())
   tripId       String
   crewMemberId String
-  role         CrewRole   // what role they play on THIS trip
+  role         CrewRole // what role they play on THIS trip
 
-  trip         Trip       @relation(fields: [tripId], references: [id])
-  crewMember   CrewMember @relation(fields: [crewMemberId], references: [id])
+  trip       Trip       @relation(fields: [tripId], references: [id])
+  crewMember CrewMember @relation(fields: [crewMemberId], references: [id])
 
   @@unique([tripId, crewMemberId])
 }
@@ -266,14 +266,14 @@ model TripCrew {
 model Payment {
   id           String        @id @default(cuid())
   bookingId    String        @unique
-  gateway      String        // e.g. esewa, khalti, stripe
+  gateway      String // e.g. esewa, khalti, stripe
   gatewayTxnId String?       @unique
   amount       Decimal       @db.Decimal(10, 2)
   status       PaymentStatus @default(INITIATED)
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
-  booking      Booking       @relation(fields: [bookingId], references: [id])
+  booking Booking @relation(fields: [bookingId], references: [id])
 }
 
 model Ticket {
@@ -283,36 +283,36 @@ model Ticket {
   pdfUrl    String?
   issuedAt  DateTime @default(now())
 
-  booking   Booking  @relation(fields: [bookingId], references: [id])
+  booking Booking @relation(fields: [bookingId], references: [id])
 }
 
 // ── Advanced Fare Management ────────────────────────────────
 
 model FareTier {
-  id            String   @id @default(cuid())
+  id            String  @id @default(cuid())
   scheduleId    String
-  seatType      String   // e.g. "window", "aisle", "sleeper_lower", "sleeper_upper"
-  boardingPoint String?  // null = all boarding points
-  amount        Decimal  @db.Decimal(10, 2)
+  seatType      String // e.g. "window", "aisle", "sleeper_lower", "sleeper_upper"
+  boardingPoint String? // null = all boarding points
+  amount        Decimal @db.Decimal(10, 2)
 
-  schedule      Schedule @relation(fields: [scheduleId], references: [id])
+  schedule Schedule @relation(fields: [scheduleId], references: [id])
 
   @@unique([scheduleId, seatType, boardingPoint])
 }
 
 model Coupon {
-  id               String    @id @default(cuid())
-  code             String    @unique
-  discountType     String    // PERCENTAGE or FLAT
-  discountValue    Decimal   @db.Decimal(10, 2)
+  id               String   @id @default(cuid())
+  code             String   @unique
+  discountType     String // PERCENTAGE or FLAT
+  discountValue    Decimal  @db.Decimal(10, 2)
   maxUses          Int?
-  usedCount        Int       @default(0)
-  minBookingAmount Decimal?  @db.Decimal(10, 2)
+  usedCount        Int      @default(0)
+  minBookingAmount Decimal? @db.Decimal(10, 2)
   validFrom        DateTime
   validTo          DateTime
-  isActive         Boolean   @default(true)
-  siteId           String?   // null = global coupon across all sites
-  createdAt        DateTime  @default(now())
+  isActive         Boolean  @default(true)
+  siteId           String? // null = global coupon across all sites
+  createdAt        DateTime @default(now())
 }
 
 // ── Customers & CRM ─────────────────────────────────────────
@@ -322,22 +322,26 @@ model Customer {
   name       String
   phone      String    @unique
   email      String?
+  city       String?
+  tags       String[]
+  budgetTier String?
+  leadScore  Int       @default(0)
   bookings   Booking[]
   createdAt  DateTime  @default(now())
 }
 
 model CancellationPolicy {
-  id              String   @id @default(cuid())
-  hoursBeforeDep  Int      // e.g. 24 = "if cancelled 24+ hours before departure"
-  refundPercent   Int      // e.g. 80 = "refund 80% of fare"
-  createdAt       DateTime @default(now())
+  id             String   @id @default(cuid())
+  hoursBeforeDep Int // e.g. 24 = "if cancelled 24+ hours before departure"
+  refundPercent  Int // e.g. 80 = "refund 80% of fare"
+  createdAt      DateTime @default(now())
 }
 
 // ── Content Management System (CMS) ─────────────────────────
 
 model Slider {
   id        String   @id @default(cuid())
-  siteId    String?  // null = global slider
+  siteId    String? // null = global slider
   title     String
   subtitle  String?
   imageUrl  String
@@ -348,17 +352,17 @@ model Slider {
 }
 
 model Blog {
-  id        String   @id @default(cuid())
-  siteId    String?
-  title     String
-  slug      String   @unique
-  excerpt   String?
-  content   String   @db.Text
-  coverImage String?
-  author    String?
-  isPublished Boolean @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  siteId      String?
+  title       String
+  slug        String   @unique
+  excerpt     String?
+  content     String   @db.Text
+  coverImage  String?
+  author      String?
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Testimonial {
@@ -374,23 +378,23 @@ model Testimonial {
 }
 
 model TeamMember {
-  id        String   @id @default(cuid())
-  siteId    String?
-  name      String
-  role      String
-  bio       String?  @db.Text
-  imageUrl  String?
-  order     Int      @default(0)
-  isActive  Boolean  @default(true)
+  id       String  @id @default(cuid())
+  siteId   String?
+  name     String
+  role     String
+  bio      String? @db.Text
+  imageUrl String?
+  order    Int     @default(0)
+  isActive Boolean @default(true)
 }
 
 model FAQ {
-  id        String   @id @default(cuid())
-  siteId    String?
-  question  String
-  answer    String   @db.Text
-  order     Int      @default(0)
-  isActive  Boolean  @default(true)
+  id       String  @id @default(cuid())
+  siteId   String?
+  question String
+  answer   String  @db.Text
+  order    Int     @default(0)
+  isActive Boolean @default(true)
 }
 
 model GalleryImage {
@@ -407,8 +411,31 @@ model SiteSetting {
   id          String   @id @default(cuid())
   siteId      String?  @unique // null = global default
   aboutUsText String?  @db.Text
-  contactInfo Json?    // { phone, email, address, facebookUrl, ... }
+  contactInfo Json? // { phone, email, address, facebookUrl, ... }
   termsText   String?  @db.Text
   privacyText String?  @db.Text
   updatedAt   DateTime @updatedAt
+}
+
+enum CampaignStatus {
+  DRAFT
+  SENDING
+  SENT
+  FAILED
+}
+
+model Campaign {
+  id             String         @id @default(cuid())
+  name           String
+  subject        String
+  preheader      String?
+  htmlContent    String         @db.Text
+  targetFilter   Json?
+  status         CampaignStatus @default(DRAFT)
+  recipientCount Int            @default(0)
+  sentCount      Int            @default(0)
+  failedCount    Int            @default(0)
+  sentAt         DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 }

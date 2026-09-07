@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useStore } from '@/lib/store';
 import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api';
 import { Plus, Pencil, Trash2, Search, Ticket, X, Calendar, Percent, DollarSign } from 'lucide-react';
+import ErrorBanner from '@/components/ErrorBanner';
 
 interface CouponItem {
     id: string;
@@ -23,6 +24,7 @@ export default function CouponsPage() {
     const { accessToken } = useStore();
     const [coupons, setCoupons] = useState<CouponItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [editing, setEditing] = useState<CouponItem | null>(null);
     const [search, setSearch] = useState('');
@@ -33,12 +35,14 @@ export default function CouponsPage() {
     });
 
     const fetchAll = async () => {
+        setLoading(true);
+        setError(null);
         try {
             const res = await apiGet<{ data: CouponItem[] } | CouponItem[]>('/coupons', accessToken!);
             // Handle if data is wrapped in { data: [] } or just []
             setCoupons(Array.isArray(res) ? res : res.data || []);
-        } catch (err) {
-            console.error(err);
+        } catch (err: any) {
+            setError(err.message || 'Failed to load coupons');
         }
         setLoading(false);
     };
@@ -109,6 +113,8 @@ export default function CouponsPage() {
                 <input type="text" placeholder="Search coupons by code..." value={search} onChange={e => setSearch(e.target.value)}
                     className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg text-sm focus:ring-2 focus:ring-red-500/30 outline-none" />
             </div>
+
+            <ErrorBanner message={error} />
 
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
                 <table className="w-full text-sm">

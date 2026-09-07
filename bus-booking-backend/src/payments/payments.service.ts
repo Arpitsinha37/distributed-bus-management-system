@@ -64,10 +64,82 @@ export class PaymentsService {
     }
   }
 
+  async findAll(siteIds?: string[], limit: number = 50) {
+    const where = siteIds ? { booking: { siteId: { in: siteIds } } } : {};
+    const payments = await this.prisma.payment.findMany({
+      where,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        booking: {
+          include: {
+            trip: { include: { schedule: { include: { route: true } } } },
+            customer: true,
+            seats: true,
+          }
+        }
+      }
+    });
+
+    return {
+      data: payments.map(p => ({
+        id: p.id,
+        ticketNo: p.booking.bookingRef,
+        method: p.gateway,
+        amount: Number(p.amount),
+        currency: 'NPR',
+        status: p.status.toLowerCase(),
+        transactionId: p.gatewayTxnId || undefined,
+        passengerName: p.booking.customerName,
+        passengerPhone: p.booking.customerPhone,
+        passengerEmail: p.booking.customerEmail || undefined,
+        route: p.booking.trip.schedule.route.originCity + ' - ' + p.booking.trip.schedule.route.destinationCity,
+        travelDate: p.booking.trip.travelDate.toISOString(),
+        seatNumbers: p.booking.seats.map(s => s.seatNumber),
+        createdAt: p.createdAt.toISOString(),
+        finalizedAt: (p.status === 'SUCCESS' || p.status === 'FAILED' || p.status === 'REFUNDED') ? p.updatedAt.toISOString() : undefined,
+      }))
+    };
+  }
+
+  async getStats(siteIds?: string[]) {
+    const where = siteIds ? { booking: { siteId: { in: siteIds } } } : {};
+    const payments = await this.prisma.payment.findMany({ where });
+
+    const gw = (p: any) => (p.gateway ?? '').toLowerCase();
+    const esewa = payments.filter(p => gw(p) === 'esewa');
+    const khalti = payments.filter(p => gw(p) === 'khalti');
+    const cash = payments.filter(p => ['cash_on_bus', 'cash'].includes(gw(p)));
+    const other = payments.filter(p => !['esewa', 'khalti', 'cash_on_bus', 'cash'].includes(gw(p)));
+
+    const sumAmount = (arr: any[]) => arr.reduce((sum, p) => sum + Number(p.amount), 0);
+
+    return {
+      total: payments.length,
+      totalCompleted: payments.filter(p => p.status === 'SUCCESS').length,
+      totalPending: payments.filter(p => p.status === 'INITIATED').length,
+      totalFailed: payments.filter(p => p.status === 'FAILED').length,
+      esewaCount: esewa.length,
+      khaltiCount: khalti.length,
+      cashCount: cash.length,
+      otherCount: other.length,
+      // sum(gateways.*) + pendingRevenue + lostRevenue === totalRevenue is guaranteed
+      // because every payment falls into exactly one gateway bucket (esewa, khalti, cash, or other)
+      // and exactly one status bucket (SUCCESS, INITIATED, or FAILED).
+      realizedRevenue: sumAmount(payments.filter(p => p.status === 'SUCCESS')),
+      pendingRevenue: sumAmount(payments.filter(p => p.status === 'INITIATED')),
+      lostRevenue: sumAmount(payments.filter(p => p.status === 'FAILED')),
+      totalRevenue: sumAmount(payments),
+      gateways: {
+        esewa: sumAmount(esewa.filter(p => p.status === 'SUCCESS')),
+        khalti: sumAmount(khalti.filter(p => p.status === 'SUCCESS')),
+        cash: sumAmount(cash.filter(p => p.status === 'SUCCESS')),
+        other: sumAmount(other.filter(p => p.status === 'SUCCESS')),
+      }
+    };
+  }
+
   // Safety net for the case that actually breaks booking sites: the
-  // gateway charged the customer but the webhook never arrived (network
-  // blip, server restart, misconfigured URL). Poll anything stuck in
-  // INITIATED for more than a few minutes and re-check with the gateway.
   @Cron(CronExpression.EVERY_5_MINUTES)
   async reconcileStalePayments() {
     const stale = await this.prisma.payment.findMany({

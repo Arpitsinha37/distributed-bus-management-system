@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '@/lib/store';
 import { apiGet, apiPost, apiPatch, apiDelete } from '@/lib/api';
+import ErrorBanner from '@/components/ErrorBanner';
 import { Plus, Pencil, Trash2, Search, FileText, X } from 'lucide-react';
 import ImageUpload from '@/components/ImageUpload';
 
@@ -14,13 +15,14 @@ export default function BlogsPage() {
     const { accessToken } = useStore();
     const [data, setData] = useState<Blog[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [editing, setEditing] = useState<Blog | null>(null);
     const [search, setSearch] = useState('');
     const [form, setForm] = useState({ title: '', slug: '', excerpt: '', content: '', coverImage: '', author: '', isPublished: true });
 
     const fetchAll = async () => {
-        try { const res = await apiGet<Blog[]>('/cms/blogs', accessToken!); setData(res || []); } catch {} setLoading(false);
+        try { setError(null); const res = await apiGet<Blog[]>('/cms/blogs', accessToken!); setData(res || []); } catch (err: any) { setError(err.message || 'Failed to load'); } setLoading(false);
     };
     useEffect(() => { fetchAll(); }, [accessToken]);
 
@@ -41,6 +43,7 @@ export default function BlogsPage() {
 
     return (
         <div>
+            <ErrorBanner message={error} />
             <div className="flex items-center justify-between mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">

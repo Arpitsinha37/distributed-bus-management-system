@@ -300,6 +300,236 @@ async function main() {
   });
   console.log(`✅ Site Settings configured`);
 
+  // ── Lumbini Site ──────────────────────────────────────────
+  const lumbiniSite = await prisma.site.upsert({
+    where: { slug: 'ktm-lumbini-services' },
+    update: {},
+    create: {
+      slug: 'ktm-lumbini-services',
+      name: 'Lumbini Express',
+      domain: 'lumbiniexpress.com',
+      currency: 'NPR',
+      contactPhone: '+977-9812345678',
+      contactEmail: 'info@lumbiniexpress.com',
+      themeColor: '#D4831E',
+    },
+  });
+  console.log(`✅ Site: ${lumbiniSite.name} (slug: ${lumbiniSite.slug})`);
+
+  // Link admin to Lumbini site
+  await prisma.staffSite.upsert({
+    where: { staffId_siteId: { staffId: admin.id, siteId: lumbiniSite.id } },
+    update: {},
+    create: { staffId: admin.id, siteId: lumbiniSite.id },
+  });
+
+  // ── Lumbini Routes ────────────────────────────────────────
+  let routeKtmLum = await prisma.route.findFirst({
+    where: { originCity: 'Kathmandu', destinationCity: 'Lumbini' },
+  });
+  if (!routeKtmLum) {
+    routeKtmLum = await prisma.route.create({
+      data: {
+        originCity: 'Kathmandu',
+        destinationCity: 'Lumbini',
+        distanceKm: 280,
+        durationMinutes: 450, // ~7.5 hours
+        boardingPoints: [
+          'New Buspark (Gongabu)',
+          'Kalanki',
+          'Koteshwor',
+        ],
+        droppingPoints: [
+          'Butwal Bus Park',
+          'Bhairahawa Bus Park',
+          'Lumbini Gate',
+          'Siddharthanagar',
+        ],
+      },
+    });
+  }
+  console.log(`✅ Route: ${routeKtmLum.originCity} → ${routeKtmLum.destinationCity}`);
+
+  let routeLumKtm = await prisma.route.findFirst({
+    where: { originCity: 'Lumbini', destinationCity: 'Kathmandu' },
+  });
+  if (!routeLumKtm) {
+    routeLumKtm = await prisma.route.create({
+      data: {
+        originCity: 'Lumbini',
+        destinationCity: 'Kathmandu',
+        distanceKm: 280,
+        durationMinutes: 450,
+        boardingPoints: [
+          'Lumbini Gate',
+          'Bhairahawa Bus Park',
+          'Butwal Bus Park',
+        ],
+        droppingPoints: [
+          'New Buspark (Gongabu)',
+          'Kalanki',
+          'Koteshwor',
+        ],
+      },
+    });
+  }
+  console.log(`✅ Route: ${routeLumKtm.originCity} → ${routeLumKtm.destinationCity}`);
+
+  // ── Lumbini Schedules ─────────────────────────────────────
+  const lumbiniSchedules = [
+    { routeId: routeKtmLum.id, busId: bus1.id, departureTime: '06:30', fare: 2200, label: 'KTM→Lumbini VIP 6:30AM' },
+    { routeId: routeKtmLum.id, busId: bus2.id, departureTime: '07:00', fare: 1800, label: 'KTM→Lumbini Deluxe 7AM' },
+    { routeId: routeLumKtm.id, busId: bus3.id, departureTime: '06:30', fare: 2200, label: 'Lumbini→KTM VIP 6:30AM' },
+  ];
+
+  for (const s of lumbiniSchedules) {
+    const existing = await prisma.schedule.findFirst({
+      where: { routeId: s.routeId, busId: s.busId, departureTime: s.departureTime },
+    });
+    if (!existing) {
+      await prisma.schedule.create({
+        data: {
+          routeId: s.routeId,
+          busId: s.busId,
+          departureTime: s.departureTime,
+          daysOfWeek: [], // runs every day
+          fare: s.fare,
+        },
+      });
+    }
+    console.log(`✅ Schedule: ${s.label} — NPR ${s.fare}`);
+  }
+
+  // ── Lumbini CMS Content ───────────────────────────────────
+  const lumbiniTestimonials = [
+    { name: 'Anjali Sharma', role: 'Kathmandu', content: 'The Lumbini Express made our pilgrimage so comfortable. VIP sofa seats, AC, and the driver was experienced and careful. Highly recommend for families.', rating: 5 },
+    { name: 'Takeshi Yamamoto', role: 'Japan (Buddhist Pilgrim)', content: 'As a pilgrim visiting Buddha\'s birthplace, I was impressed by the service quality. The journey was smooth and we arrived right at Lumbini Gate.', rating: 5 },
+    { name: 'Binod Chaudhary', role: 'Bhairahawa', content: 'I travel this route every week for work. The online booking is fast and the buses are always on time. Best service on the KTM-Lumbini highway.', rating: 4 },
+  ];
+
+  for (const t of lumbiniTestimonials) {
+    const existing = await prisma.testimonial.findFirst({ where: { name: t.name, siteId: lumbiniSite.id } });
+    if (!existing) {
+      await prisma.testimonial.create({ data: { ...t, siteId: lumbiniSite.id } });
+    }
+    console.log(`✅ Testimonial (Lumbini): ${t.name}`);
+  }
+
+  const lumFaqs = [
+    { question: 'What time does the Lumbini bus depart?', answer: 'Our buses depart at 6:30 AM and 7:00 AM from New Buspark (Gongabu), Kathmandu. The journey takes approximately 7-8 hours.' },
+    { question: 'Where does the bus drop in Lumbini?', answer: 'The bus drops passengers at Butwal Bus Park, Bhairahawa Bus Park, Lumbini Gate, and Siddharthanagar.' },
+    { question: 'Can I cancel my Lumbini booking?', answer: 'Yes, you can cancel up to 24 hours before departure for an 80% refund. Cancellations within 24 hours receive a 50% refund.' },
+    { question: 'Is the bus air-conditioned?', answer: 'Yes, all our buses on the Kathmandu-Lumbini route are fully air-conditioned with VIP sofa seats, USB charging, and Wi-Fi.' },
+  ];
+
+  for (const f of lumFaqs) {
+    const existing = await prisma.fAQ.findFirst({ where: { question: f.question, siteId: lumbiniSite.id } });
+    if (!existing) {
+      await prisma.fAQ.create({ data: { ...f, siteId: lumbiniSite.id, order: lumFaqs.indexOf(f) } });
+    }
+    console.log(`✅ FAQ (Lumbini): ${f.question.substring(0, 40)}...`);
+  }
+
+  await prisma.siteSetting.upsert({
+    where: { siteId: lumbiniSite.id },
+    update: {},
+    create: {
+      siteId: lumbiniSite.id,
+      aboutUsText: 'Lumbini Express is a premium bus service connecting Kathmandu and Lumbini — the Birthplace of Lord Buddha. We operate VIP Sofa and Deluxe coaches equipped with modern amenities for a comfortable day journey through the Terai plains.',
+      contactInfo: {
+        phone: '+977-9812345678',
+        email: 'info@lumbiniexpress.com',
+        address: 'New Bus Park (Gongabu), Kathmandu',
+        facebookUrl: 'https://facebook.com/lumbiniexpress',
+        instagramUrl: 'https://instagram.com/lumbiniexpress',
+      },
+      termsText: 'Standard terms and conditions apply. Passengers must carry valid ID. The bus operator reserves the right to cancel trips due to weather or road conditions.',
+      privacyText: 'We collect your personal information solely for booking purposes. Your data is never shared with third parties.',
+    },
+  });
+  console.log(`✅ Lumbini Site Settings configured`);
+
+  // ── Chitwan Site ──────────────────────────────────────────
+  const chitwanSite = await prisma.site.upsert({
+    where: { slug: 'chitwan-travels' },
+    update: {},
+    create: {
+      slug: 'chitwan-travels',
+      name: 'Chitwan Safaris',
+      domain: 'chitwantravels.com',
+      currency: 'NPR',
+      contactPhone: '+977-9811112222',
+      contactEmail: 'info@chitwantravels.com',
+      themeColor: '#2E8B57',
+    },
+  });
+  console.log(`✅ Site: ${chitwanSite.name} (slug: ${chitwanSite.slug})`);
+
+  await prisma.staffSite.upsert({
+    where: { staffId_siteId: { staffId: admin.id, siteId: chitwanSite.id } },
+    update: {},
+    create: { staffId: admin.id, siteId: chitwanSite.id },
+  });
+
+  // ── Chitwan Routes ────────────────────────────────────────
+  let routeKtmChi = await prisma.route.findFirst({
+    where: { originCity: 'Kathmandu', destinationCity: 'Chitwan' },
+  });
+  if (!routeKtmChi) {
+    routeKtmChi = await prisma.route.create({
+      data: {
+        originCity: 'Kathmandu',
+        destinationCity: 'Chitwan',
+        distanceKm: 150,
+        durationMinutes: 300,
+        boardingPoints: ['New Buspark (Gongabu)', 'Kalanki', 'Koteshwor'],
+        droppingPoints: ['Sauraha Bus Park', 'Narayangarh', 'Bharatpur'],
+      },
+    });
+  }
+  console.log(`✅ Route: ${routeKtmChi.originCity} → ${routeKtmChi.destinationCity}`);
+
+  let routeChiKtm = await prisma.route.findFirst({
+    where: { originCity: 'Chitwan', destinationCity: 'Kathmandu' },
+  });
+  if (!routeChiKtm) {
+    routeChiKtm = await prisma.route.create({
+      data: {
+        originCity: 'Chitwan',
+        destinationCity: 'Kathmandu',
+        distanceKm: 150,
+        durationMinutes: 300,
+        boardingPoints: ['Sauraha Bus Park', 'Bharatpur', 'Narayangarh'],
+        droppingPoints: ['New Buspark (Gongabu)', 'Kalanki', 'Koteshwor'],
+      },
+    });
+  }
+  console.log(`✅ Route: ${routeChiKtm.originCity} → ${routeChiKtm.destinationCity}`);
+
+  // ── Chitwan Schedules ─────────────────────────────────────
+  const chitwanSchedules = [
+    { routeId: routeKtmChi.id, busId: bus1.id, departureTime: '07:00', fare: 1500, label: 'KTM→Chitwan VIP 7:00AM' },
+    { routeId: routeChiKtm.id, busId: bus2.id, departureTime: '07:30', fare: 1200, label: 'Chitwan→KTM Deluxe 7:30AM' },
+  ];
+
+  for (const s of chitwanSchedules) {
+    const existing = await prisma.schedule.findFirst({
+      where: { routeId: s.routeId, busId: s.busId, departureTime: s.departureTime },
+    });
+    if (!existing) {
+      await prisma.schedule.create({
+        data: {
+          routeId: s.routeId,
+          busId: s.busId,
+          departureTime: s.departureTime,
+          daysOfWeek: [],
+          fare: s.fare,
+        },
+      });
+    }
+    console.log(`✅ Schedule: ${s.label} — NPR ${s.fare}`);
+  }
+
   // Cancellation Policy
   const policies = [
     { hoursBeforeDep: 24, refundPercent: 80 },
@@ -317,10 +547,10 @@ async function main() {
   console.log('\n🎉 Seeding complete!');
   console.log(`\n📋 Summary:`);
   console.log(`   Admin Login: admin@pokharatravels.com / admin@123`);
-  console.log(`   Site Slug:   pokhara-travels`);
-  console.log(`   Routes:      Pokhara ↔ Kathmandu (both directions)`);
+  console.log(`   Sites:       pokhara-travels, ktm-lumbini-services, chitwan-travels`);
+  console.log(`   Routes:      Pokhara ↔ KTM, KTM ↔ Lumbini, KTM ↔ Chitwan`);
   console.log(`   Buses:       3 (2× VIP Sofa, 1× Super Deluxe)`);
-  console.log(`   Schedules:   3 nightly departures`);
+  console.log(`   Schedules:   8 departures`);
 }
 
 main()
