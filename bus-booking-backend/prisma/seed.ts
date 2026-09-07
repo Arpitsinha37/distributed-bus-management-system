@@ -7,18 +7,20 @@ async function main() {
   console.log('🚌 Seeding bus booking database...\n');
 
   // ── 1. Super Admin ────────────────────────────────────────
-  const passwordHash = await bcrypt.hash('admin@123', 10);
+  const adminEmail = process.env.SUPER_ADMIN_EMAIL || 'admin@pokharatravels.com';
+  const adminPassword = process.env.SUPER_ADMIN_PASSWORD || 'admin@123';
+  const passwordHash = await bcrypt.hash(adminPassword, 10);
   const admin = await prisma.staff.upsert({
-    where: { email: 'admin@pokharatravels.com' },
-    update: {},
+    where: { email: adminEmail },
+    update: { passwordHash }, // Update password if it already exists
     create: {
-      name: 'Arpit Sinha',
-      email: 'admin@pokharatravels.com',
+      name: 'Super Admin',
+      email: adminEmail,
       passwordHash,
       role: 'SUPER_ADMIN',
     },
   });
-  console.log(`✅ Admin: ${admin.email} / password: admin@123`);
+  console.log(`✅ Admin: ${admin.email} / password: ${adminPassword}`);
 
   // ── 2. Site (Storefront) ──────────────────────────────────
   const site = await prisma.site.upsert({
