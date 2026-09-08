@@ -16,6 +16,7 @@ import {
   Coffee
 } from 'lucide-react';
 import BookingFlow from '@/components/booking/BookingFlow';
+import FeaturesCards from '@/components/ui/feature-shader-cards';
 
 /* Star-burst SVG icon */
 const StarBurst = () => (
@@ -106,7 +107,7 @@ export default function Home() {
           {/* Card 1 */}
           <div className="img-card h-[400px] md:h-[500px] group cursor-pointer">
             <img
-              src="/images/vip-sofa-bus.jpg"
+              src="/images/abc/1.jpeg"
               alt="VIP Sofa Bus interior with comfortable seats"
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
@@ -127,7 +128,7 @@ export default function Home() {
           {/* Card 2 */}
           <div className="img-card h-[400px] md:h-[500px] group cursor-pointer">
             <img
-              src="/images/Sofa-Bus-Nepal-2.jpg"
+              src="/images/abc/2.jpeg"
               alt="Night Tourist Bus exterior"
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
@@ -218,60 +219,16 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════
-          FEATURES — Premium amenities
+          FEATURES — Premium amenities (Shader Cards)
       ═══════════════════════════════════════════════════════ */}
-      <section className="max-w-[90rem] mx-auto px-6 md:px-12 py-20">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-14">
-          <div className="md:col-span-3">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-5 h-5 rounded-full border border-slate-200 flex items-center justify-center">
-                <Star className="w-2.5 h-2.5 text-slate-800/60" />
-              </div>
-              <span className="text-[0.8125rem] font-medium text-slate-500 tracking-wide">
-                VIP Amenities
-              </span>
-            </div>
-          </div>
-          <div className="md:col-span-9">
-            <h2 className="text-3xl md:text-5xl font-display font-bold text-slate-800 mb-4">
-              Rest in absolute luxury
-            </h2>
-            <p className="text-lg text-slate-500 max-w-xl leading-relaxed">
-              Our night buses are heavily customized for maximum sleeping comfort and safety on the highway.
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {[
-            { icon: Armchair, title: 'VIP Sofa Seats', desc: 'Choose between 2/1 solo luxury seats or 2/2 premium double seats with deep recline.' },
-            { icon: Snowflake, title: 'A/C & Heating', desc: 'Climate-controlled cabins ensure comfort during cold Himalayan nights.' },
-            { icon: Zap, title: 'USB Ports', desc: 'Keep your devices charged overnight with individual charging ports.' },
-            { icon: Wifi, title: 'Free Wi-Fi', desc: 'Stay connected throughout your journey, even through the valleys.' },
-            { icon: Coffee, title: 'Night Stop', desc: 'Safely scheduled restroom and refreshment breaks during the night.' },
-            { icon: Clock, title: 'Reporting Time', desc: 'Arrive by 6:30 PM for a smooth boarding and luggage loading process.' },
-          ].map((f, i) => (
-            <div key={i} className="feature-card">
-              <div className="icon-wrap">
-                <f.icon className="w-5 h-5 text-[#E31837]" />
-              </div>
-              <h3 className="text-slate-800 font-display font-semibold text-lg mb-2">
-                {f.title}
-              </h3>
-              <p className="text-slate-500 text-[0.875rem] leading-relaxed">
-                {f.desc}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <FeaturesCards />
 
       {/* ═══════════════════════════════════════════════════════
           SCENIC PARALLAX BANNER
       ═══════════════════════════════════════════════════════ */}
       <section
         className="parallax-banner flex items-center justify-center text-center px-6"
-        style={{ backgroundImage: "url('/images/about-mountain.jpg')" }}
+        style={{ backgroundImage: "url('/images/abc/3.jpeg')" }}
       >
         <div className="max-w-3xl py-24">
           <p className="text-[0.6875rem] font-semibold text-[#E31837] uppercase tracking-[0.25em] mb-4">

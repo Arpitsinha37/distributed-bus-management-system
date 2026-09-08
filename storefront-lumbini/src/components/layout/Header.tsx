@@ -60,26 +60,31 @@ export default function Header() {
             Contact
           </Link>
 
-          {/* CTA */}
-          <Link href="/#search-section" className="btn-accent text-[0.6875rem]">
-            Explore
-            <svg
-              width="8"
-              height="8"
-              viewBox="0 0 8 8"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M8 0C8 0 7.32 2.42 7.32 4C7.32 5.58 8 8 8 8C8 8 5.58 7.32 4 7.32C2.42 7.32 0 8 0 8C0 8 .68 5.58 .68 4C.68 2.42 0 0 0 0C0 0 2.42 .68 4 .68C5.58 .68 8 0 8 0Z"
-                fill="#ffffff"
-              />
-            </svg>
+          {/* CTA - Track Booking */}
+          <Link
+            href="/track"
+            className="flex items-center gap-2 py-2 px-5 bg-gradient-to-r from-[#D4831E] to-[#B91030] hover:from-[#B91030] hover:to-[#9A0D28] text-white rounded-full text-[13px] font-bold transition-all shadow-md shadow-orange-500/20 hover:shadow-lg hover:shadow-orange-500/30 active:scale-[0.97]"
+          >
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
+            </span>
+            <span>Track Booking</span>
           </Link>
         </div>
 
-        {/* Mobile burger */}
-        <div className="md:hidden">
+        {/* Mobile burger & Track */}
+        <div className="flex items-center gap-3 md:hidden">
+          <Link
+            href="/track"
+            className="flex items-center gap-1.5 py-1.5 px-3 bg-orange-50/20 hover:bg-orange-50 text-white hover:text-[#D4831E] rounded-lg text-xs font-bold transition-colors"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#D4831E] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#D4831E]"></span>
+            </span>
+            <span>Track</span>
+          </Link>
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className={`p-2 transition-colors ${scrolled ? 'text-slate-600 hover:text-[#D4831E]' : 'text-white/80 hover:text-white'}`}
@@ -124,13 +129,7 @@ export default function Header() {
           >
             Contact
           </Link>
-          <Link
-            href="/#search-section"
-            onClick={() => setMobileOpen(false)}
-            className="btn-accent text-[0.6875rem] mt-4"
-          >
-            Explore
-          </Link>
+
         </div>
       )}
 
