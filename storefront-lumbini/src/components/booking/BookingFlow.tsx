@@ -77,7 +77,7 @@ export default function BookingFlow() {
   const [loading, setLoading] = useState(false);
   const [trips, setTrips] = useState<any[]>([]);
 
-  const [origin, setOrigin] = useState('Chitwan');
+  const [origin, setOrigin] = useState('Pokhara');
   const [destination, setDestination] = useState('Kathmandu');
   const [date, setDate] = useState(dayjs().format('YYYY-MM-DD'));
 
@@ -106,10 +106,18 @@ export default function BookingFlow() {
     }
   };
 
-  const handleSelectTrip = (trip: any) => {
-    setSelectedTrip(trip);
-    setTrip(trip.tripId);
-    setStep('SEATS');
+  const handleSelectTrip = async (tripSummary: any) => {
+    try {
+      setLoading(true);
+      const res = await api.get(`/trips/${tripSummary.tripId}`);
+      setSelectedTrip(res.data);
+      setTrip(res.data.tripId);
+      setStep('SEATS');
+    } catch (error) {
+      console.error('Failed to fetch full trip details', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleContinue = () => {

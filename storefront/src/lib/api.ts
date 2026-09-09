@@ -25,6 +25,17 @@ async function postJSON(path: string, data: any) {
 }
 
 export const api = {
+    // Generic methods for React Query / raw Axios-like calls
+    get: async (path: string, options?: any) => {
+        let q = '';
+        if (options?.params) {
+            q = '?' + new URLSearchParams(options.params).toString();
+        }
+        const data = await fetchJSON(`${path}${q}`);
+        return { data };
+    },
+    post: async (path: string, payload?: any) => { const data = await postJSON(path, payload || {}); return { data }; },
+
     // Existing endpoints
     getBusServices: (params: Record<string, string> = {}) => {
         const q = new URLSearchParams({ status: 'active', limit: '50', ...params }).toString();
