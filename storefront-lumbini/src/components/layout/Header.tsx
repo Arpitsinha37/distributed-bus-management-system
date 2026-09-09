@@ -35,12 +35,7 @@ export default function Header() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
-          <Link
-            href="/"
-            className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${scrolled ? 'text-slate-600 hover:text-[#D4831E]' : 'text-white/80 hover:text-white'}`}
-          >
-            Book
-          </Link>
+          <Link href="/content/about" className="text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${scrolled ? 'text-slate-600 hover:text-[#D4831E]' : 'text-white/80 hover:text-white'}">Content</Link>
           <Link
             href="/about"
             className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${scrolled ? 'text-slate-600 hover:text-[#D4831E]' : 'text-white/80 hover:text-white'}`}
@@ -101,13 +96,7 @@ export default function Header() {
       {/* Mobile Menu */}
       {mobileOpen && (
         <div className="md:hidden bg-white/95 backdrop-blur-xl border-t border-slate-200 px-6 py-6 space-y-4">
-          <Link
-            href="/"
-            onClick={() => setMobileOpen(false)}
-            className="block text-[0.9375rem] text-slate-600 hover:text-[#D4831E] transition-colors"
-          >
-            Book
-          </Link>
+          <Link href="/content/about" onClick={() => setMobileOpen(false)} className="block text-[0.9375rem] text-slate-600 hover:text-[#D4831E] transition-colors">Content</Link>
           <Link
             href="/about"
             onClick={() => setMobileOpen(false)}
@@ -138,3 +127,4 @@ export default function Header() {
     </nav>
   );
 }
+
