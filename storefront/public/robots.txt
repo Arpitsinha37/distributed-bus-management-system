@@ -1,0 +1,51 @@
+User-agent: *
+Allow: /
+
+# Dynamic sitemap — auto-updated from CMS database
+Sitemap: https://www.newroadtravels.com/sitemap.xml
+
+# ── Disallow transactional & internal paths ──
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /account/
+Disallow: /payment/
+Disallow: /search
+Disallow: /search?*
+Disallow: /passenger-details
+Disallow: /payment-success
+Disallow: /ticket
+
+# Block query-parameter and path variations of booking pages
+Disallow: /booking/
+Disallow: /booking/*
+Disallow: /booking?*
+Disallow: /booking/index.php
+
+# Allow important static assets for crawling
+Allow: /assets/
+Allow: /*.js$
+Allow: /*.css$
+
+# ── Search engine specific rules ──
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /search
+Disallow: /search?*
+Disallow: /passenger-details
+Disallow: /payment-success
+Disallow: /ticket
+Disallow: /account/
+Disallow: /booking/
+Disallow: /booking/*
+Disallow: /booking?*
+Disallow: /booking/index.php
+
+User-agent: Bingbot
+Allow: /
+Disallow: /api/
+Disallow: /search
+Disallow: /search?*
+
+# Host directive
+Host: https://www.newroadtravels.com

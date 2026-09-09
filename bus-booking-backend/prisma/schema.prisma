@@ -439,3 +439,643 @@ model Campaign {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 }
+
+// ═══════════════════════════════════════════════════════════
+// CMS — GLOBAL SITE SETTINGS (SEO & Config)
+// ═══════════════════════════════════════════════════════════
+
+model SiteSettings {
+  id              String   @id @default("global")
+  businessName    String?
+  telephone       String?
+  email           String?
+  streetAddress   String?
+  locality        String?
+  region          String?
+  postalCode      String?
+  country         String   @default("NP")
+  facebookUrl     String?
+  instagramUrl    String?
+  twitterUrl      String?
+  defaultOgImage  String?
+  metaTitle       String?
+  metaDescription String?  @db.Text
+  updatedAt       DateTime @updatedAt
+}
+
+// ═══════════════════════════════════════════════════════════
+// CMS — BUS SERVICES (Homepage cards)
+// ═══════════════════════════════════════════════════════════
+
+model BusService {
+  id            String   @id @default(cuid())
+  title         String
+  slug          String?  @unique
+  source        String
+  destination   String
+  departureTime String?
+  arrivalTime   String?
+  price         Float
+  duration      String?
+  busType       String   @default("standard")
+  amenities     String[]
+  description   String?  @db.Text
+  gallery       String[]
+  metaTitle     String?
+  metaDescription String? @db.Text
+  faqs          Json?
+  image         String?
+  status        String   @default("active")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status])
+  @@index([source, destination])
+}
+
+// ═══════════════════════════════════════════════════════════
+// CMS — TOUR PACKAGES
+// ═══════════════════════════════════════════════════════════
+
+model TourPackage {
+  id               String   @id @default(cuid())
+  title            String
+  slug             String   @unique
+  description      String?
+  price            Float
+  duration         String
+  image            String?
+  itinerary        Json?
+  includedServices String[]
+  excludedServices String[]
+  highlights       String[]
+  galleryImages    String[]
+  faqs             Json?
+  difficulty       String?
+  maxGroupSize     Int?
+  startLocation    String?
+  endLocation      String?
+  featured         Boolean  @default(false)
+  status           String   @default("active")
+  seoTitle         String?
+  seoDescription   String?  @db.Text
+  seoKeywords      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([status])
+  @@index([featured])
+  @@index([slug])
+}
+
+// ═══════════════════════════════════════════════════════════
+// CMS — VEHICLE RENTALS
+// ═══════════════════════════════════════════════════════════
+
+model VehicleRental {
+  id                 String   @id @default(cuid())
+  vehicleName        String
+  slug               String   @unique
+  vehicleType        String
+  pricePerDay        Float
+  capacity           Int
+  transmission       String   @default("automatic")
+  fuelType           String   @default("petrol")
+  description        String?
+  about              String?  @db.Text
+  faqs               Json?
+  features           String[]
+  images             String[]
+  availabilityStatus String   @default("available")
+  isFeatured         Boolean  @default(false)
+  seoTitle           String?
+  seoKeywords        String?
+  seoDescription     String?  @db.Text
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([availabilityStatus])
+  @@index([vehicleType])
+  @@index([isFeatured])
+  @@index([slug])
+}
+
+// ═══════════════════════════════════════════════════════════
+// CMS — ABOUT US (Singleton)
+// ═══════════════════════════════════════════════════════════
+
+model AboutUs {
+  id           String   @id @default(cuid())
+  companyStory String?
+  mission      String?
+  vision       String?
+  achievements String[]
+  teamMembers  Json     @default("[]")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ═══════════════════════════════════════════════════════════
+// CMS — BRANCH LOCATIONS
+// ═══════════════════════════════════════════════════════════
+
+model BranchLocation {
+  id              String   @id @default(cuid())
+  branchName      String
+  address         String
+  phone           String?
+  email           String?
+  googleMapEmbedUrl String?
+  workingHours    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// ═══════════════════════════════════════════════════════════
+// CMS — HERO BANNERS
+// ═══════════════════════════════════════════════════════════
+
+model HeroBanner {
+  id        String   @id @default(cuid())
+  title     String
+  subtitle  String?
+  image     String?
+  videoUrl  String?
+  ctaText   String?
+  ctaLink   String?
+  active    Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active])
+}
+
+// ═══════════════════════════════════════════════════════════
+// CMS — CONTACT INFO (Singleton)
+// ═══════════════════════════════════════════════════════════
+
+model ContactInfo {
+  id           String   @id @default(cuid())
+  phone        String?
+  email        String?
+  address      String?
+  facebookUrl  String?
+  instagramUrl String?
+  twitterUrl   String?
+  whatsapp     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ═══════════════════════════════════════════════════════════
+// CMS — BLOG AUTHORS
+// ═══════════════════════════════════════════════════════════
+
+model BlogAuthor {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  image     String?
+  bio       String?
+  createdAt DateTime @default(now())
+}
+
+// ═══════════════════════════════════════════════════════════
+// CMS — ACHIEVEMENTS
+// ═══════════════════════════════════════════════════════════
+
+model Achievement {
+  id           String   @id @default(cuid())
+  name         String
+  totalCount   Int      @default(0)
+  icon         String?
+  displayOrder Int      @default(0)
+  status       String   @default("active")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([status])
+}
+
+// ═══════════════════════════════════════════════════════════
+// CMS — FEATURES
+// ═══════════════════════════════════════════════════════════
+
+model Feature {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  image        String?
+  metaLink     String?
+  description  String?
+  displayOrder Int      @default(0)
+  status       String   @default("active")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([status])
+  @@index([slug])
+}
+
+// ═══════════════════════════════════════════════════════════
+// CMS — EMAIL SUBSCRIBERS (Travel Marketing Hub)
+// ═══════════════════════════════════════════════════════════
+
+model EmailSubscriber {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  phone        String?
+  city         String?
+  budgetTier   String?
+  leadScore    Int      @default(0)
+  source       String?
+  status       String   @default("active")
+  metadata     Json     @default("{}")
+  subscribedAt DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
+
+  tags        SubscriberTag[]
+  events      SubscriberEvent[]
+  automations AutomationEnrollment[]
+
+  @@index([leadScore])
+  @@index([city])
+  @@index([status])
+  @@index([source])
+}
+
+model SubscriberTag {
+  id           String   @id @default(cuid())
+  category     String
+  value        String
+  createdAt    DateTime @default(now())
+
+  subscriberId String
+  subscriber   EmailSubscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  @@unique([subscriberId, category, value])
+  @@index([subscriberId])
+  @@index([category, value])
+}
+
+model SubscriberEvent {
+  id         String   @id @default(cuid())
+  eventType  String
+  eventData  Json     @default("{}")
+  campaignId String?
+  createdAt  DateTime @default(now())
+
+  subscriberId String
+  subscriber   EmailSubscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  @@index([subscriberId])
+  @@index([eventType])
+  @@index([createdAt])
+}
+
+// ═══════════════════════════════════════════════════════════
+// CMS — BOOKING INQUIRIES
+// ═══════════════════════════════════════════════════════════
+
+model BookingInquiry {
+  id            String    @id @default(cuid())
+  name          String
+  email         String
+  phone         String
+  packageName   String?
+  departureDate DateTime?
+  arrivalDate   DateTime?
+  message       String?
+  seen          Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+
+  @@index([seen])
+  @@index([createdAt])
+}
+
+// ═══════════════════════════════════════════════════════════
+// CMS — PARTNER REQUESTS
+// ═══════════════════════════════════════════════════════════
+
+model PartnerRequest {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  company   String?
+  phone     String?
+  message   String?
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ═══════════════════════════════════════════════════════════
+// CMS — CONTACT SUBMISSIONS
+// ═══════════════════════════════════════════════════════════
+
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String?
+  message   String
+  seen      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([seen])
+  @@index([createdAt])
+}
+
+// ═══════════════════════════════════════════════════════════
+// CMS — NEPAL DESTINATIONS
+// ═══════════════════════════════════════════════════════════
+
+model Destination {
+  id             String   @id @default(cuid())
+  name           String
+  slug           String   @unique
+  subtitle       String?
+  description    String?  @db.Text
+  image          String?
+  imageAlt       String?
+  highlights     String[]
+  seoTitle       String?
+  seoDescription String?  @db.Text
+  seoKeywords    String?
+  displayOrder   Int      @default(0)
+  status         String   @default("active")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([status])
+  @@index([displayOrder])
+}
+
+// ═══════════════════════════════════════════════════════════
+// CMS — STORIES (Instagram-style circles)
+// ═══════════════════════════════════════════════════════════
+
+model Story {
+  id           String   @id @default(cuid())
+  name         String
+  avatar       String?
+  mediaItems   Json     @default("[]")
+  displayOrder Int      @default(0)
+  status       String   @default("active")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([status])
+  @@index([displayOrder])
+}
+
+// ═══════════════════════════════════════════════════════════
+// PAYMENTS — NRT (eSewa, Khalti, Cash on Bus, PACO)
+// ═══════════════════════════════════════════════════════════
+
+model NrtPayment {
+  id              String   @id @default(cuid())
+  ticketNo        String
+  method          String
+  amount          Float
+  currency        String   @default("NPR")
+  status          String   @default("pending")
+  transactionId   String?
+  gatewayResponse Json?
+  passengerName   String?
+  passengerPhone  String?
+  passengerEmail  String?
+  route           String?
+  travelDate      String?
+  seatNumbers     String[]
+  discountAmount  Float?   @default(0)
+  couponCode      String?
+  isFinalized     Boolean  @default(false)
+  retryCount      Int      @default(0)
+  lastError       String?
+  finalizedAt     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([ticketNo])
+  @@index([status])
+  @@index([method])
+  @@index([createdAt])
+}
+
+// ═══════════════════════════════════════════════════════════
+// SUPPORT TICKETS (AI Chatbot raised)
+// ═══════════════════════════════════════════════════════════
+
+model SupportTicket {
+  id              String   @id @default(cuid())
+  ticketNo        String
+  type            String   @default("cancellation")
+  reason          String?
+  status          String   @default("pending")
+  passengerName   String?
+  passengerPhone  String?
+  passengerEmail  String?
+  route           String?
+  travelDate      String?
+  seatNumbers     String[]
+  amount          Float?
+  adminNotes      String?
+  resolvedAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([ticketNo])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ═══════════════════════════════════════════════════════════
+// CMS — ADVENTURE ACTIVITIES
+// ═══════════════════════════════════════════════════════════
+
+model AdventureActivity {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  description  String?
+  content      String?  @db.Text
+  image        String?
+  price        String?
+  duration     String?
+  detailsTable Json?
+  displayOrder Int      @default(0)
+  status       String   @default("active")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([status])
+  @@index([displayOrder])
+  @@index([slug])
+}
+
+// ═══════════════════════════════════════════════════════════
+// CMS — AUTOMATION ENGINE
+// ═══════════════════════════════════════════════════════════
+
+model AutomationWorkflow {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  isActive      Boolean  @default(false)
+  triggerType   String
+  triggerConfig Json     @default("{}")
+  conditions    Json     @default("{}")
+  actions       Json     @default("[]")
+  enrollCount   Int      @default(0)
+  completeCount Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  enrollments AutomationEnrollment[]
+
+  @@index([isActive])
+}
+
+model AutomationEnrollment {
+  id            String    @id @default(cuid())
+  workflowId    String
+  subscriberId  String
+  status        String
+  enrolledAt    DateTime  @default(now())
+  completedAt   DateTime?
+  logs          Json      @default("[]")
+
+  workflow      AutomationWorkflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  subscriber    EmailSubscriber    @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  @@unique([workflowId, subscriberId])
+  @@index([status])
+}
+
+// ═══════════════════════════════════════════════════════════
+// CMS — DYNAMIC CONTENT TYPES
+// ═══════════════════════════════════════════════════════════
+
+model ContentType {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  fields      Json
+  isSystem    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  entries ContentEntry[]
+}
+
+model ContentEntry {
+  id        String    @id @default(cuid())
+  data      Json
+  slug      String?
+  status    String    @default("draft")
+  version   Int       @default(1)
+  publishedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  contentTypeId String
+  contentType   ContentType @relation(fields: [contentTypeId], references: [id], onDelete: Cascade)
+
+  versions ContentVersion[]
+
+  @@index([contentTypeId])
+  @@index([slug])
+  @@index([status])
+}
+
+model ContentVersion {
+  id        String   @id @default(cuid())
+  data      Json
+  version   Int
+  createdAt DateTime @default(now())
+
+  entryId String
+  entry   ContentEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@index([entryId])
+}
+
+// ═══════════════════════════════════════════════════════════
+// CMS — PAGES (Block-based Page Builder)
+// ═══════════════════════════════════════════════════════════
+
+model CmsPage {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  blocks      Json      @default("[]")
+  status      String    @default("draft")
+  seoTitle    String?
+  seoDescription String?
+  template    String    @default("default")
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([status])
+}
+
+// ═══════════════════════════════════════════════════════════
+// MEDIA LIBRARY
+// ═══════════════════════════════════════════════════════════
+
+model MediaFile {
+  id        String   @id @default(cuid())
+  filename  String
+  url       String
+  mimeType  String
+  size      Int
+  alt       String?
+  folder    String   @default("/")
+  createdAt DateTime @default(now())
+
+  @@index([folder])
+}
+
+// ═══════════════════════════════════════════════════════════
+// PLUGINS
+// ═══════════════════════════════════════════════════════════
+
+model Plugin {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  displayName String
+  version     String
+  description String?
+  enabled     Boolean  @default(false)
+  config      Json     @default("{}")
+  installedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ═══════════════════════════════════════════════════════════
+// AUDIT LOG
+// ═══════════════════════════════════════════════════════════
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String
+  resource   String
+  resourceId String?
+  details    Json?
+  ip         String?
+  userAgent  String?
+  userId     String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
