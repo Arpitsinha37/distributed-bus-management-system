@@ -1028,7 +1028,7 @@ model CmsPage {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  @@unique([slug, tenantId])
+  @@index([slug, tenantId])
   @@index([status])
   @@index([tenantId])
 }
