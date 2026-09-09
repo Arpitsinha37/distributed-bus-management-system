@@ -3,7 +3,12 @@ import { Metadata } from 'next';
 
 async function getPageData(slug: string) {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api"}/cms/pages/${slug}`,  { next: { revalidate: 60 } });
+    const siteId = process.env.NEXT_PUBLIC_SITE_ID || 'pokhara-travels';
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+    // Using the NRT cms page controller endpoint
+    const url = `${baseUrl}/pages/by-slug/${slug}?tenantId=${siteId}`;
+    
+    const res = await fetch(url, { next: { revalidate: 60 } });
     if (!res.ok) return null;
     return await res.json();
   } catch (error) {
@@ -45,5 +50,3 @@ export default async function ContentPage({ params }: { params: { slug: string }
     </div>
   );
 }
-
-

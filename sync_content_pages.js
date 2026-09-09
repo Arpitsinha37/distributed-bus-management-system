@@ -1,4 +1,7 @@
-import { notFound } from 'next/navigation';
+const fs = require('fs');
+const path = require('path');
+
+const pageContent = `import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 
 async function getPageData(slug: string) {
@@ -6,7 +9,7 @@ async function getPageData(slug: string) {
     const siteId = process.env.NEXT_PUBLIC_SITE_ID || 'pokhara-travels';
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
     // Using the NRT cms page controller endpoint
-    const url = `${baseUrl}/pages/by-slug/${slug}?tenantId=${siteId}`;
+    const url = \`\${baseUrl}/pages/by-slug/\${slug}?tenantId=\${siteId}\`;
     
     const res = await fetch(url, { next: { revalidate: 60 } });
     if (!res.ok) return null;
@@ -50,3 +53,14 @@ export default async function ContentPage({ params }: { params: { slug: string }
     </div>
   );
 }
+`;
+
+const apps = ['storefront', 'storefront-chitwan', 'storefront-lumbini'];
+apps.forEach(app => {
+    const dir = path.join(__dirname, app, 'src', 'app', 'content', '[slug]');
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(path.join(dir, 'page.tsx'), pageContent, 'utf8');
+    console.log('Written to ' + app);
+});

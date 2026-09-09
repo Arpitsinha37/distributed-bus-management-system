@@ -35,7 +35,7 @@ export default function Header() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
-          <Link href="/content/about" className="text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${scrolled ? 'text-slate-600 hover:text-[#D4831E]' : 'text-white/80 hover:text-white'}">Content</Link>
+          <Link href="/content/about" className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${scrolled ? "text-slate-600 hover:text-[#E31837]" : "text-white/80 hover:text-white"}`}>Content</Link>
           <Link
             href="/about"
             className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${scrolled ? 'text-slate-600 hover:text-[#E31837]' : 'text-white/80 hover:text-white'}`}
