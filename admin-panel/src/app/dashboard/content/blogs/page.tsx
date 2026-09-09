@@ -6,7 +6,7 @@ import { apiGet, apiPost, apiPatch, apiDelete } from '@/lib/api';
 import ErrorBanner from '@/components/ErrorBanner';
 import { Plus, Pencil, Trash2, Search, FileText, X } from 'lucide-react';
 import ImageUpload from '@/components/ImageUpload';
-
+import RichEditor from '@/components/RichEditor';
 interface Blog {
     id: string; title: string; slug: string; excerpt: string; content: string; coverImage: string; author: string; isPublished: boolean; createdAt: string;
 }
@@ -105,7 +105,7 @@ export default function BlogsPage() {
                                 <div><label className="block text-sm mb-1">Status</label><select value={form.isPublished ? '1':'0'} onChange={e => setForm({...form, isPublished: e.target.value === '1'})} className="w-full px-3 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700 outline-none"><option value="1">Published</option><option value="0">Draft</option></select></div>
                             </div>
                             <div><label className="block text-sm mb-1">Excerpt</label><textarea value={form.excerpt} onChange={e => setForm({...form, excerpt: e.target.value})} rows={2} className="w-full px-3 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700 outline-none" /></div>
-                            <div><label className="block text-sm mb-1">Content (Markdown/HTML)</label><textarea value={form.content} onChange={e => setForm({...form, content: e.target.value})} required rows={8} className="w-full px-3 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700 outline-none font-mono text-sm" /></div>
+                            <RichEditor value={form.content} onChange={(val: string) => setForm({...form, content: val})} label="Content" />
                             <button type="submit" className="w-full py-2.5 bg-red-600 text-white font-medium rounded-lg">{editing ? 'Update' : 'Create'}</button>
                         </form>
                     </div>
