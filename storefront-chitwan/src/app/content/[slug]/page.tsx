@@ -6,7 +6,7 @@ async function getPageData(slug: string) {
     const siteId = process.env.NEXT_PUBLIC_SITE_ID || 'pokhara-travels';
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
     // Using the NRT cms page controller endpoint
-    const url = `${baseUrl}/pages/by-slug/${slug}?tenantId=${siteId}`;
+    const url = `${baseUrl}/cms/pages/by-slug/${slug}?tenantId=${siteId}`;
     
     const res = await fetch(url, { next: { revalidate: 60 } });
     if (!res.ok) return null;

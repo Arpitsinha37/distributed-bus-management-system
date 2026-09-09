@@ -24,7 +24,7 @@ export class PageService {
         return page;
     }
 
-    async create(data: { title: string; slug: string; blocks?: any[]; tenantId?: string; template?: string; seoTitle?: string; seoDescription?: string }) {
+    async create(data: any) {
         return this.prisma.cmsPage.create({ data: { ...data, blocks: data.blocks || [] } });
     }
 

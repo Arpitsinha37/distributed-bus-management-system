@@ -1014,17 +1014,23 @@ model ContentVersion {
 model CmsPage {
   id          String    @id @default(cuid())
   title       String
-  slug        String    @unique
+  slug        String
+  content     String?   @db.Text
   blocks      Json      @default("[]")
-  status      String    @default("draft")
+  status      String    @default("published")
+  tenantId    String?
   seoTitle    String?
+  seoDesc     String?
   seoDescription String?
+  seoKeywords String?
   template    String    @default("default")
   publishedAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
+  @@unique([slug, tenantId])
   @@index([status])
+  @@index([tenantId])
 }
 
 // ═══════════════════════════════════════════════════════════

@@ -63,6 +63,7 @@ import { OfflineBookingModule } from './nrt/offline-booking/offline-booking.modu
 
 // NRT CMS ENGINE MODULES
 import { ContentTypeModule } from './nrt/cms/content-type.module';
+import { PageModule } from './nrt/cms/page.module';
 import { MediaModule } from './nrt/media/media.module';
 import { PluginModule } from './nrt/plugin/plugin.module';
 import { AuditModule } from './nrt/audit/audit.module';
@@ -133,6 +134,7 @@ import { AppController } from './app.controller';
 
     // ─── NRT CMS Engine ─────────────────────────────────
     ContentTypeModule,
+    PageModule,
     MediaModule,
     PluginModule,
     AuditModule,

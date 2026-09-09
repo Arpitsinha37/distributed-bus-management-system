@@ -1,18 +1,13 @@
 // @ts-nocheck
-
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../../common/guards/roles.guard';
-import { Roles } from '../../common/decorators/roles.decorator';
-import { SiteId as CurrentUser } from '../../common/decorators/site-id.decorator';
-
 import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { PageService } from './page.service';
-
-
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { SiteId as CurrentUser } from '../../common/decorators/site-id.decorator';
 
 @ApiTags('CMS - Pages')
-@Controller('pages')
+@Controller('cms/pages')
 export class PageController {
     constructor(private pageService: PageService) { }
 
@@ -38,7 +33,6 @@ export class PageController {
     @Post()
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard, RolesGuard)
-    
     @ApiOperation({ summary: 'Create page' })
     create(@CurrentUser('tenantId') tenantId: string, @Body() dto: any) {
         return this.pageService.create({ ...dto, tenantId });
@@ -47,13 +41,10 @@ export class PageController {
     @Put(':id')
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard, RolesGuard)
-    
     update(@Param('id') id: string, @Body() dto: any) { return this.pageService.update(id, dto); }
 
     @Delete(':id')
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard, RolesGuard)
-    
     delete(@Param('id') id: string) { return this.pageService.delete(id); }
 }
-
