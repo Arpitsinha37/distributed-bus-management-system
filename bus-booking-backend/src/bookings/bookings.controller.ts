@@ -61,16 +61,19 @@ export class BookingsController {
     return this.bookingsService.holdSeats(siteId, dto);
   }
 
-  // Track booking by PNR and Phone
   @Get('track')
-  trackBooking(@Query('pnr') pnr: string, @Query('phone') phone: string) {
-    return this.bookingsService.trackBooking(pnr, phone);
+  trackBooking(@Query('q') query: string) {
+    return this.bookingsService.trackBooking(query);
   }
 
   // Customer-initiated cancellation
   @Post('cancel')
   async publicCancel(@Body() dto: { pnr: string; phone: string }) {
-    const booking = await this.bookingsService.trackBooking(dto.pnr, dto.phone);
+    // Legacy cancellation auth for MVP - should be moved to OTP
+    const booking = await this.prisma.booking.findFirst({
+      where: { bookingRef: dto.pnr, customerPhone: dto.phone }
+    });
+    if (!booking) throw new NotFoundException('Booking not found');
     return this.bookingsService.cancelBooking(booking.id);
   }
 

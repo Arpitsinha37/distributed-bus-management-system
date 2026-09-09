@@ -265,16 +265,27 @@ export class BookingsService {
     return booking;
   }
 
-  async trackBooking(bookingRef: string, phone: string) {
-    const booking = await this.prisma.booking.findFirst({
-      where: {
-        bookingRef,
-        customerPhone: phone
-      }
+  async trackBooking(query: string) {
+    if (!query) throw new NotFoundException('Query is required');
+    const isPhone = /^\d{9,15}$/.test(query);
+    
+    const bookings = await this.prisma.booking.findMany({
+      where: isPhone ? { customerPhone: query } : { bookingRef: query },
+      include: { trip: { include: { schedule: { include: { route: true } } } }, seats: true },
+      orderBy: { createdAt: 'desc' }
     });
-    if (!booking) throw new NotFoundException('Booking not found with this PNR and phone number');
-    // Return the ID so the frontend can redirect to the ticket page
-    return { id: booking.id, bookingRef: booking.bookingRef };
+    
+    if (!bookings.length) throw new NotFoundException('No bookings found.');
+    
+    return bookings.map(b => ({
+       id: b.id,
+       ticketNo: b.bookingRef,
+       route: b.trip?.schedule?.route ? `${b.trip.schedule.route.origin} → ${b.trip.schedule.route.destination}` : null,
+       travelDate: b.trip?.travelDate ? new Date(b.trip.travelDate).toLocaleDateString() : null,
+       seatNumbers: b.seats.map(s => s.seatNumber),
+       passengerName: b.customerName,
+       amount: Number(b.totalFare)
+    }));
   }
 
   async cancelBooking(bookingId: string) {
