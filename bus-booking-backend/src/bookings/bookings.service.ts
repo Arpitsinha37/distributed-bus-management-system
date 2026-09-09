@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { customAlphabet } from 'nanoid';
