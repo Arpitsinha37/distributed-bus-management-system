@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req, UseGuards, NotFoundException } from '@nestjs/common';
 import { Request } from 'express';
 import { BookingsService } from './bookings.service';
 import { HoldSeatsDto } from './dto/hold-seats.dto';

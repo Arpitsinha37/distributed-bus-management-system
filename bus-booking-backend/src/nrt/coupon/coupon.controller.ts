@@ -1,4 +1,10 @@
 // @ts-nocheck
+
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { SiteId as CurrentUser } from '../../common/decorators/site-id.decorator';
+
 import { Controller, Get, Post, Delete, Body, Param, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { CouponService } from './coupon.service';
