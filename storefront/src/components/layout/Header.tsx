@@ -3,10 +3,14 @@
 import Link from 'next/link';
 import { Bus, Menu, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
+  const isHome = pathname === '/';
+  const isDark = scrolled || !isHome;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -25,32 +29,32 @@ export default function Header() {
       <div className="max-w-[90rem] mx-auto flex items-center justify-between py-5 px-6 md:px-12">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group">
-          <div className={`w-9 h-9 rounded-full border flex items-center justify-center overflow-hidden group-hover:border-[#E31837]/50 transition-colors duration-300 bg-white ${scrolled ? 'border-slate-200' : 'border-white/20'}`}>
+          <div className={`w-9 h-9 rounded-full border flex items-center justify-center overflow-hidden group-hover:border-[#E31837]/50 transition-colors duration-300 bg-white ${isDark ? 'border-slate-200' : 'border-white/20'}`}>
             <img src="/android-chrome-192x192.png" alt="Pokhara Travels Logo" className="w-full h-full object-cover p-1" />
           </div>
-          <span className={`text-[0.9375rem] font-semibold tracking-wide font-display ${scrolled ? 'text-slate-900' : 'text-white'}`}>
+          <span className={`text-[0.9375rem] font-semibold tracking-wide font-display ${isDark ? 'text-slate-900' : 'text-white'}`}>
             Pokhara Travels
           </span>
         </Link>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
-          <Link href="/content/about" className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${scrolled ? "text-slate-600 hover:text-[#E31837]" : "text-white/80 hover:text-white"}`}>Content</Link>
+          <Link href="/content/about" className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${isDark ? "text-slate-600 hover:text-[#E31837]" : "text-white/80 hover:text-white"}`}>Content</Link>
           <Link
-            href="/about"
-            className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${scrolled ? 'text-slate-600 hover:text-[#E31837]' : 'text-white/80 hover:text-white'}`}
+            href="/content/about"
+            className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${isDark ? 'text-slate-600 hover:text-[#E31837]' : 'text-white/80 hover:text-white'}`}
           >
             About
           </Link>
           <Link
             href="/track"
-            className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${scrolled ? 'text-slate-600 hover:text-[#E31837]' : 'text-white/80 hover:text-white'}`}
+            className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${isDark ? 'text-slate-600 hover:text-[#E31837]' : 'text-white/80 hover:text-white'}`}
           >
             Track
           </Link>
           <Link
-            href="/contact"
-            className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${scrolled ? 'text-slate-600 hover:text-[#E31837]' : 'text-white/80 hover:text-white'}`}
+            href="/content/contact"
+            className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${isDark ? 'text-slate-600 hover:text-[#E31837]' : 'text-white/80 hover:text-white'}`}
           >
             Contact
           </Link>
@@ -82,7 +86,7 @@ export default function Header() {
           </Link>
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className={`p-2 transition-colors ${scrolled ? 'text-slate-600 hover:text-[#E31837]' : 'text-white/80 hover:text-white'}`}
+            className={`p-2 transition-colors ${isDark ? 'text-slate-600 hover:text-[#E31837]' : 'text-white/80 hover:text-white'}`}
           >
             {mobileOpen ? (
               <X className="w-6 h-6" />
@@ -104,7 +108,7 @@ export default function Header() {
             Book
           </Link>
           <Link
-            href="/about"
+            href="/content/about"
             onClick={() => setMobileOpen(false)}
             className="block text-[0.9375rem] text-slate-600 hover:text-[#E31837] transition-colors"
           >
@@ -118,7 +122,7 @@ export default function Header() {
             Track
           </Link>
           <Link
-            href="/contact"
+            href="/content/contact"
             onClick={() => setMobileOpen(false)}
             className="block text-[0.9375rem] text-slate-600 hover:text-[#E31837] transition-colors"
           >
