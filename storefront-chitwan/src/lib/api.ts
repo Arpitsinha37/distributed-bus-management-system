@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? 'https://backend-api-production-be2e.up.railway.app/api/v1' : 'http://localhost:3001/api/v1');
 
 async function fetchJSON(path: string) {
     const res = await fetch(`${API_BASE}${path}`);
