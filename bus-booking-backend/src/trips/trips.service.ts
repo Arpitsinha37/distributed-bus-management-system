@@ -18,7 +18,10 @@ export class TripsService {
     const schedules = await this.prisma.schedule.findMany({
       where: {
         isActive: true,
-        route: { originCity: dto.origin, destinationCity: dto.destination },
+        route: { 
+          originCity: { equals: dto.origin, mode: 'insensitive' }, 
+          destinationCity: { equals: dto.destination, mode: 'insensitive' } 
+        },
         OR: [{ daysOfWeek: { isEmpty: true } }, { daysOfWeek: { has: dayOfWeek } }],
       },
       include: { route: true, bus: { include: { seatLayout: true } } },
@@ -65,10 +68,14 @@ export class TripsService {
         data: { scheduleId, busId: schedule.busId, travelDate },
       });
 
-      const seats = (schedule.bus.seatLayout.layoutJson as any).seats as { number: string }[];
-      await tx.tripSeat.createMany({
-        data: seats.map((s) => ({ tripId: trip.id, seatNumber: s.number })),
-      });
+      const layoutJson = schedule.bus.seatLayout.layoutJson as any;
+      const seats = (layoutJson?.seats || []) as { number: string }[];
+      
+      if (seats.length > 0) {
+        await tx.tripSeat.createMany({
+          data: seats.map((s) => ({ tripId: trip.id, seatNumber: s.number })),
+        });
+      }
 
       return trip;
     });

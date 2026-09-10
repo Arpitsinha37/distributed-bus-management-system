@@ -49,13 +49,11 @@ export default function SchedulesPage() {
             const [sRes, bRes, rRes] = await Promise.all([
                 apiGet<{ data: ScheduleItem[] }>('/schedules', accessToken!),
                 apiGet<{ data: BusOption[] }>('/fleet/buses', accessToken!),
-                apiGet<{ data: RouteOption[] }>('/routes', accessToken!), // wait, earlier I saw routes are in fleet. Oh no, /routes in backend. I'll just use /schedules, /fleet/buses, /routes. Wait, earlier list_dir on src/routes showed it's at root level. 
+                apiGet<{ data: RouteOption[] }>('/routes', accessToken!),
             ]);
             setSchedules(sRes.data || []);
             setBuses(bRes.data || []);
-            // Quick check: if the API was /routes, we need to know. 
-            // In the backend, routes module is in src/routes.
-            // Assuming it's '/routes'
+            setRoutes(rRes.data || []);
         } catch (err: any) {
             setError(err.message || 'Failed to load schedules');
         }
