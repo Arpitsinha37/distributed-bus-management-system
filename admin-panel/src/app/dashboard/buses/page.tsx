@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useStore } from '@/lib/store';
-import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api';
+import { apiGet, apiPost, apiPatch, apiDelete } from '@/lib/api';
 import { Plus, Pencil, Trash2, Search, Bus as BusIcon, X, LayoutGrid, Armchair, Users, AlertTriangle } from 'lucide-react';
 
 // ── Types ──────────────────────────────────────────────────
@@ -153,7 +153,7 @@ function BusesTab() {
         };
         try {
             if (editing) {
-                await apiPut(`/fleet/buses/${editing.id}`, body);
+                await apiPatch(`/fleet/buses/${editing.id}`, body);
             } else {
                 await apiPost('/fleet/buses', body);
             }
@@ -473,7 +473,7 @@ function SeatLayoutsTab() {
         };
         try {
             if (editing) {
-                await apiPut(`/fleet/seat-layouts/${editing.id}`, body);
+                await apiPatch(`/fleet/seat-layouts/${editing.id}`, body);
             } else {
                 await apiPost('/fleet/seat-layouts', body);
             }
@@ -707,7 +707,7 @@ function CrewMembersTab() {
         e.preventDefault();
         try {
             if (editing) {
-                await apiPut(`/crew/${editing.id}`, form);
+                await apiPatch(`/crew/${editing.id}`, form);
             } else {
                 await apiPost('/crew', form);
             }
