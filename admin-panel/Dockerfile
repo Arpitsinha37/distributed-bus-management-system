@@ -7,6 +7,12 @@ RUN npm ci --legacy-peer-deps
 COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# IMPORTANT: Next.js bakes NEXT_PUBLIC_* variables into the client bundle at build time.
+# Therefore, docker-compose runtime environments will not override this! We pass it as a build ARG instead.
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 RUN npm run build
 
 FROM node:18-alpine AS runner

@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { Body, Controller, Get, Param, Post, Query, Req, UseGuards, NotFoundException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req, UseGuards, NotFoundException, BadRequestException } from '@nestjs/common';
 import { Request } from 'express';
 import { BookingsService } from './bookings.service';
 import { HoldSeatsDto } from './dto/hold-seats.dto';
@@ -47,10 +46,10 @@ export class BookingsController {
   @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER, StaffRole.COUNTER_AGENT)
   @Post('counter')
   counterBooking(@SiteId() siteId: string, @Body() dto: CreateCounterBookingDto) {
-    // Determine the effective siteId to use:
-    // Usually counter bookings happen in a specific site, so @SiteId() reads the header.
-    // If not, we can default to global or a specific one.
-    return this.bookingsService.createCounterBooking(siteId || 'global', dto);
+    if (!siteId || siteId === 'global') {
+      throw new BadRequestException('Counter bookings must be made from a specific site context, not global.');
+    }
+    return this.bookingsService.createCounterBooking(siteId, dto);
   }
 
   // ── Public (storefront) endpoints ────────────────────────────
@@ -71,11 +70,7 @@ export class BookingsController {
   @Post('cancel')
   async publicCancel(@Body() dto: { pnr: string; phone: string }) {
     // Legacy cancellation auth for MVP - should be moved to OTP
-    const booking = await this.prisma.booking.findFirst({
-      where: { bookingRef: dto.pnr, customerPhone: dto.phone }
-    });
-    if (!booking) throw new NotFoundException('Booking not found');
-    return this.bookingsService.cancelBooking(booking.id);
+    return this.bookingsService.cancelBookingByRef(dto.pnr, dto.phone);
   }
 
   // Powers the confirmation/pending page after hold + payment.

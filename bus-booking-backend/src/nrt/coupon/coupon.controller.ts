@@ -1,4 +1,3 @@
-// @ts-nocheck
 
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -13,7 +12,7 @@ import { ValidateCouponDto } from './dto/validate-coupon.dto';
 
 
 @ApiTags('Coupons')
-@Controller('coupons')
+@Controller('nrt/coupons')
 export class CouponController {
   constructor(private readonly couponService: CouponService) {}
 

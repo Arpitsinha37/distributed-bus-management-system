@@ -7,7 +7,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard'; import { Role
 import { Response } from 'express';
 
 @ApiTags('Payments')
-@Controller('payments')
+@Controller('nrt/payments')
 export class PaymentController {
     private readonly logger = new Logger(PaymentController.name);
     private readonly frontendUrl = 'https://newroadtravels.com'; // Hardcoded to prod to prevent eSewa localhost redirects

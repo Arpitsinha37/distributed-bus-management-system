@@ -4,7 +4,7 @@ import { CampaignService } from './campaign.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 @ApiTags('Campaigns')
-@Controller('campaigns')
+@Controller('nrt/campaigns')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class CampaignController {

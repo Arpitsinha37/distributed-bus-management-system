@@ -333,6 +333,14 @@ export class BookingsService {
     });
   }
 
+  async cancelBookingByRef(pnr: string, phone: string) {
+    const booking = await this.prisma.booking.findFirst({
+      where: { bookingRef: pnr, customerPhone: phone }
+    });
+    if (!booking) throw new NotFoundException('Booking not found');
+    return this.cancelBooking(booking.id);
+  }
+
   async createCounterBooking(siteId: string, dto: CreateCounterBookingDto) {
     const holderId = `counter:${Date.now()}:${Math.random().toString(36).slice(2)}`;
 
