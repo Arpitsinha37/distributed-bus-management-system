@@ -29,6 +29,11 @@ export class FleetService {
     return this.prisma.seatLayout.update({ where: { id }, data: dto });
   }
 
+  async deleteSeatLayout(id: string) {
+    await this.findOneSeatLayout(id);
+    return this.prisma.seatLayout.delete({ where: { id } });
+  }
+
   // ── Buses ────────────────────────────────────────────────────
 
   createBus(dto: CreateBusDto) {
@@ -59,6 +64,11 @@ export class FleetService {
       data: dto,
       include: { seatLayout: true },
     });
+  }
+
+  async deleteBus(id: string) {
+    await this.findOneBus(id);
+    return this.prisma.bus.delete({ where: { id } });
   }
 
   async getExpiringDocuments() {

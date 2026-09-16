@@ -48,7 +48,7 @@ export default function StaffPage() {
     const fetchStaff = async () => {
         const res = await apiGet('/crew', accessToken!);
         if (res.error) alert(res.error);
-        else setStaff(res.data);
+        else setStaff(res.data || []);
     };
 
     const openModal = (staffMember?: CrewMember) => {

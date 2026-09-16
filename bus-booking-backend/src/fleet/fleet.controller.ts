@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Delete, UseGuards } from '@nestjs/common';
 import { FleetService } from './fleet.service';
 import { CreateSeatLayoutDto } from './dto/create-seat-layout.dto';
 import { CreateBusDto } from './dto/create-bus.dto';
@@ -39,6 +39,13 @@ export class FleetController {
     return this.fleetService.updateSeatLayout(id, dto);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(StaffRole.SUPER_ADMIN)
+  @Delete('seat-layouts/:id')
+  deleteSeatLayout(@Param('id') id: string) {
+    return this.fleetService.deleteSeatLayout(id);
+  }
+
   // ── Buses ────────────────────────────────────────────────────
 
   @UseGuards(JwtAuthGuard)
@@ -71,6 +78,13 @@ export class FleetController {
   @Patch('buses/:id')
   updateBus(@Param('id') id: string, @Body() dto: Partial<CreateBusDto>) {
     return this.fleetService.updateBus(id, dto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(StaffRole.SUPER_ADMIN)
+  @Delete('buses/:id')
+  deleteBus(@Param('id') id: string) {
+    return this.fleetService.deleteBus(id);
   }
 }
 
