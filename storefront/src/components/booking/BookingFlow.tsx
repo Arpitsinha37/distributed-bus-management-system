@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CustomCalendar from './CustomCalendar';
 import CityInput from './CityInput';
@@ -29,7 +29,11 @@ export default function BookingFlow() {
 
   const [origin, setOrigin] = useState('Pokhara');
   const [destination, setDestination] = useState('Kathmandu');
-  const [date, setDate] = useState(dayjs().format('YYYY-MM-DD'));
+  const [date, setDate] = useState<string>('');
+
+  useEffect(() => {
+    setDate(dayjs().format('YYYY-MM-DD'));
+  }, []);
 
   const handleSwap = () => {
     const temp = origin;
@@ -142,10 +146,14 @@ export default function BookingFlow() {
 
           {/* Date & Quick Dates */}
           <div className="flex-[1.5] flex flex-col justify-center relative">
-            <CustomCalendar 
-              selectedDate={dayjs(date).toDate()} 
-              onChange={(d) => setDate(dayjs(d).format('YYYY-MM-DD'))} 
-            />
+            {date ? (
+              <CustomCalendar 
+                selectedDate={dayjs(date).toDate()} 
+                onChange={(d) => setDate(dayjs(d).format('YYYY-MM-DD'))} 
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400">Loading...</div>
+            )}
           </div>
 
           {/* Submit Button */}
