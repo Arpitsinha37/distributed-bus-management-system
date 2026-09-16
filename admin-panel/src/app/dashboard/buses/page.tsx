@@ -167,8 +167,12 @@ function BusesTab() {
 
     const handleDelete = async (id: string) => {
         if (!confirm('Delete this bus?')) return;
-        await apiDelete(`/fleet/buses/${id}`);
-        fetchData();
+        try {
+            await apiDelete(`/fleet/buses/${id}`);
+            fetchData();
+        } catch (err: any) {
+            alert(err.message || 'Failed to delete bus');
+        }
     };
 
     const openEdit = (bus: BusItem) => {
@@ -721,8 +725,12 @@ function CrewMembersTab() {
 
     const handleDelete = async (id: string) => {
         if (!confirm('Remove this crew member?')) return;
-        await apiDelete(`/crew/${id}`);
-        fetchCrew();
+        try {
+            await apiDelete(`/crew/${id}`);
+            fetchCrew();
+        } catch (err: any) {
+            alert(err.message || 'Failed to remove crew member');
+        }
     };
 
     const openEdit = (member: CrewItem) => {
