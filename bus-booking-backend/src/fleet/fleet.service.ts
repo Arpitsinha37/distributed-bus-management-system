@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSeatLayoutDto } from './dto/create-seat-layout.dto';
 import { CreateBusDto } from './dto/create-bus.dto';
@@ -31,6 +32,10 @@ export class FleetService {
 
   async deleteSeatLayout(id: string) {
     await this.findOneSeatLayout(id);
+    const busCount = await this.prisma.bus.count({ where: { seatLayoutId: id } });
+    if (busCount > 0) {
+      throw new ConflictException('Cannot delete a seat layout while buses are using it.');
+    }
     return this.prisma.seatLayout.delete({ where: { id } });
   }
 
@@ -42,6 +47,7 @@ export class FleetService {
 
   async findAllBuses() {
     const data = await this.prisma.bus.findMany({
+      where: { isActive: true },
       include: { seatLayout: true },
       orderBy: { createdAt: 'asc' },
     });
@@ -68,7 +74,32 @@ export class FleetService {
 
   async deleteBus(id: string) {
     await this.findOneBus(id);
-    return this.prisma.bus.delete({ where: { id } });
+
+    const bookingCount = await this.prisma.booking.count({ where: { trip: { busId: id } } });
+    if (bookingCount > 0) {
+      await this.prisma.schedule.updateMany({ where: { busId: id }, data: { isActive: false } });
+      return this.prisma.bus.update({ where: { id }, data: { isActive: false } });
+    }
+
+    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const schedules = await tx.schedule.findMany({ where: { busId: id }, select: { id: true } });
+      const scheduleIds = schedules.map((schedule) => schedule.id);
+      const trips = await tx.trip.findMany({ where: { busId: id }, select: { id: true } });
+      const tripIds = trips.map((trip) => trip.id);
+
+      if (tripIds.length > 0) {
+        await tx.tripSeat.deleteMany({ where: { tripId: { in: tripIds } } });
+        await tx.tripCrew.deleteMany({ where: { tripId: { in: tripIds } } });
+        await tx.trip.deleteMany({ where: { id: { in: tripIds } } });
+      }
+
+      if (scheduleIds.length > 0) {
+        await tx.fareTier.deleteMany({ where: { scheduleId: { in: scheduleIds } } });
+        await tx.schedule.deleteMany({ where: { id: { in: scheduleIds } } });
+      }
+
+      return tx.bus.delete({ where: { id } });
+    });
   }
 
   async getExpiringDocuments() {
@@ -97,4 +128,3 @@ export class FleetService {
     return { data, total: data.length };
   }
 }
-

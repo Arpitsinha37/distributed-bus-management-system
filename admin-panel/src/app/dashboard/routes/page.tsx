@@ -28,7 +28,15 @@ export default function RoutesPage() {
         } catch (err: any) { alert(err.message); }
     };
 
-    const handleDelete = async (id: string) => { if (!confirm('Delete this route?')) return; await apiDelete(`/routes/${id}`, accessToken!); fetchRoutes(); };
+    const handleDelete = async (id: string) => {
+        if (!confirm('Delete this route?')) return;
+        try {
+            await apiDelete(`/routes/${id}`, accessToken!);
+            fetchRoutes();
+        } catch (err: any) {
+            alert(err.message || 'Failed to delete route');
+        }
+    };
 
     const filtered = routes.filter(r => (r.originCity||'').toLowerCase().includes(search.toLowerCase()) || (r.destinationCity||'').toLowerCase().includes(search.toLowerCase()));
 

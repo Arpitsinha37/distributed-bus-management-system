@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { RoutesService } from './routes.service';
 import { CreateRouteDto } from './dto/create-route.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -41,5 +41,11 @@ export class RoutesController {
   update(@Param('id') id: string, @Body() dto: Partial<CreateRouteDto>) {
     return this.routesService.update(id, dto);
   }
-}
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(StaffRole.SUPER_ADMIN)
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.routesService.remove(id);
+  }
+}

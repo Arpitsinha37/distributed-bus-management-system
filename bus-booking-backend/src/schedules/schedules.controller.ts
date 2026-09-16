@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { SchedulesService } from './schedules.service';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -19,8 +19,8 @@ export class SchedulesController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  findAll() {
-    return this.schedulesService.findAll();
+  findAll(@Query('includeInactive') includeInactive?: string) {
+    return this.schedulesService.findAll(includeInactive === 'true');
   }
 
   @UseGuards(JwtAuthGuard)
@@ -35,5 +35,18 @@ export class SchedulesController {
   update(@Param('id') id: string, @Body() dto: Partial<CreateScheduleDto>) {
     return this.schedulesService.update(id, dto);
   }
-}
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(StaffRole.SUPER_ADMIN)
+  @Put(':id')
+  replace(@Param('id') id: string, @Body() dto: Partial<CreateScheduleDto>) {
+    return this.schedulesService.update(id, dto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(StaffRole.SUPER_ADMIN)
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.schedulesService.remove(id);
+  }
+}

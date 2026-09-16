@@ -15,7 +15,7 @@ export default function SupportTicketsPage() {
         try {
             setLoading(true);
             const res = await apiGet('/support-tickets?limit=50', accessToken!);
-            setTickets(res.data?.data || []);
+            setTickets(Array.isArray(res.data) ? res.data : []);
         } catch (error) {
             console.error('Failed to fetch tickets', error);
             alert('Failed to load support tickets. Please check your connection.');

@@ -27,7 +27,7 @@ export default function DestinationsPage() {
     const [saving, setSaving] = useState(false);
     const fileRef = useRef<HTMLInputElement>(null);
 
-    const API_BASE = API_URL.replace('/api', '');
+    const API_BASE = API_URL.replace(/\/api\/v1\/?$/, '').replace(/\/api\/?$/, '');
     const getImageUrl = (url: string) => { if (!url) return ''; return url.startsWith('data:') || url.startsWith('http') ? url : `${API_BASE}${url}`; };
 
     const load = async () => {

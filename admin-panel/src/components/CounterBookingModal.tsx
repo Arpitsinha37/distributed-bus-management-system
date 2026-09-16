@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { apiGet, apiPost } from '@/lib/api';
 import { useStore } from '@/lib/store';
-import { X, CalendarDays, Bus, MapPin, Users } from 'lucide-react';
+import { X, CalendarDays, Bus } from 'lucide-react';
 
 export default function CounterBookingModal({ onClose, onSuccess }: { onClose: () => void, onSuccess: () => void }) {
     const { accessToken } = useStore();
@@ -26,7 +26,7 @@ export default function CounterBookingModal({ onClose, onSuccess }: { onClose: (
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedTrip) return alert('Select a trip');
-        
+
         const seats = seatNumbers.split(',').map(s => s.trim()).filter(Boolean);
         if (seats.length === 0) return alert('Enter seats');
 
@@ -61,19 +61,19 @@ export default function CounterBookingModal({ onClose, onSuccess }: { onClose: (
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white">Counter Booking</h2>
                     <button onClick={onClose} className="p-2 text-gray-400 hover:text-red-500 rounded-lg"><X className="w-5 h-5" /></button>
                 </div>
-                
+
                 <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-5">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select Trip</label>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-xl p-2">
                             {trips.length === 0 && <p className="text-sm text-gray-400 p-2">No trips available</p>}
                             {trips.map(t => (
-                                <div key={t.id} 
+                                <div key={t.id}
                                     onClick={() => setSelectedTrip(t)}
                                     className={`p-3 rounded-lg border cursor-pointer transition-colors ${selectedTrip?.id === t.id ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : 'border-gray-200 dark:border-gray-700 hover:border-red-300'}`}>
-                                    <p className="font-bold text-gray-900 dark:text-white text-sm">{t.schedule?.route?.origin} → {t.schedule?.route?.destination}</p>
+                                    <p className="font-bold text-gray-900 dark:text-white text-sm">{t.schedule?.route?.originCity} - {t.schedule?.route?.destinationCity}</p>
                                     <p className="text-xs text-gray-500 flex items-center gap-1 mt-1"><CalendarDays className="w-3 h-3"/> {new Date(t.travelDate).toLocaleDateString()}</p>
-                                    <p className="text-xs text-gray-500 flex items-center gap-1"><Bus className="w-3 h-3"/> {t.bus?.plateNumber}</p>
+                                    <p className="text-xs text-gray-500 flex items-center gap-1"><Bus className="w-3 h-3"/> {t.bus?.registrationNo}</p>
                                 </div>
                             ))}
                         </div>
@@ -104,7 +104,7 @@ export default function CounterBookingModal({ onClose, onSuccess }: { onClose: (
                             </select>
                         </div>
                     </div>
-                    
+
                     <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
                         <button disabled={loading} type="submit" className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl text-sm transition-colors disabled:opacity-50">
                             {loading ? 'Processing...' : 'Confirm & Print Ticket'}

@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { TripsService } from './trips.service';
 import { SearchTripsDto } from './dto/search-trips.dto';
 import { AssignCrewDto } from './dto/assign-crew.dto';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
 @Controller('trips')
 export class TripsController {
@@ -14,6 +15,12 @@ export class TripsController {
   }
 
   // Public — seat map for the seat-selection screen.
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  findUpcoming(@Query('limit') limit?: string) {
+    return this.tripsService.findUpcoming(limit ? parseInt(limit, 10) : 50);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.tripsService.findOne(id);

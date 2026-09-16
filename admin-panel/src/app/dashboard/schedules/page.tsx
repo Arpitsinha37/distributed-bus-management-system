@@ -47,7 +47,7 @@ export default function SchedulesPage() {
         setError(null);
         try {
             const [sRes, bRes, rRes] = await Promise.all([
-                apiGet<{ data: ScheduleItem[] }>('/schedules', accessToken!),
+                apiGet<{ data: ScheduleItem[] }>('/schedules?includeInactive=true', accessToken!),
                 apiGet<{ data: BusOption[] }>('/fleet/buses', accessToken!),
                 apiGet<{ data: RouteOption[] }>('/routes', accessToken!),
             ]);
@@ -73,8 +73,12 @@ export default function SchedulesPage() {
 
     const handleDelete = async (id: string) => {
         if (!confirm('Delete this schedule?')) return;
-        await apiDelete(`/schedules/${id}`, accessToken!);
-        fetchAll();
+        try {
+            await apiDelete(`/schedules/${id}`, accessToken!);
+            fetchAll();
+        } catch (err: any) {
+            alert(err.message || 'Failed to delete schedule');
+        }
     };
 
     const openEdit = (s: ScheduleItem) => {

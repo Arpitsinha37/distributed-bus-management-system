@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsNumber, IsString, Matches, Min, ValidateNested, IsOptional } from 'class-validator';
+import { IsArray, IsBoolean, IsNumber, IsString, Matches, Min, ValidateNested, IsOptional } from 'class-validator';
 
 export class FareTierDto {
   @IsString()
@@ -28,6 +28,10 @@ export class CreateScheduleDto {
 
   @IsNumber() @Min(0)
   fare: number;
+
+  @IsBoolean()
+  @IsOptional()
+  isActive?: boolean;
 
   @IsArray()
   @IsOptional()

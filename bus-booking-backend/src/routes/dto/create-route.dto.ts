@@ -1,4 +1,4 @@
-import { IsArray, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsArray, IsInt, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 export class CreateRouteDto {
   @IsString()
@@ -6,6 +6,9 @@ export class CreateRouteDto {
 
   @IsString()
   destinationCity: string;
+
+  @IsOptional() @IsNumber() @Min(0)
+  distanceKm?: number;
 
   @IsOptional() @IsInt() @Min(0)
   durationMinutes?: number;

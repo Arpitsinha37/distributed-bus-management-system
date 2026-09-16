@@ -35,6 +35,10 @@ export class PluginService {
     }
 
     async install(pluginName: string) {
+        if (!pluginName) {
+            throw new NotFoundException('Plugin name is required');
+        }
+
         const pluginPath = path.join(this.pluginsDir, pluginName, 'index.ts');
 
         if (!fs.existsSync(pluginPath)) {

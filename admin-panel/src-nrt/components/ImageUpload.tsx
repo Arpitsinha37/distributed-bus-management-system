@@ -32,7 +32,7 @@ export default function ImageUpload({ value, onChange, label = 'Image', apiUrl, 
             if (!res.ok) throw new Error('Upload failed');
             const data = await res.json();
             // Build full URL from the relative path, or use directly if it's already an absolute URL or data URI
-            const baseUrl = apiUrl.replace('/api', '');
+            const baseUrl = apiUrl.replace(/\/api\/v1\/?$/, '').replace(/\/api\/?$/, '');
             const finalUrl = (data.url.startsWith('http') || data.url.startsWith('data:')) 
                 ? data.url 
                 : `${baseUrl}${data.url}`;

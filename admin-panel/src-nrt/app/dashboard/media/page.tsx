@@ -35,7 +35,8 @@ export default function MediaPage() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const dropZoneRef = useRef<HTMLDivElement>(null);
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+    const API_ORIGIN = API_URL.replace(/\/api\/v1\/?$/, '').replace(/\/api\/?$/, '');
 
     const fetchMedia = useCallback(async () => {
         try {
@@ -123,7 +124,7 @@ export default function MediaPage() {
 
     const getMediaUrl = (item: MediaItem) => {
         if (item.url.startsWith('data:') || item.url.startsWith('http')) return item.url;
-        return `${API_URL.replace('/api', '')}${item.url}`;
+        return `${API_ORIGIN}${item.url}`;
     };
 
     // Compute stats

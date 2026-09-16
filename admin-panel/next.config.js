@@ -8,7 +8,7 @@ const nextConfig = {
         ignoreDuringBuilds: true,
     },
     env: {
-        API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002/api',
+        API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1',
     },
 };
 

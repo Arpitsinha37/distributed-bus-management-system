@@ -24,7 +24,7 @@ export class CrewController {
     @Query('role') role?: CrewRole,
     @Query('isActive') isActive?: string,
   ) {
-    const active = isActive !== undefined ? isActive === 'true' : undefined;
+    const active = isActive === 'all' ? undefined : isActive !== undefined ? isActive === 'true' : true;
     return this.crewService.findAll(role, active);
   }
 

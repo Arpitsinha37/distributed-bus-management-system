@@ -26,7 +26,7 @@ export default function AdventureActivitiesPage() {
 
     const debouncedSearch = useDebounce(search, 500);
 
-    const API_BASE = API_URL.replace('/api', '');
+    const API_BASE = API_URL.replace(/\/api\/v1\/?$/, '').replace(/\/api\/?$/, '');
     const getImageUrl = (url: string) => { if (!url) return ''; return url.startsWith('data:') || url.startsWith('http') ? url : `${API_BASE}${url}`; };
 
     const load = async () => { 

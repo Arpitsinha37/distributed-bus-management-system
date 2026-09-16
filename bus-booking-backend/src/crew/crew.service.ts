@@ -51,11 +51,18 @@ export class CrewService {
     });
   }
 
-  remove(id: string) {
-    // Soft delete
-    return this.prisma.crewMember.update({
-      where: { id },
-      data: { isActive: false },
-    });
+  async remove(id: string) {
+    const existing = await this.prisma.crewMember.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException('Crew member not found');
+
+    const assignmentCount = await this.prisma.tripCrew.count({ where: { crewMemberId: id } });
+    if (assignmentCount > 0) {
+      return this.prisma.crewMember.update({
+        where: { id },
+        data: { isActive: false },
+      });
+    }
+
+    return this.prisma.crewMember.delete({ where: { id } });
   }
 }

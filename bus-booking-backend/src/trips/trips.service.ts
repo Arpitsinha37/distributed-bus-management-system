@@ -100,6 +100,37 @@ export class TripsService {
   }
 
   // Public — powers the seat-map screen: every seat plus its live status.
+  async findUpcoming(limit = 50) {
+    await this.generateUpcomingTrips(30);
+
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+
+    const data = await this.prisma.trip.findMany({
+      where: {
+        travelDate: { gte: today },
+        status: 'SCHEDULED',
+        schedule: { isActive: true },
+        bus: { isActive: true },
+      },
+      take: Math.min(Math.max(limit, 1), 100),
+      orderBy: [{ travelDate: 'asc' }],
+      include: {
+        schedule: { include: { route: true } },
+        bus: true,
+        seats: { where: { status: 'AVAILABLE' }, select: { seatNumber: true } },
+      },
+    });
+
+    data.sort((a, b) => {
+      const dateDiff = a.travelDate.getTime() - b.travelDate.getTime();
+      if (dateDiff !== 0) return dateDiff;
+      return a.schedule.departureTime.localeCompare(b.schedule.departureTime);
+    });
+
+    return { data, total: data.length };
+  }
+
   async findOne(tripId: string) {
     const trip = await this.prisma.trip.findUniqueOrThrow({
       where: { id: tripId },
