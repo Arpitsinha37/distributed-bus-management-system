@@ -65,8 +65,17 @@ export default function SchedulesPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            if (editing) await apiPut(`/schedules/${editing.id}`, form, accessToken!);
-            else await apiPost('/schedules', form, accessToken!);
+            // Clean fareTiers: strip DB-only fields (id, scheduleId) and empty boardingPoint
+            const payload = {
+                ...form,
+                fareTiers: form.fareTiers.map(({ seatType, boardingPoint, amount }) => ({
+                    seatType,
+                    amount,
+                    ...(boardingPoint ? { boardingPoint } : {}),
+                })),
+            };
+            if (editing) await apiPut(`/schedules/${editing.id}`, payload, accessToken!);
+            else await apiPost('/schedules', payload, accessToken!);
             setShowModal(false); setEditing(null); fetchAll();
         } catch (err: any) { alert(err.message); }
     };
