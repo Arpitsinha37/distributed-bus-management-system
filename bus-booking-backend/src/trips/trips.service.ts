@@ -73,7 +73,11 @@ export class TripsService {
       
       if (seats.length > 0) {
         await tx.tripSeat.createMany({
-          data: seats.map((s) => ({ tripId: trip.id, seatNumber: s.number })),
+          data: seats
+            // CMS might save it as `label`, older layouts might use `number`
+            .map((s: any) => ({ tripId: trip.id, seatNumber: s.number || s.label }))
+            // filter out empty/driver/door seats that have no label
+            .filter((s: any) => s.seatNumber),
         });
       }
 

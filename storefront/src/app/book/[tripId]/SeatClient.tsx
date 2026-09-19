@@ -62,7 +62,8 @@ export default function SeatClient({ trip }: { trip: TripDetail }) {
     for (let c = 1; c <= columns; c++) {
       const rowChar = String.fromCharCode(65 + r); // A, B, C...
       const seatId = `${rowChar}${c}`;
-      const seatConfig = seatsData.find((s: any) => s.number === seatId);
+      // CMS generates `label`, older ones might have `number`
+      const seatConfig = seatsData.find((s: any) => (s.number || s.label) === seatId);
       const dbSeat = seatConfig ? trip.seats?.find(s => s.seatNumber === seatId) : null;
       
       let bookingStatus = 'Yes';
