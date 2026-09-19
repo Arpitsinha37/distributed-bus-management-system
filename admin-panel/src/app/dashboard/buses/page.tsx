@@ -699,8 +699,9 @@ function CrewMembersTab() {
 
     const fetchCrew = async () => {
         try {
-            const res = await apiGet<{ data: CrewItem[] }>('/crew');
-            setCrew(res.data || []);
+            const res = await apiGet<CrewItem[] | { data: CrewItem[] }>('/crew');
+            // Backend returns array directly; handle both shapes for safety
+            setCrew(Array.isArray(res) ? res : (res.data || []));
         } catch { }
         setLoading(false);
     };
@@ -710,16 +711,21 @@ function CrewMembersTab() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            // Clean empty strings for optional fields before sending
+            const payload: Record<string, any> = { ...form };
+            if (!payload.email) delete payload.email;
+            if (!payload.licenseNo) delete payload.licenseNo;
+
             if (editing) {
-                await apiPatch(`/crew/${editing.id}`, form);
+                await apiPatch(`/crew/${editing.id}`, payload);
             } else {
-                await apiPost('/crew', form);
+                await apiPost('/crew', payload);
             }
             setShowModal(false);
             setEditing(null);
             fetchCrew();
         } catch (err: any) {
-            alert(err.message);
+            alert(err.message || 'Failed to save crew member');
         }
     };
 

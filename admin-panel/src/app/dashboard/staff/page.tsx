@@ -46,9 +46,13 @@ export default function StaffPage() {
     }, [accessToken]);
 
     const fetchStaff = async () => {
-        const res = await apiGet('/crew', accessToken!);
-        if (res.error) alert(res.error);
-        else setStaff(res.data || []);
+        try {
+            const res = await apiGet('/crew', accessToken!);
+            // Backend returns array directly
+            setStaff(Array.isArray(res) ? res : (res.data || []));
+        } catch (err: any) {
+            alert(err.message || 'Failed to load staff');
+        }
     };
 
     const openModal = (staffMember?: CrewMember) => {
@@ -76,22 +80,35 @@ export default function StaffPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        // Clean empty strings to undefined for optional fields
-        const payload = { ...form };
-        if (!payload.email) delete payload.email;
-        if (!payload.licenseNo) delete payload.licenseNo;
-        if (!payload.licenseExpiry) delete payload.licenseExpiry;
-        if (!payload.address) delete payload.address;
-        if (!payload.emergencyPhone) delete payload.emergencyPhone;
-        if (!payload.photoUrl) delete payload.photoUrl;
+        try {
+            // Clean empty strings to undefined for optional fields
+            const payload: Record<string, any> = { ...form };
+            if (!payload.email) delete payload.email;
+            if (!payload.licenseNo) delete payload.licenseNo;
+            if (!payload.licenseExpiry) {
+                delete payload.licenseExpiry;
+            } else {
+                // Convert YYYY-MM-DD to ISO date string for backend @IsDateString() validation
+                payload.licenseExpiry = new Date(payload.licenseExpiry).toISOString();
+            }
+            if (!payload.address) delete payload.address;
+            if (!payload.emergencyPhone) delete payload.emergencyPhone;
+            if (!payload.photoUrl) delete payload.photoUrl;
+            // Remove fields that are not part of the backend DTO
+            delete payload.id;
+            delete payload.createdAt;
+            delete payload.updatedAt;
 
-        if (editingStaff) {
-            await apiPatch(`/crew/${editingStaff.id}`, payload, accessToken!);
-        } else {
-            await apiPost('/crew', payload, accessToken!);
+            if (editingStaff) {
+                await apiPatch(`/crew/${editingStaff.id}`, payload, accessToken!);
+            } else {
+                await apiPost('/crew', payload, accessToken!);
+            }
+            setIsModalOpen(false);
+            fetchStaff();
+        } catch (err: any) {
+            alert(err.message || 'Failed to save staff member');
         }
-        setIsModalOpen(false);
-        fetchStaff();
     };
 
     const handleDelete = async (id: string) => {
@@ -250,7 +267,7 @@ export default function StaffPage() {
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">License Expiry</label>
-                                            <input type="date" value={form.licenseExpiry ? form.licenseExpiry.split('T')[0] : ''} onChange={e => setForm({...form, licenseExpiry: e.target.value ? new Date(e.target.value).toISOString() : ''})} className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 text-sm" />
+                                            <input type="date" value={form.licenseExpiry ? form.licenseExpiry.split('T')[0] : ''} onChange={e => setForm({...form, licenseExpiry: e.target.value || ''})} className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 text-sm" />
                                         </div>
                                     </>
                                 )}
