@@ -49,9 +49,28 @@ export default function LayoutsPage() {
         if (!res.error) setLayouts(res.data);
     };
 
+    // Generate seat labels based on column groups: A for left of aisle, B for right, etc.
+    // e.g., A1, A2, A3... (left column seats), B1, B2, B3... (right column seats)
+    const relabelSeats = (seatList: SeatConfig[], rows: number, cols: number) => {
+        const aisleCol = Math.floor(cols / 2);
+        // Track per-group counters: seats left of aisle = 'A', right = 'B'
+        const groupCounters: Record<string, number> = {};
+
+        for (let currR = 0; currR < rows; currR++) {
+            for (let currC = 0; currC < cols; currC++) {
+                const sIdx = seatList.findIndex(s => s.row === currR && s.col === currC);
+                if (sIdx >= 0 && (seatList[sIdx].type === 'seat' || seatList[sIdx].type === 'sleeper')) {
+                    // Determine column group letter based on position relative to aisle
+                    const groupLetter = currC < aisleCol ? 'A' : 'B';
+                    groupCounters[groupLetter] = (groupCounters[groupLetter] || 0) + 1;
+                    seatList[sIdx].label = `${groupLetter}${groupCounters[groupLetter]}`;
+                }
+            }
+        }
+    };
+
     const initGrid = () => {
         const initialSeats: SeatConfig[] = [];
-        let seatCounter = 1;
         
         for (let r = 0; r < gridRows; r++) {
             for (let c = 0; c < gridCols; c++) {
@@ -63,10 +82,11 @@ export default function LayoutsPage() {
                 } else if (r === 0 || c === Math.floor(gridCols / 2)) {
                     initialSeats.push({ row: r, col: c, label: '', type: 'empty' });
                 } else {
-                    initialSeats.push({ row: r, col: c, label: `${seatCounter++}`, type: 'seat' });
+                    initialSeats.push({ row: r, col: c, label: '', type: 'seat' });
                 }
             }
         }
+        relabelSeats(initialSeats, gridRows, gridCols);
         setSeats(initialSeats);
     };
 
@@ -92,16 +112,8 @@ export default function LayoutsPage() {
             newSeats.push({ row: r, col: c, label: '', type: currentTool });
         }
         
-        // Recalculate labels automatically for all seats/sleepers
-        let counter = 1;
-        for (let currR = 0; currR < gridRows; currR++) {
-            for (let currC = 0; currC < gridCols; currC++) {
-                const sIdx = newSeats.findIndex(s => s.row === currR && s.col === currC);
-                if (sIdx >= 0 && (newSeats[sIdx].type === 'seat' || newSeats[sIdx].type === 'sleeper')) {
-                    newSeats[sIdx].label = `${counter++}`;
-                }
-            }
-        }
+        // Recalculate labels using column-group naming (A1, B1, B2...)
+        relabelSeats(newSeats, gridRows, gridCols);
         setSeats(newSeats);
     };
 
