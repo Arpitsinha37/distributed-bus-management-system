@@ -22,7 +22,7 @@ export class TripsService {
           originCity: { equals: dto.origin, mode: 'insensitive' }, 
           destinationCity: { equals: dto.destination, mode: 'insensitive' } 
         },
-        OR: [{ daysOfWeek: { isEmpty: true } }, { daysOfWeek: { has: dayOfWeek } }],
+        OR: [{ daysOfWeek: { equals: [] } }, { daysOfWeek: { has: dayOfWeek } }],
       },
       include: { route: true, bus: { include: { seatLayout: true } } },
     });
