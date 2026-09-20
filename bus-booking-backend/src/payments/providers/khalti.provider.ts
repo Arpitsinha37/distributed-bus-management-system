@@ -4,8 +4,8 @@ import axios from 'axios';
 export class KhaltiProvider implements PaymentProvider {
   name = 'khalti';
 
-  private readonly secretKey = process.env.KHALTI_SECRET_KEY || 'test_secret_key_...';
-  private readonly baseUrl = process.env.KHALTI_BASE_URL || 'https://a.khalti.com/api/v2';
+  private readonly secretKey = process.env.KHALTI_SECRET_KEY || 'live_secret_key_188f5c3244ce453793b0a29e4cfebea8';
+  private readonly baseUrl = process.env.KHALTI_BASE_URL || 'https://khalti.com/api/v2';
 
   async initiate(bookingId: string, amount: number, currency: string): Promise<InitiatePaymentResult> {
     const callbackApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';

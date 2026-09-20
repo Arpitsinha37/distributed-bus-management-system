@@ -4,8 +4,8 @@ import * as crypto from 'crypto';
 export class EsewaProvider implements PaymentProvider {
   name = 'esewa';
 
-  private readonly merchantCode = process.env.ESEWA_MERCHANT_CODE || 'EPAYTEST';
-  private readonly secretKey = process.env.ESEWA_SECRET_KEY || '8gBm/:&EnhH.1/q';
+  private readonly merchantCode = process.env.ESEWA_MERCHANT_CODE || 'NP-ES-NRTRAVEL';
+  private readonly secretKey = process.env.ESEWA_SECRET_KEY || 'KxYSVzMcCgFZMQEEAQQfUSspSDY2Wi8hPzc4MzYp';
   
   // Use production URL if merchant code is not EPAYTEST
   private get baseUrl(): string {
