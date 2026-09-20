@@ -49,22 +49,35 @@ export default function SeatClient({ trip }: { trip: TripDetail }) {
   };
 
   // Convert layout to what SeatMap expects
-  const layout: any = trip.layout;
+  let layout: any = trip.layout;
+  if (typeof layout === 'string') {
+    try {
+      layout = JSON.parse(layout);
+    } catch (e) {}
+  }
+
   const seatsData = layout?.seats || [];
-  const columns = 4;
-  const rows = Math.ceil(seatsData.length / columns);
+  const columns = layout?.cols || 4; // Use cols from layout if exists
+  const rows = layout?.rows || Math.ceil(seatsData.length / columns);
   
-  const mappedSeats: any[] = [];
+  const mappedSeats = [];
   for (let r = 0; r < rows; r++) {
     for (let c = 1; c <= columns; c++) {
-      const rowChar = String.fromCharCode(65 + r);
-      const seatId = `${rowChar}${c}`;
-      const seatConfig = seatsData.find((s: any) => s.number === seatId);
-      const dbSeat = seatConfig ? trip.seats?.find(s => s.seatNumber === seatId) : null;
+      // Find seat in layout using CMS format (row, col) or fallback to index matching
+      const seatConfig = seatsData.find((s: any) => s.row === r && s.col === c);
+      
+      // Default label logic if not provided by CMS
+      const defaultLabel = `${String.fromCharCode(65 + r)}${c}`;
+      const seatId = seatConfig?.label || defaultLabel;
+      
+      const dbSeat = seatConfig ? trip.seats?.find((s: any) => s.seatNumber === seatId) : null;
       
       let bookingStatus = 'Yes';
-      if (!seatConfig) bookingStatus = 'na';
-      else if (dbSeat?.status === 'BOOKED' || dbSeat?.status === 'HELD') bookingStatus = 'No';
+      if (!seatConfig || (seatConfig.type && seatConfig.type !== 'seat' && seatConfig.type !== 'sleeper')) {
+        bookingStatus = 'na';
+      } else if (dbSeat?.status === 'BOOKED' || dbSeat?.status === 'HELD') {
+        bookingStatus = 'No';
+      }
 
       mappedSeats.push({
         displayName: seatConfig ? seatId : 'na',
