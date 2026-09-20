@@ -1,12 +1,9 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? 'https://backend-api-production-be2e.up.railway.app/api/v1' : 'http://localhost:3001/api/v1');
 
-const siteId = process.env.NEXT_PUBLIC_SITE_ID || 'pokhara-travels';
+const siteId = 'pokhara-travels';
 
 async function fetchJSON(path: string) {
-    const res = await fetch(`${API_BASE}${path}`, { 
-        cache: 'no-store',
-        headers: { 'x-site-id': siteId }
-    });
+    const res = await fetch(`${API_BASE}${path}`, { cache: 'no-store' });
     if (!res.ok) {
         let msg = `API error ${res.status}`;
         try { const errData = await res.json(); msg = errData.message || errData.error || msg; } catch (e) {}
