@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ValidationPipe } from '@nestjs/common';
 import { CmsService } from './cms.service';
 import { SiteId } from '../common/decorators/site-id.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -22,67 +22,67 @@ export class CmsController {
   // --- Admin Endpoints ---
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER)
-  @Post('sliders') createSlider(@Body() dto: any) { return this.cmsService.createSlider(dto); }
+  @Post('sliders') createSlider(@Body(new ValidationPipe({ whitelist: false })) dto: any) { return this.cmsService.createSlider(dto); }
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER)
-  @Patch('sliders/:id') updateSlider(@Param('id') id: string, @Body() dto: any) { return this.cmsService.updateSlider(id, dto); }
+  @Patch('sliders/:id') updateSlider(@Param('id') id: string, @Body(new ValidationPipe({ whitelist: false })) dto: any) { return this.cmsService.updateSlider(id, dto); }
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER)
   @Delete('sliders/:id') deleteSlider(@Param('id') id: string) { return this.cmsService.deleteSlider(id); }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER)
-  @Post('blogs') createBlog(@Body() dto: any) { return this.cmsService.createBlog(dto); }
+  @Post('blogs') createBlog(@Body(new ValidationPipe({ whitelist: false })) dto: any) { return this.cmsService.createBlog(dto); }
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER)
-  @Patch('blogs/:id') updateBlog(@Param('id') id: string, @Body() dto: any) { return this.cmsService.updateBlog(id, dto); }
+  @Patch('blogs/:id') updateBlog(@Param('id') id: string, @Body(new ValidationPipe({ whitelist: false })) dto: any) { return this.cmsService.updateBlog(id, dto); }
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER)
   @Delete('blogs/:id') deleteBlog(@Param('id') id: string) { return this.cmsService.deleteBlog(id); }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER)
-  @Post('testimonials') createTestimonial(@Body() dto: any) { return this.cmsService.createTestimonial(dto); }
+  @Post('testimonials') createTestimonial(@Body(new ValidationPipe({ whitelist: false })) dto: any) { return this.cmsService.createTestimonial(dto); }
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER)
-  @Patch('testimonials/:id') updateTestimonial(@Param('id') id: string, @Body() dto: any) { return this.cmsService.updateTestimonial(id, dto); }
+  @Patch('testimonials/:id') updateTestimonial(@Param('id') id: string, @Body(new ValidationPipe({ whitelist: false })) dto: any) { return this.cmsService.updateTestimonial(id, dto); }
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER)
   @Delete('testimonials/:id') deleteTestimonial(@Param('id') id: string) { return this.cmsService.deleteTestimonial(id); }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER)
-  @Post('team') createTeam(@Body() dto: any) { return this.cmsService.createTeamMember(dto); }
+  @Post('team') createTeam(@Body(new ValidationPipe({ whitelist: false })) dto: any) { return this.cmsService.createTeamMember(dto); }
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER)
-  @Patch('team/:id') updateTeam(@Param('id') id: string, @Body() dto: any) { return this.cmsService.updateTeamMember(id, dto); }
+  @Patch('team/:id') updateTeam(@Param('id') id: string, @Body(new ValidationPipe({ whitelist: false })) dto: any) { return this.cmsService.updateTeamMember(id, dto); }
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER)
   @Delete('team/:id') deleteTeam(@Param('id') id: string) { return this.cmsService.deleteTeamMember(id); }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER)
-  @Post('faqs') createFaq(@Body() dto: any) { return this.cmsService.createFaq(dto); }
+  @Post('faqs') createFaq(@Body(new ValidationPipe({ whitelist: false })) dto: any) { return this.cmsService.createFaq(dto); }
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER)
-  @Patch('faqs/:id') updateFaq(@Param('id') id: string, @Body() dto: any) { return this.cmsService.updateFaq(id, dto); }
+  @Patch('faqs/:id') updateFaq(@Param('id') id: string, @Body(new ValidationPipe({ whitelist: false })) dto: any) { return this.cmsService.updateFaq(id, dto); }
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER)
   @Delete('faqs/:id') deleteFaq(@Param('id') id: string) { return this.cmsService.deleteFaq(id); }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER)
-  @Post('gallery') createGallery(@Body() dto: any) { return this.cmsService.createGalleryImage(dto); }
+  @Post('gallery') createGallery(@Body(new ValidationPipe({ whitelist: false })) dto: any) { return this.cmsService.createGalleryImage(dto); }
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER)
-  @Patch('gallery/:id') updateGallery(@Param('id') id: string, @Body() dto: any) { return this.cmsService.updateGalleryImage(id, dto); }
+  @Patch('gallery/:id') updateGallery(@Param('id') id: string, @Body(new ValidationPipe({ whitelist: false })) dto: any) { return this.cmsService.updateGalleryImage(id, dto); }
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER)
   @Delete('gallery/:id') deleteGallery(@Param('id') id: string) { return this.cmsService.deleteGalleryImage(id); }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER)
-  @Post('settings') updateSettings(@SiteId() siteId: string, @Body() dto: any) { 
+  @Post('settings') updateSettings(@SiteId() siteId: string, @Body(new ValidationPipe({ whitelist: false })) dto: any) { 
     return this.cmsService.upsertSiteSettings(siteId || null, dto); 
   }
 }
