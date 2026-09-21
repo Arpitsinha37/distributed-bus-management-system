@@ -98,10 +98,10 @@ export default function DetailsClient({ trip }: { trip: TripDetail }) {
           // 1. Hold seats
           const holdRes = await api.post('/bookings/hold', {
               tripId: trip.tripId,
-              seats: selectedSeats,
-              boardingPoint: selectedPickup,
-              droppingPoint: selectedDrop,
-              customerInfo: { name: passengerName, email: passengerEmail, phone: contact },
+              seatNumbers: selectedSeats,
+              customerName: passengerName,
+              customerPhone: contact,
+              customerEmail: passengerEmail,
               passengers: selectedSeats.map(seat => ({ seatNumber: seat, name: passengerName, age: 30 }))
           });
           
