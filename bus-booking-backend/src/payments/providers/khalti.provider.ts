@@ -42,11 +42,14 @@ export class KhaltiProvider implements PaymentProvider {
   // or handle the Khalti validation differently.
   // Let's assume the controller does the validation or we'll change the interface to async.
   // For now, return what we can.
-  async verifyWebhook(rawBody: Buffer | string, signatureHeader: string): Promise<WebhookVerificationResult> {
-    // In Khalti, the callback URL contains `pidx`, `transaction_id`, `amount`, `status`, etc.
-    // e.g., ?pidx=HT...&transaction_id=...&amount=...&status=Completed
-    // We expect rawBody to be the parsed query params as a JSON string for simplicity.
-    const data = JSON.parse(typeof rawBody === 'string' ? rawBody : rawBody.toString('utf-8'));
+  async verifyWebhook(rawBody: any, signatureHeader: string): Promise<WebhookVerificationResult> {
+    // Khalti sends a JSON body like { pidx, transaction_id, amount, status }
+    let data;
+    if (typeof rawBody === 'object' && rawBody !== null && !Buffer.isBuffer(rawBody)) {
+      data = rawBody;
+    } else {
+      data = JSON.parse(typeof rawBody === 'string' ? rawBody : rawBody.toString('utf-8'));
+    }
     
     // We should ideally do an API call to verify, but the interface isn't async.
     // We'll rely on the status reported in the callback for this initial implementation.

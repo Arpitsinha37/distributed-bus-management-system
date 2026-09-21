@@ -47,8 +47,16 @@ export class EsewaProvider implements PaymentProvider {
   async verifyWebhook(rawBody: Buffer | string, signatureHeader: string): Promise<WebhookVerificationResult> {
     let dataPayload = typeof rawBody === 'string' ? rawBody : rawBody.toString('utf-8');
     
-    // eSewa usually sends base64 encoded data in a `data` query param
-    // If it's passed as rawBody here, we assume the controller extracted the 'data' string.
+    // If the frontend forwarded the query params as JSON, extract the 'data' field
+    try {
+      const parsedBody = JSON.parse(dataPayload);
+      if (parsedBody.data) {
+        dataPayload = parsedBody.data;
+      }
+    } catch (e) {
+      // Not JSON, proceed with raw string
+    }
+
     try {
       const decodedStr = Buffer.from(dataPayload, 'base64').toString('utf-8');
       const data = JSON.parse(decodedStr);

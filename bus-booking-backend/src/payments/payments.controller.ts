@@ -43,6 +43,7 @@ export class PaymentsController {
     @Req() req: RawBodyRequest<Request>,
     @Headers('x-signature') signature: string,
   ) {
-    return this.paymentsService.handleWebhook(gateway, req.rawBody ?? '', signature);
+    const payload = req.rawBody || req.body || '';
+    return this.paymentsService.handleWebhook(gateway, payload, signature);
   }
 }

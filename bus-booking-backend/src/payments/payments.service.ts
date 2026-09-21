@@ -58,7 +58,7 @@ export class PaymentsService {
   // Idempotent by design: gateways retry webhooks, and this must be safe
   // to receive the same event more than once without double-confirming or
   // double-crediting anything.
-  async handleWebhook(gateway: string, rawBody: Buffer | string, signatureHeader: string) {
+  async handleWebhook(gateway: string, rawBody: any, signatureHeader: string) {
     const provider = this.providers[gateway];
     if (!provider) throw new Error(`Unsupported gateway: ${gateway}`);
     const verified = await provider.verifyWebhook(rawBody, signatureHeader);
