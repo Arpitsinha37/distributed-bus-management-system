@@ -7,12 +7,11 @@ export class KhaltiProvider implements PaymentProvider {
   private readonly secretKey = process.env.KHALTI_SECRET_KEY || 'live_secret_key_188f5c3244ce453793b0a29e4cfebea8';
   private readonly baseUrl = process.env.KHALTI_BASE_URL || 'https://khalti.com/api/v2';
 
-  async initiate(bookingId: string, amount: number, currency: string): Promise<InitiatePaymentResult> {
-    const callbackApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+  async initiate(bookingId: string, amount: number, currency: string, frontendUrl: string): Promise<InitiatePaymentResult> {
     
     const payload = {
-      return_url: `http://localhost:3000/payment/callback/khalti?bookingId=${bookingId}`,
-      website_url: 'http://localhost:3000', // Should be configured via env
+      return_url: `${frontendUrl}/payment/callback/khalti?bookingId=${bookingId}`,
+      website_url: frontendUrl,
       amount: Math.round(amount * 100), // Khalti expects paisa
       purchase_order_id: bookingId,
       purchase_order_name: `Bus Booking ${bookingId}`,

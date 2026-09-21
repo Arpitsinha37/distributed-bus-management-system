@@ -1,0 +1,1 @@
+fetch('https://pokharatokathmandutouristbusbooking.com/search?origin=Kathmandu&destination=Pokhara&date=2026-09-21').then(r=>r.text()).then(t => { const m = t.match(/initialTrips[^\]]*\]/); console.log(m ? m[0].substring(0, 500) : 'not found'); })

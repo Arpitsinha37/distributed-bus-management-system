@@ -30,8 +30,8 @@ export class PaymentsController {
   }
 
   @Post(':gateway/initiate')
-  initiate(@Param('gateway') gateway: string, @Body('bookingId') bookingId: string) {
-    return this.paymentsService.initiate(bookingId, gateway);
+  initiate(@Param('gateway') gateway: string, @Body('bookingId') bookingId: string, @Body('frontendUrl') frontendUrl: string) {
+    return this.paymentsService.initiate(bookingId, gateway, frontendUrl);
   }
 
   // Gateways call this directly — needs the raw body for signature

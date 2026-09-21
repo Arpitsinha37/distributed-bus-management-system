@@ -94,7 +94,7 @@ export class PacoProvider implements PaymentProvider {
     return Math.round(amount * 100).toString().padStart(12, '0');
   }
 
-  async initiate(bookingId: string, amount: number, currency: string): Promise<InitiatePaymentResult> {
+  async initiate(bookingId: string, amount: number, currency: string, frontendUrl: string): Promise<InitiatePaymentResult> {
     await this.loadKeys();
     const orderNo = `NRT-${bookingId}-${Date.now().toString().slice(-4)}`;
     const apiKey = this.apiKeys[currency] || this.apiKeys['NPR'];
@@ -112,10 +112,10 @@ export class PacoProvider implements PaymentProvider {
       request3dsFlag: 'Y',
       transactionAmount: { amountText: this.formatAmountText(amount), currencyCode: currency, decimalPlaces: 2, amount: amount },
       notificationURLs: {
-        confirmationURL: `http://localhost:3000/payment/callback/paco`,
-        failedURL: `http://localhost:3000/payment/callback/paco`,
-        cancellationURL: `http://localhost:3000/payment/callback/paco`,
-        backendURL: `http://localhost:3001/api/v1/payments/webhook/paco`,
+        confirmationURL: `${frontendUrl}/payment/callback/paco`,
+        failedURL: `${frontendUrl}/payment/callback/paco`,
+        cancellationURL: `${frontendUrl}/payment/callback/paco`,
+        backendURL: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/payments/paco/webhook`,
       },
       deviceDetails: { browserIp: '1.0.0.1', browser: 'Chrome', browserUserAgent: 'Mozilla/5.0 NRT-Backend/1.0', mobileDeviceFlag: 'N' },
       purchaseItems: [

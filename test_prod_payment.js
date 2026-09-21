@@ -1,10 +1,10 @@
-const http = require('http');
+const https = require('https');
 
 const request = (method, path, headers = {}, body = null) => {
   return new Promise((resolve, reject) => {
     const options = {
-      hostname: 'localhost',
-      port: 3001,
+      hostname: 'backend-api-production-be2e.up.railway.app',
+      port: 443,
       path: `/api/v1${path}`,
       method,
       headers: {
@@ -12,7 +12,7 @@ const request = (method, path, headers = {}, body = null) => {
         ...headers
       }
     };
-    const req = http.request(options, (res) => {
+    const req = https.request(options, (res) => {
       let data = '';
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
@@ -29,12 +29,16 @@ const request = (method, path, headers = {}, body = null) => {
   });
 };
 
-async function runTests() {
-  console.log("=== 9. Full Booking Flow ===");
-  const search = await request('GET', `/trips/search?origin=Pokhara&destination=Kathmandu&date=2026-09-10`, { 'X-Site-Id': 'pokhara-travels' });
-  const tripId = search.body[0].id;
+async function testPayment() {
+  console.log("=== 1. Find Trip ===");
+  const search = await request('GET', `/trips/search?origin=Pokhara&destination=Kathmandu&date=2026-09-22`, { 'X-Site-Id': 'pokhara-travels' });
+  const tripId = search.body[0]?.id;
+  if (!tripId) {
+    console.log("No trips found!");
+    return;
+  }
   
-  // Hold
+  console.log("=== 2. Hold Booking ===");
   const hold = await request('POST', `/bookings/hold`, { 'X-Site-Id': 'pokhara-travels' }, {
     tripId,
     customerName: 'Test User',
@@ -44,18 +48,18 @@ async function runTests() {
     droppingPoint: 'Kathmandu',
     seats: ['A1', 'A2']
   });
-  console.log("Hold response:", hold.status, hold.body.id);
+  
+  if(hold.status !== 201) {
+    console.log("Hold Failed", hold.status, hold.body);
+    return;
+  }
+
   const bookingId = hold.body.id;
-  const expectedFare = hold.body.totalFare;
+  console.log("Booking ID:", bookingId);
 
-  // Mock Pay mismatch
-  const payBad = await request('POST', `/bookings/${bookingId}/mock-pay`, {}, { expectedFare: 9999999 });
-  console.log("Pay mismatch:", payBad.status, payBad.body.message);
-
-  // Test PACO
-  console.log("\n=== Testing PACO Initiation ===");
+  console.log("=== Testing PACO Initiation ===");
   const pacoRes = await request('POST', `/payments/paco/initiate`, { 'X-Site-Id': 'pokhara-travels' }, {
-    bookingId: bookingId,
+    bookingId,
     gateway: 'paco',
     paymentMethod: 'visa',
     successUrl: 'http://localhost:3000/success',
@@ -63,21 +67,15 @@ async function runTests() {
   });
   console.log("PACO:", pacoRes.status, pacoRes.body);
 
-  // Test Khalti
   console.log("=== Testing Khalti Initiation ===");
   const khaltiRes = await request('POST', `/payments/khalti/initiate`, { 'X-Site-Id': 'pokhara-travels' }, {
-    bookingId: bookingId,
+    bookingId,
     gateway: 'khalti',
     paymentMethod: 'khalti',
     successUrl: 'http://localhost:3000/success',
     failureUrl: 'http://localhost:3000/failure'
   });
   console.log("KHALTI:", khaltiRes.status, khaltiRes.body);
-
-  console.log("\n=== 10. Mock-pay Rate Limit ===");
-  for (let i = 0; i < 6; i++) {
-    const res = await request('POST', `/bookings/${bookingId}/mock-pay`, {}, { expectedFare: Number(expectedFare) });
-    console.log(`Attempt ${i+1}: ${res.status} ${res.body?.message || res.body?.status}`);
-  }
 }
-runTests().catch(console.error);
+
+testPayment().catch(console.error);

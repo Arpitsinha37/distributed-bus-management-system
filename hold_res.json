@@ -1,0 +1,1 @@
+{"message":["property boardingPoint should not exist","property droppingPoint should not exist","property seats should not exist","seatNumbers must contain at least 1 elements","seatNumbers must be an array","passengers must be an array"],"error":"Bad Request","statusCode":400}

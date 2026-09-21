@@ -14,7 +14,7 @@ export class EsewaProvider implements PaymentProvider {
       : 'https://epay.esewa.com.np';
   }
 
-  async initiate(bookingId: string, amount: number, currency: string): Promise<InitiatePaymentResult> {
+  async initiate(bookingId: string, amount: number, currency: string, frontendUrl: string): Promise<InitiatePaymentResult> {
     const transactionUuid = `NRT-${bookingId}-${Date.now().toString().slice(-4)}`;
     
     const signatureString = `total_amount=${amount},transaction_uuid=${transactionUuid},product_code=${this.merchantCode}`;
@@ -23,14 +23,6 @@ export class EsewaProvider implements PaymentProvider {
       .update(signatureString)
       .digest('base64');
 
-    // The frontend should construct a form with these fields and submit it to the redirectUrl.
-    // To fit the `InitiatePaymentResult` and allow frontend flexibility, we can pass these as query params
-    // to a custom redirect endpoint or pass the data in the redirectUrl.
-    // Since eSewa requires POST with form data, we will return a special URL format that our frontend
-    // will intercept and turn into a form post, or we encode it into the URL.
-    
-    // For simplicity, we return the base form URL. The frontend eSewa wrapper will need to POST to this.
-    // We encode the necessary form data into a base64 string in the clientSecret for the frontend to use.
     const formData = {
       amount: String(amount),
       tax_amount: '0',
@@ -39,8 +31,8 @@ export class EsewaProvider implements PaymentProvider {
       product_code: this.merchantCode,
       product_service_charge: '0',
       product_delivery_charge: '0',
-      success_url: `http://localhost:3000/payment/callback/esewa`,
-      failure_url: `http://localhost:3000/payment/callback/esewa`,
+      success_url: `${frontendUrl}/payment/callback/esewa`,
+      failure_url: `${frontendUrl}/payment/callback/esewa`,
       signed_field_names: 'total_amount,transaction_uuid,product_code',
       signature,
     };

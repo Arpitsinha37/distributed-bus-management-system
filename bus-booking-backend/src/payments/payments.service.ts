@@ -26,11 +26,22 @@ export class PaymentsService {
     };
   }
 
-  async initiate(bookingId: string, gateway: string) {
-    const booking = await this.prisma.booking.findUniqueOrThrow({ where: { id: bookingId } });
+  async initiate(bookingId: string, gateway: string, frontendUrl: string) {
+    const booking = await this.prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: { trip: true, site: true },
+    });
+
+    if (!booking) throw new NotFoundException('Booking not found');
+    
+    // We expect the frontend to pass its URL, but fallback to its configured URL or a default
+    // We could look up the site by booking.siteId here if we wanted to enforce it.
+    const resolvedFrontendUrl = frontendUrl || 'http://localhost:3000';
+
     const provider = this.providers[gateway];
     if (!provider) throw new Error(`Unsupported gateway: ${gateway}`);
-    const result = await provider.initiate(booking.id, Number(booking.totalFare), 'NPR');
+    const amount = Number(booking.totalFare);
+    const result = await provider.initiate(bookingId, amount, 'NPR', resolvedFrontendUrl);
 
     await this.prisma.payment.create({
       data: {

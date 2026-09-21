@@ -110,7 +110,8 @@ export default function DetailsClient({ trip }: { trip: TripDetail }) {
           // 2. Initiate Payment (now using real Paco)
           const gateway = paymentMethod === 'visa' ? 'paco' : paymentMethod;
           const payRes = await api.post(`/payments/${gateway}/initiate`, {
-              bookingId
+              bookingId,
+              frontendUrl: window.location.origin
           });
 
           if (gateway === 'esewa') {
