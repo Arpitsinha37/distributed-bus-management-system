@@ -101,7 +101,7 @@ export default function DetailsClient({ trip }: { trip: TripDetail }) {
               seatNumbers: selectedSeats,
               customerName: passengerName,
               customerPhone: contact,
-              customerEmail: passengerEmail,
+              customerEmail: passengerEmail || undefined,
               passengers: selectedSeats.map(seat => ({ seatNumber: seat, name: passengerName, age: 30 }))
           });
           

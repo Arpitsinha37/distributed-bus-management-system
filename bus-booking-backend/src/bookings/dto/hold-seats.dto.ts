@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { ArrayMinSize, IsArray, IsEmail, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { ArrayMinSize, IsArray, IsEmail, IsOptional, IsString, ValidateNested, ValidateIf } from 'class-validator';
 
 class PassengerInput {
   @IsString() name: string;
@@ -16,7 +16,10 @@ export class HoldSeatsDto {
 
   @IsString() customerName: string;
   @IsString() customerPhone: string;
-  @IsOptional() @IsEmail() customerEmail?: string;
+  
+  @ValidateIf(o => o.customerEmail !== undefined && o.customerEmail !== '')
+  @IsEmail() 
+  customerEmail?: string;
 
   @IsArray() @ValidateNested({ each: true }) @Type(() => PassengerInput)
   passengers: PassengerInput[];
