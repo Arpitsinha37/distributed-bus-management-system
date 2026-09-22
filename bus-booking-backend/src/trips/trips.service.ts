@@ -27,8 +27,23 @@ export class TripsService {
       include: { route: true, bus: { include: { seatLayout: true } } },
     });
 
+    // Check if search date is today (in Nepal time)
+    const nepalNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kathmandu' }));
+    const searchDateStr = date.toISOString().split('T')[0];
+    const todayStr = nepalNow.toISOString().split('T')[0];
+    const isToday = searchDateStr === todayStr;
+
     const results = [];
     for (const schedule of schedules) {
+      let isDeparted = false;
+      // Mark as departed if it's today and past the departure time
+      if (isToday && schedule.departureTime) {
+        const [hours, minutes] = schedule.departureTime.split(':').map(Number);
+        const departureMinutes = hours * 60 + minutes;
+        const currentMinutes = nepalNow.getHours() * 60 + nepalNow.getMinutes();
+        if (currentMinutes > departureMinutes) isDeparted = true;
+      }
+
       const trip = await this.ensureTripExists(schedule.id, date);
       const seatCounts = await this.prisma.tripSeat.groupBy({
         by: ['status'],
@@ -45,6 +60,7 @@ export class TripsService {
         bus: { type: schedule.bus.type, amenities: schedule.bus.amenities },
         route: { origin: schedule.route.originCity, destination: schedule.route.destinationCity },
         availableSeats: available,
+        isDeparted,
       });
     }
     return results;

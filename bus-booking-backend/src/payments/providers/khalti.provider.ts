@@ -55,10 +55,27 @@ export class KhaltiProvider implements PaymentProvider {
     // We'll rely on the status reported in the callback for this initial implementation.
     // In a real production app, we MUST make an API call to `/epayment/lookup/`.
     
-    return {
-      gatewayTxnId: data.pidx,
-      bookingId: data.purchase_order_id,
-      status: data.status === 'Completed' ? 'SUCCESS' : 'FAILED',
-    };
+    if (!data.pidx) {
+      throw new Error('Khalti pidx missing from payload');
+    }
+
+    try {
+      const response = await axios.post(`${this.baseUrl}/epayment/lookup/`, { pidx: data.pidx }, {
+        headers: {
+          Authorization: `Key ${this.secretKey}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const verifiedData = response.data;
+      
+      return {
+        gatewayTxnId: verifiedData.pidx,
+        bookingId: verifiedData.purchase_order_id || data.purchase_order_id,
+        status: verifiedData.status === 'Completed' ? 'SUCCESS' : 'FAILED',
+      };
+    } catch (error: any) {
+      throw new Error(`Khalti verification failed: ${error?.response?.data?.detail || error.message}`);
+    }
   }
 }

@@ -17,7 +17,7 @@ export default async function SeatSelectionPage({ params }: { params: { tripId: 
     if (!tripData) return notFound();
 
     return (
-      <main className="min-h-screen bg-gray-50 pb-20 pt-10">
+      <main className="min-h-screen bg-gray-50 pb-20 pt-28">
         <div className="max-w-5xl mx-auto px-4">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">Select Your Seats</h1>
           <SeatClient trip={tripData} />

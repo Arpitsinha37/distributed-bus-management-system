@@ -16,13 +16,17 @@ export default function PaymentCallbackPage({ params }: { params: { gateway: str
         const queryParams = Object.fromEntries(searchParams.entries());
         
         // We send the query params to the backend webhook endpoint
-        await api.post(`/payments/${params.gateway}/webhook`, queryParams, {
+        const response = await api.post(`/payments/${params.gateway}/webhook`, queryParams, {
           // eSewa requires signature, but the signature is inside the 'data' param for eSewa
           // or in the query params. We just send the payload.
           headers: {
             'Content-Type': 'application/json',
           }
         });
+
+        if (response.data && response.data.status === 'FAILED') {
+          throw new Error('Payment was declined or failed verification.');
+        }
 
         // After the webhook is processed, the booking should be CONFIRMED.
         // We can extract the booking ID from the params or rely on the backend response.

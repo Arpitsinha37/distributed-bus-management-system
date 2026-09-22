@@ -160,12 +160,14 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="mt-16 pt-8 border-t border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-[0.75rem] text-slate-400">
-            &copy; {new Date().getFullYear()} Lumbini Express. All rights
-            reserved.
+            &copy; {new Date().getFullYear()} Lumbini Express. All rights reserved.
           </p>
-          <p className="text-[0.75rem] text-slate-400">
-            Kathmandu &mdash; Lumbini &bull; Nepal
-          </p>
+          <div className="text-[0.75rem] text-slate-400 flex flex-col items-center md:items-end">
+            <span>Kathmandu &mdash; Lumbini &bull; Nepal</span>
+            <span className="mt-1">
+              Made by <a href="https://adfusionepal.com" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-[#E31837] font-medium transition-colors">Adfusion Nepal</a> | <a href="mailto:info@adfusionepal.com" className="text-slate-500 hover:text-[#E31837] transition-colors">info@adfusionepal.com</a>
+            </span>
+          </div>
         </div>
       </div>
     </footer>

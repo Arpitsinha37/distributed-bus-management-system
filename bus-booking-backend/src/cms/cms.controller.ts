@@ -19,6 +19,9 @@ export class CmsController {
   @Get('gallery') getGallery(@SiteId() siteId: string) { return this.cmsService.getGallery(siteId); }
   @Get('settings') getSettings(@SiteId() siteId: string) { return this.cmsService.getSiteSettings(siteId); }
 
+  @Get('pages') getPages(@SiteId() siteId: string) { return this.cmsService.getPages(siteId); }
+  @Get('pages/:slug') getPageBySlug(@SiteId() siteId: string, @Param('slug') slug: string) { return this.cmsService.getPageBySlug(slug); }
+
   // --- Admin Endpoints ---
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER)
@@ -85,4 +88,16 @@ export class CmsController {
   @Post('settings') updateSettings(@SiteId() siteId: string, @Body(new ValidationPipe({ whitelist: false })) dto: any) { 
     return this.cmsService.upsertSiteSettings(siteId || null, dto); 
   }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER)
+  @Post('pages') createPage(@Body(new ValidationPipe({ whitelist: false })) dto: any) { return this.cmsService.createPage(dto); }
+  
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER)
+  @Patch('pages/:id') updatePage(@Param('id') id: string, @Body(new ValidationPipe({ whitelist: false })) dto: any) { return this.cmsService.updatePage(id, dto); }
+  
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(StaffRole.SUPER_ADMIN, StaffRole.SITE_MANAGER)
+  @Delete('pages/:id') deletePage(@Param('id') id: string) { return this.cmsService.deletePage(id); }
 }

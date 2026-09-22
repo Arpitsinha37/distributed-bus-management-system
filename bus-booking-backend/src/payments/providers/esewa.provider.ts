@@ -69,8 +69,10 @@ export class EsewaProvider implements PaymentProvider {
         };
       }
 
-      // Verify signature
-      const signatureString = `transaction_code=${data.transaction_code},status=${data.status},total_amount=${data.total_amount},transaction_uuid=${data.transaction_uuid},product_code=${data.product_code},signed_field_names=${data.signed_field_names}`;
+      // Verify signature dynamically based on signed_field_names
+      const signedFields = data.signed_field_names.split(',');
+      const signatureString = signedFields.map((field: string) => `${field}=${data[field] || ''}`).join(',');
+      
       const expectedSignature = crypto
         .createHmac('sha256', this.secretKey)
         .update(signatureString)
@@ -78,6 +80,23 @@ export class EsewaProvider implements PaymentProvider {
 
       if (expectedSignature !== data.signature) {
         throw new Error('eSewa signature verification failed');
+      }
+
+      // Server-to-server verification
+      const amountStr = String(data.total_amount).replace(/,/g, '');
+      const statusUrl = `${this.baseUrl}/api/epay/transaction/status/?product_code=${this.merchantCode}&total_amount=${amountStr}&transaction_uuid=${data.transaction_uuid}`;
+      const statusRes = await fetch(statusUrl);
+      if (!statusRes.ok) {
+        throw new Error(`eSewa server-to-server verification failed with status: ${statusRes.status}`);
+      }
+      const statusData = await statusRes.json();
+      
+      if (statusData.status !== 'COMPLETE') {
+        return {
+          gatewayTxnId: data.transaction_uuid,
+          bookingId: data.transaction_uuid.split('-')[1],
+          status: 'FAILED',
+        };
       }
 
       return {

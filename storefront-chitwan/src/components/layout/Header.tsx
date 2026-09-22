@@ -30,16 +30,16 @@ export default function Header() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group">
           <div className={`w-9 h-9 rounded-full border flex items-center justify-center overflow-hidden group-hover:border-[#E31837]/50 transition-colors duration-300 bg-white ${isDark ? 'border-slate-200' : 'border-white/20'}`}>
-            <Bus className="w-5 h-5 text-[#E31837]" />
+            <img src="/android-chrome-192x192.png" alt="Pokhara Travels Logo" className="w-full h-full object-cover p-1" />
           </div>
           <span className={`text-[0.9375rem] font-semibold tracking-wide font-display ${isDark ? 'text-slate-900' : 'text-white'}`}>
-            Chitwan Travels
+            Pokhara Travels
           </span>
         </Link>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
-          <Link href="/content/about" className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${isDark ? "text-slate-600 hover:text-[#E31837]" : "text-white/80 hover:text-white"}`}>Content</Link>
+          <Link href="/blog" className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${isDark ? "text-slate-600 hover:text-[#E31837]" : "text-white/80 hover:text-white"}`}>Content</Link>
           <Link
             href="/content/about"
             className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${isDark ? 'text-slate-600 hover:text-[#E31837]' : 'text-white/80 hover:text-white'}`}

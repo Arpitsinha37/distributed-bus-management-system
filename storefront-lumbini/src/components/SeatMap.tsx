@@ -44,12 +44,17 @@ export default function SeatMap({ seats, selectedSeats, onSeatClick, price, noof
                 <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8) 0%, transparent 100%)', opacity: 0.5 }} />
                 
                 {/* Steering Row */}
-                <div className="flex items-center justify-end px-8 py-5 border-b relative z-10" style={{ borderColor: '#e5e2e1' }}>
-                    <svg className="w-8 h-8 opacity-40" style={{ color: '#1c1b1b' }} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="9" />
-                        <circle cx="12" cy="12" r="3.5" />
-                        <path d="M12 3v5.5M3 12h5.5M12 21v-5.5M21 12h-5.5" strokeLinecap="round" />
-                    </svg>
+                <div className="px-5 pt-5 pb-2 border-b relative z-10 flex justify-center" style={{ borderColor: '#e5e2e1' }}>
+                    <div className="flex items-center gap-3 w-full" style={{ maxWidth: `${(56 * noofcolumn) + (12 * (noofcolumn - 1))}px` }}>
+                        <div className="flex-1" />
+                        <div className="w-[56px] flex justify-center">
+                            <svg className="w-8 h-8 opacity-40" style={{ color: '#1c1b1b' }} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="9" />
+                                <circle cx="12" cy="12" r="3.5" />
+                                <path d="M12 3v5.5M3 12h5.5M12 21v-5.5M21 12h-5.5" strokeLinecap="round" />
+                            </svg>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Seat Grid */}

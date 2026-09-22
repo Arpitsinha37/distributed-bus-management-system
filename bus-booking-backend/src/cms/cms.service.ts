@@ -52,4 +52,11 @@ export class CmsService {
     }
     return this.prisma.siteSetting.create({ data: { ...data, siteId } });
   }
+
+  // Cms Pages
+  async getPages(tenantId?: string) { return this.prisma.cmsPage.findMany({ where: tenantId ? { tenantId } : {}, orderBy: { createdAt: 'desc' } }); }
+  async getPageBySlug(slug: string) { return this.prisma.cmsPage.findFirst({ where: { slug } }); }
+  async createPage(data: any) { return this.prisma.cmsPage.create({ data }); }
+  async updatePage(id: string, data: any) { return this.prisma.cmsPage.update({ where: { id }, data }); }
+  async deletePage(id: string) { return this.prisma.cmsPage.delete({ where: { id } }); }
 }

@@ -17,9 +17,25 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Chitwan Travels | VIP Sofa Bus — Chitwan to Kathmandu',
+  title: {
+    default: 'Pokhara Travels | Premium Bus Booking — Pokhara to Kathmandu',
+    template: '%s | Pokhara Travels'
+  },
   description:
-    'Book your VIP Sofa Bus from Chitwan to Kathmandu online. Real-time seat selection, live tracking, and instant confirmation. Travel the Prithvi Highway in luxury.',
+    'Book your luxury bus journey from Pokhara to Kathmandu with real-time seat selection, live tracking, and instant confirmation. Travel through the Himalayas in comfort.',
+  openGraph: {
+    title: 'Pokhara Travels | Premium Bus Booking',
+    description: 'Book your luxury bus journey with real-time seat selection, live tracking, and instant confirmation.',
+    url: 'https://pokharatokathmandutouristbusbooking.com',
+    siteName: 'Pokhara Travels',
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Pokhara Travels | Premium Bus Booking',
+    description: 'Book your luxury bus journey with real-time seat selection, live tracking, and instant confirmation.',
+  },
   icons: {
     icon: [
       { url: '/favicon.ico' },

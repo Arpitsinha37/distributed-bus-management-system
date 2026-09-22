@@ -17,9 +17,25 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Lumbini Express | Premium Bus — Kathmandu to Lumbini',
+  title: {
+    default: 'Pokhara Travels | Premium Bus Booking — Pokhara to Kathmandu',
+    template: '%s | Pokhara Travels'
+  },
   description:
-    'Book your premium bus journey from Kathmandu to Lumbini — the Birthplace of Lord Buddha. Real-time seat selection, live tracking, and instant confirmation.',
+    'Book your luxury bus journey from Pokhara to Kathmandu with real-time seat selection, live tracking, and instant confirmation. Travel through the Himalayas in comfort.',
+  openGraph: {
+    title: 'Pokhara Travels | Premium Bus Booking',
+    description: 'Book your luxury bus journey with real-time seat selection, live tracking, and instant confirmation.',
+    url: 'https://pokharatokathmandutouristbusbooking.com',
+    siteName: 'Pokhara Travels',
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Pokhara Travels | Premium Bus Booking',
+    description: 'Book your luxury bus journey with real-time seat selection, live tracking, and instant confirmation.',
+  },
   icons: {
     icon: [
       { url: '/favicon.ico' },

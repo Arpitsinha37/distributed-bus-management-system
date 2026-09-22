@@ -3,16 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { MapPin, ArrowLeft, X, Clock, TrendingUp, Bus } from 'lucide-react';
 
-const availableCities = [
-    "Kathmandu",
-    "Pokhara",
-    "Sauraha",
-    "Lumbini",
-    "Chitwan",
-    "Butwal",
-    "Dharan",
-    "Biratnagar"
-];
+
 
 const RECENT_CITIES_KEY = 'nrt_recent_cities';
 const MAX_RECENT = 5;
@@ -22,7 +13,7 @@ function getRecentCities(): string[] {
     try {
         const raw = localStorage.getItem(RECENT_CITIES_KEY);
         if (!raw) return [];
-        return JSON.parse(raw).filter((c: string) => availableCities.includes(c));
+        return JSON.parse(raw);
     } catch {
         return [];
     }
@@ -43,9 +34,10 @@ interface CityInputProps {
     value: string;
     onChange: (city: string) => void;
     excludeCity?: string;
+    availableCities?: string[];
 }
 
-const CityInput: React.FC<CityInputProps> = ({ label, placeholder, value, onChange, excludeCity }) => {
+const CityInput: React.FC<CityInputProps> = ({ label, placeholder, value, onChange, excludeCity, availableCities = [] }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState(value);
     const [isMobile, setIsMobile] = useState(false);

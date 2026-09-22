@@ -30,9 +30,24 @@ export default function BookingFlow() {
   const [origin, setOrigin] = useState('Pokhara');
   const [destination, setDestination] = useState('Kathmandu');
   const [date, setDate] = useState<string>('');
+  const [availableCities, setAvailableCities] = useState<string[]>([]);
 
   useEffect(() => {
     setDate(dayjs().format('YYYY-MM-DD'));
+    
+    // Fetch available cities from backend
+    import('@/lib/api').then(({ api }) => {
+      api.get('/routes/cities')
+        .then((res) => {
+          if (Array.isArray(res.data) && res.data.length > 0) {
+            setAvailableCities(res.data);
+            // Default origin and destination to first two if current not in list
+            if (!res.data.includes(origin) && res.data[0]) setOrigin(res.data[0]);
+            if (!res.data.includes(destination) && res.data[1]) setDestination(res.data[1]);
+          }
+        })
+        .catch((err) => console.error('Failed to fetch cities', err));
+    });
   }, []);
 
   const handleSwap = () => {
@@ -121,6 +136,7 @@ export default function BookingFlow() {
               value={origin}
               onChange={setOrigin}
               excludeCity={destination}
+              availableCities={availableCities}
             />
 
             {/* Swap Button */}
@@ -141,6 +157,7 @@ export default function BookingFlow() {
               value={destination}
               onChange={setDestination}
               excludeCity={origin}
+              availableCities={availableCities}
             />
           </div>
 

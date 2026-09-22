@@ -29,32 +29,32 @@ export default function Header() {
       <div className="max-w-[90rem] mx-auto flex items-center justify-between py-5 px-6 md:px-12">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group">
-          <div className={`w-9 h-9 rounded-full border flex items-center justify-center overflow-hidden group-hover:border-[#D4831E]/50 transition-colors duration-300 bg-white ${isDark ? 'border-slate-200' : 'border-white/20'}`}>
-            <Bus className="w-5 h-5 text-[#D4831E]" />
+          <div className={`w-9 h-9 rounded-full border flex items-center justify-center overflow-hidden group-hover:border-[#E31837]/50 transition-colors duration-300 bg-white ${isDark ? 'border-slate-200' : 'border-white/20'}`}>
+            <img src="/android-chrome-192x192.png" alt="Pokhara Travels Logo" className="w-full h-full object-cover p-1" />
           </div>
           <span className={`text-[0.9375rem] font-semibold tracking-wide font-display ${isDark ? 'text-slate-900' : 'text-white'}`}>
-            Lumbini Express
+            Pokhara Travels
           </span>
         </Link>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
-          <Link href="/content/about" className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${isDark ? "text-slate-600 hover:text-[#E31837]" : "text-white/80 hover:text-white"}`}>Content</Link>
+          <Link href="/blog" className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${isDark ? "text-slate-600 hover:text-[#E31837]" : "text-white/80 hover:text-white"}`}>Content</Link>
           <Link
             href="/content/about"
-            className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${isDark ? 'text-slate-600 hover:text-[#D4831E]' : 'text-white/80 hover:text-white'}`}
+            className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${isDark ? 'text-slate-600 hover:text-[#E31837]' : 'text-white/80 hover:text-white'}`}
           >
             About
           </Link>
           <Link
             href="/track"
-            className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${isDark ? 'text-slate-600 hover:text-[#D4831E]' : 'text-white/80 hover:text-white'}`}
+            className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${isDark ? 'text-slate-600 hover:text-[#E31837]' : 'text-white/80 hover:text-white'}`}
           >
             Track
           </Link>
           <Link
             href="/content/contact"
-            className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${isDark ? 'text-slate-600 hover:text-[#D4831E]' : 'text-white/80 hover:text-white'}`}
+            className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${isDark ? 'text-slate-600 hover:text-[#E31837]' : 'text-white/80 hover:text-white'}`}
           >
             Contact
           </Link>
@@ -62,7 +62,7 @@ export default function Header() {
           {/* CTA - Track Booking */}
           <Link
             href="/track"
-            className="flex items-center gap-2 py-2 px-5 bg-gradient-to-r from-[#D4831E] to-[#B91030] hover:from-[#B91030] hover:to-[#9A0D28] text-white rounded-full text-[13px] font-bold transition-all shadow-md shadow-orange-500/20 hover:shadow-lg hover:shadow-orange-500/30 active:scale-[0.97]"
+            className="flex items-center gap-2 py-2 px-5 bg-gradient-to-r from-[#E31837] to-[#B91030] hover:from-[#B91030] hover:to-[#9A0D28] text-white rounded-full text-[13px] font-bold transition-all shadow-md shadow-red-500/20 hover:shadow-lg hover:shadow-red-500/30 active:scale-[0.97]"
           >
             <span className="relative flex h-2.5 w-2.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
@@ -76,17 +76,17 @@ export default function Header() {
         <div className="flex items-center gap-3 md:hidden">
           <Link
             href="/track"
-            className="flex items-center gap-1.5 py-1.5 px-3 bg-orange-50/20 hover:bg-orange-50 text-white hover:text-[#D4831E] rounded-lg text-xs font-bold transition-colors"
+            className="flex items-center gap-1.5 py-1.5 px-3 bg-red-50/20 hover:bg-red-50 text-white hover:text-[#E31837] rounded-lg text-xs font-bold transition-colors"
           >
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#D4831E] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#D4831E]"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E31837] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E31837]"></span>
             </span>
             <span>Track</span>
           </Link>
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className={`p-2 transition-colors ${isDark ? 'text-slate-600 hover:text-[#D4831E]' : 'text-white/80 hover:text-white'}`}
+            className={`p-2 transition-colors ${isDark ? 'text-slate-600 hover:text-[#E31837]' : 'text-white/80 hover:text-white'}`}
           >
             {mobileOpen ? (
               <X className="w-6 h-6" />
@@ -100,25 +100,31 @@ export default function Header() {
       {/* Mobile Menu */}
       {mobileOpen && (
         <div className="md:hidden bg-white/95 backdrop-blur-xl border-t border-slate-200 px-6 py-6 space-y-4">
-          <Link href="/content/about" onClick={() => setMobileOpen(false)} className="block text-[0.9375rem] text-slate-600 hover:text-[#D4831E] transition-colors">Content</Link>
+          <Link
+            href="/"
+            onClick={() => setMobileOpen(false)}
+            className="block text-[0.9375rem] text-slate-600 hover:text-[#E31837] transition-colors"
+          >
+            Book
+          </Link>
           <Link
             href="/content/about"
             onClick={() => setMobileOpen(false)}
-            className="block text-[0.9375rem] text-slate-600 hover:text-[#D4831E] transition-colors"
+            className="block text-[0.9375rem] text-slate-600 hover:text-[#E31837] transition-colors"
           >
             About
           </Link>
           <Link
             href="/track"
             onClick={() => setMobileOpen(false)}
-            className="block text-[0.9375rem] text-slate-600 hover:text-[#D4831E] transition-colors"
+            className="block text-[0.9375rem] text-slate-600 hover:text-[#E31837] transition-colors"
           >
             Track
           </Link>
           <Link
             href="/content/contact"
             onClick={() => setMobileOpen(false)}
-            className="block text-[0.9375rem] text-slate-600 hover:text-[#D4831E] transition-colors"
+            className="block text-[0.9375rem] text-slate-600 hover:text-[#E31837] transition-colors"
           >
             Contact
           </Link>

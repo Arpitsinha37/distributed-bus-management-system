@@ -1,10 +1,11 @@
 // @ts-nocheck
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { customAlphabet } from 'nanoid';
 import { Prisma, BookingStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { SeatLockService } from './seat-lock.service';
+import { EmailService } from '../email/email.service';
 import { HoldSeatsDto } from './dto/hold-seats.dto';
 import { CreateCounterBookingDto } from './dto/create-counter-booking.dto';
 
@@ -12,11 +13,13 @@ const bookingRef = customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ23456789', 8);
 
 @Injectable()
 export class BookingsService {
+  private readonly logger = new Logger(BookingsService.name);
   private holdMinutes = Number(process.env.SEAT_HOLD_MINUTES ?? 8);
 
   constructor(
     private prisma: PrismaService,
     private seatLock: SeatLockService,
+    private emailService: EmailService,
   ) {}
 
   // Admin-facing paginated list with filters.
@@ -94,6 +97,25 @@ export class BookingsService {
 
     try {
       return await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const trip = await tx.trip.findUniqueOrThrow({
+          where: { id: dto.tripId },
+          include: { schedule: { include: { fareTiers: true } } },
+        });
+
+        // Guard: prevent booking if the bus has already departed today
+        const nepalNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kathmandu' }));
+        const travelDateStr = trip.travelDate.toISOString().split('T')[0];
+        const todayStr = nepalNow.toISOString().split('T')[0];
+        
+        if (travelDateStr === todayStr && trip.schedule.departureTime) {
+          const [hours, minutes] = trip.schedule.departureTime.split(':').map(Number);
+          const departureMinutes = hours * 60 + minutes;
+          const currentMinutes = nepalNow.getHours() * 60 + nepalNow.getMinutes();
+          if (currentMinutes > departureMinutes) {
+            throw new BadRequestException('This bus has already departed');
+          }
+        }
+
         const heldUntil = new Date(Date.now() + this.holdMinutes * 60_000);
 
         // Guarded by status: AVAILABLE — if another request already flipped
@@ -107,11 +129,6 @@ export class BookingsService {
         if (updateResult.count !== dto.seatNumbers.length) {
           throw new ConflictException('One or more selected seats are no longer available');
         }
-
-        const trip = await tx.trip.findUniqueOrThrow({
-          where: { id: dto.tripId },
-          include: { schedule: { include: { fareTiers: true } } },
-        });
 
         // Simple default total fare. We aren't doing complex fare calculations during hold yet
         // since the frontend might not pass seat types. We'll use the base fare for now.
@@ -196,17 +213,87 @@ export class BookingsService {
   // Called by the payments module once the gateway confirms money moved.
   // Must be safe to call twice for the same booking (see payments.service).
   async confirmBooking(bookingId: string) {
-    const booking = await this.prisma.booking.findUnique({ where: { id: bookingId } });
+    const booking = await this.prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: {
+        trip: { include: { schedule: { include: { route: true } } } },
+        seats: true,
+      },
+    });
     if (!booking) throw new NotFoundException('Booking not found');
     if (booking.status === 'CONFIRMED') return booking; // idempotent no-op
 
-    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    const confirmed = await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       await tx.tripSeat.updateMany({
         where: { bookingId },
         data: { status: 'BOOKED', heldUntil: null },
       });
       return tx.booking.update({ where: { id: bookingId }, data: { status: 'CONFIRMED' } });
     });
+
+    // Send emails asynchronously — don't block the payment response
+    const route = booking.trip?.schedule?.route;
+    const routeStr = route ? `${route.originCity} → ${route.destinationCity}` : 'N/A';
+    const seatNumbers = booking.seats?.map((s: any) => s.seatNumber) || [];
+    const travelDate = booking.trip?.travelDate
+      ? new Date(booking.trip.travelDate).toLocaleDateString('en-NP', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })
+      : 'N/A';
+    const departureTime = booking.trip?.schedule?.departureTime || 'N/A';
+
+    // Fire-and-forget: send customer confirmation
+    this.emailService.sendBookingConfirmationCustomer({
+      customerName: booking.customerName,
+      customerEmail: booking.customerEmail || '',
+      bookingRef: booking.bookingRef,
+      route: routeStr,
+      date: travelDate,
+      departureTime,
+      seatNumbers,
+      totalFare: Number(booking.totalFare),
+      pickupPoint: booking.pickupPoint || undefined,
+    }).catch(err => this.logger.error('Failed to send customer email', err));
+
+    // Fire-and-forget: send admin alert
+    this.emailService.sendNewBookingAlertAdmin({
+      bookingRef: booking.bookingRef,
+      customerName: booking.customerName,
+      customerPhone: booking.customerPhone || undefined,
+      route: routeStr,
+      date: travelDate,
+      departureTime,
+      seatNumbers,
+      totalFare: Number(booking.totalFare),
+    }).catch(err => this.logger.error('Failed to send admin email', err));
+
+    return confirmed;
+  }
+
+  async failBooking(bookingId: string) {
+    const booking = await this.prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: { trip: { include: { schedule: { include: { route: true } } } } },
+    });
+    if (!booking) throw new NotFoundException('Booking not found');
+    if (booking.status === 'CANCELLED' || booking.status === 'CONFIRMED') return booking;
+
+    const failed = await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      await tx.tripSeat.updateMany({
+        where: { bookingId },
+        data: { status: 'AVAILABLE', heldUntil: null, bookingId: null },
+      });
+      return tx.booking.update({ where: { id: bookingId }, data: { status: 'CANCELLED' } });
+    });
+
+    const route = booking.trip?.schedule?.route;
+    const routeStr = route ? `${route.originCity} → ${route.destinationCity}` : 'N/A';
+
+    this.emailService.sendPaymentFailed(booking.customerEmail || '', {
+      customerName: booking.customerName,
+      bookingRef: booking.bookingRef,
+      route: routeStr,
+    }).catch(err => this.logger.error('Failed to send payment failed email', err));
+
+    return failed;
   }
 
   // Mitigated mock payment to prevent abuse until a real card gateway is integrated.

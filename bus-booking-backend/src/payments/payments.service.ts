@@ -72,7 +72,10 @@ export class PaymentsService {
       // ticketing/notifications modules pick up from here (see TicketingService)
     } else {
       await this.prisma.payment.update({ where: { id: payment.id }, data: { status: 'FAILED' } });
+      await this.bookingsService.failBooking(payment.bookingId);
     }
+    
+    return { status: verified.status, bookingId: payment.bookingId };
   }
 
   async findAll(siteIds?: string[], limit: number = 50) {
@@ -125,6 +128,36 @@ export class PaymentsService {
 
     const sumAmount = (arr: any[]) => arr.reduce((sum, p) => sum + Number(p.amount), 0);
 
+    // Calculate daily revenue for the past 7 days
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(today);
+      d.setDate(d.getDate() - (6 - i));
+      return d;
+    });
+
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    
+    const dailyRevenue = last7Days.map(date => {
+      const startOfDay = new Date(date);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(date);
+      endOfDay.setHours(23, 59, 59, 999);
+      
+      const dayPayments = payments.filter(p => 
+        p.status === 'SUCCESS' && 
+        p.createdAt >= startOfDay && 
+        p.createdAt <= endOfDay
+      );
+      
+      return {
+        name: dayNames[date.getDay()],
+        date: date.toISOString().split('T')[0],
+        Revenue: sumAmount(dayPayments)
+      };
+    });
+
     return {
       total: payments.length,
       totalCompleted: payments.filter(p => p.status === 'SUCCESS').length,
@@ -146,7 +179,8 @@ export class PaymentsService {
         khalti: sumAmount(khalti.filter(p => p.status === 'SUCCESS')),
         cash: sumAmount(cash.filter(p => p.status === 'SUCCESS')),
         other: sumAmount(other.filter(p => p.status === 'SUCCESS')),
-      }
+      },
+      dailyRevenue
     };
   }
 

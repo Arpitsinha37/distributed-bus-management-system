@@ -22,6 +22,7 @@ interface PaymentStats {
     khaltiCount: number;
     cashCount: number;
     totalRevenue: number;
+    dailyRevenue?: { name: string, date: string, Revenue: number }[];
 }
 
 interface Payment {
@@ -46,15 +47,7 @@ const statusColors: Record<string, string> = {
     failed: 'bg-gray-100 text-gray-600 dark:bg-gray-900/30 dark:text-gray-400',
 };
 
-const revenueData = [
-    { name: 'Mon', Revenue: 4000 },
-    { name: 'Tue', Revenue: 3000 },
-    { name: 'Wed', Revenue: 2000 },
-    { name: 'Thu', Revenue: 2780 },
-    { name: 'Fri', Revenue: 1890 },
-    { name: 'Sat', Revenue: 2390 },
-    { name: 'Sun', Revenue: 3490 },
-];
+
 
 export default function DashboardPage() {
     const { user, accessToken } = useStore();
@@ -164,18 +157,24 @@ export default function DashboardPage() {
                         <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2"><MoreVertical className="w-5 h-5" /></button>
                     </div>
                     <div className="h-[280px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#9CA3AF', fontSize: 12 }} dy={10} />
-                                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9CA3AF', fontSize: 12 }} />
-                                <Tooltip
-                                    cursor={{ fill: 'rgba(239, 68, 68, 0.05)' }}
-                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                />
-                                <Bar dataKey="Revenue" fill="#ef4444" radius={[6, 6, 0, 0]} barSize={32} />
-                            </BarChart>
-                        </ResponsiveContainer>
+                        {loading ? (
+                            <div className="flex items-center justify-center h-full text-gray-400 font-medium">Loading revenue data...</div>
+                        ) : !stats?.dailyRevenue || stats.dailyRevenue.every((d: any) => d.Revenue === 0) ? (
+                            <div className="flex items-center justify-center h-full text-gray-400 font-medium">No bookings yet</div>
+                        ) : (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={stats.dailyRevenue} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#9CA3AF', fontSize: 12 }} dy={10} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9CA3AF', fontSize: 12 }} />
+                                    <Tooltip
+                                        cursor={{ fill: 'rgba(239, 68, 68, 0.05)' }}
+                                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                    />
+                                    <Bar dataKey="Revenue" fill="#ef4444" radius={[6, 6, 0, 0]} barSize={32} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        )}
                     </div>
                 </Card>
 

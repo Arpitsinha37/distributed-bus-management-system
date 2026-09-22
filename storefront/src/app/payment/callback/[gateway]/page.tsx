@@ -15,7 +15,11 @@ export default function PaymentCallbackPage({ params }: { params: { gateway: str
         const queryParams = Object.fromEntries(searchParams.entries());
         
         // Send the query params to the backend webhook endpoint
-        await api.post(`/payments/${params.gateway}/webhook`, queryParams);
+        const response = await api.post(`/payments/${params.gateway}/webhook`, queryParams);
+
+        if (response.data && response.data.status === 'FAILED') {
+          throw new Error('Payment was declined or failed verification.');
+        }
 
         let bookingId = '';
         if (params.gateway === 'khalti') {

@@ -339,12 +339,18 @@ export default function SearchResultsClient({
                                             </div>
                                         </div>
 
-                                        <button
-                                            onClick={() => handleViewSeats(bus)}
-                                            className="bg-[#DC143C] hover:bg-red-700 text-white font-bold py-2.5 sm:py-3 px-6 sm:px-8 rounded-xl text-sm transition-all shadow-md shadow-red-500/20 hover:shadow-lg active:scale-[0.97] whitespace-nowrap"
-                                        >
-                                            View Seats →
-                                        </button>
+                                        {bus.isDeparted ? (
+                                            <div className="bg-slate-100 text-slate-500 font-bold py-2.5 sm:py-3 px-6 sm:px-8 rounded-xl text-sm border border-slate-200 cursor-not-allowed whitespace-nowrap text-center">
+                                                Departed
+                                            </div>
+                                        ) : (
+                                            <button
+                                                onClick={() => handleViewSeats(bus)}
+                                                className="bg-[#DC143C] hover:bg-red-700 text-white font-bold py-2.5 sm:py-3 px-6 sm:px-8 rounded-xl text-sm transition-all shadow-md shadow-red-500/20 hover:shadow-lg active:scale-[0.97] whitespace-nowrap"
+                                            >
+                                                View Seats →
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </div>

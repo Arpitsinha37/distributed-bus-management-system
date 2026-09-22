@@ -160,6 +160,18 @@ function PaymentSuccessContent() {
                 </div>
               )}
 
+              <div className="mb-6">
+                <a
+                  href={`https://wa.me/9779856068470?text=${encodeURIComponent(`Hi, I just booked a ticket. My PNR is ${targetPnr || ''}.`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold py-3 rounded-xl transition-all active:scale-95 text-sm shadow-md"
+                >
+                  <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12.031 0C5.385 0 0 5.386 0 12.032c0 2.128.552 4.161 1.6 5.975L.03 24l6.16-1.616c1.761.967 3.737 1.486 5.84 1.486 6.645 0 12.031-5.386 12.031-12.032S17.424 0 12.031 0zm3.602 17.202c-.152.428-.888.805-1.226.839-.338.034-.738.169-2.42-.525-2.022-.835-3.327-2.924-3.428-3.059-.101-.135-.823-1.096-.823-2.091s.524-1.488.709-1.69c.185-.203.405-.254.54-.254.135 0 .27.001.388.006.126.005.297-.05.456.338.169.406.574 1.403.625 1.505.051.102.084.22.017.355-.068.136-.101.22-.203.338-.101.119-.215.253-.304.339-.101.101-.208.212-.093.414.115.203.513.854 1.1 1.378.756.674 1.391.884 1.593.985.203.101.321.084.439-.05.118-.135.507-.592.642-.795.135-.203.27-.169.456-.093.186.076 1.182.558 1.384.66.203.101.338.152.388.236.05.085.05.49-.102.918z"/></svg>
+                  Chat on WhatsApp
+                </a>
+              </div>
+
               {/* Actions */}
               <div className="flex gap-3">
                 {targetPnr && (
