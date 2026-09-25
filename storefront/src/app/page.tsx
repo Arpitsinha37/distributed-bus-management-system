@@ -13,10 +13,18 @@ import {
   Mountain,
   Snowflake,
   Moon,
-  Coffee
+  Coffee,
+  Plug,
+  Wind,
+  Sofa,
+  Heater,
+  Bath,
+  Headphones,
+  Luggage,
+  Navigation
 } from 'lucide-react';
 import BookingFlow from '@/components/booking/BookingFlow';
-import FeaturesCards from '@/components/ui/feature-shader-cards';
+import RouteMap from '@/components/ui/RouteMap';
 
 /* Star-burst SVG icon */
 const StarBurst = () => (
@@ -40,13 +48,15 @@ export default function Home() {
       >
         <div className="pt-32 pb-16 md:pt-40 md:pb-16 max-w-5xl mx-auto w-full">
           <p className="text-[0.6875rem] font-semibold text-[#E31837] uppercase tracking-[0.25em] mb-6">
-            Pokhara — Kathmandu
+            Pokhara — Kathmandu &bull; Book Online
           </p>
-          <h1 className="text-[clamp(2.5rem,6vw,5.5rem)] font-display font-bold text-white leading-[1.05] tracking-tight mb-6">
-            Night Tourist Bus
+          <h1 className="text-[clamp(2rem,5vw,4.5rem)] font-display font-bold text-white leading-[1.05] tracking-tight mb-6">
+            Pokhara to Kathmandu Night Tourist Bus – Book Online
           </h1>
           <p className="text-lg md:text-xl text-white/90 max-w-xl mx-auto leading-relaxed mb-10">
-            Wake up in your destination. Book VIP Sofa seats and enjoy a comfortable 10-hour night journey across Nepal.
+            Book VIP Sofa seats on our night bus from Tourist Bus Park, Pokhara.
+            Departs 7:00 PM, arrives Kathmandu ~5:30 AM. Choose your seat, pay with eSewa, Khalti, or card.
+            From Rs 1,200.
           </p>
           
           {/* Booking search bar now embedded seamlessly in the hero */}
@@ -55,15 +65,15 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════
-          STATS BAR
+          STATS BAR — Key route info at a glance
       ═══════════════════════════════════════════════════════ */}
       <section className="max-w-[90rem] mx-auto px-6 md:px-12 py-16 section-border">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {[
             { num: '7:00 PM', label: 'Daily Departure', icon: Moon },
-            { num: '10h', label: 'Avg Travel Time', icon: Clock },
-            { num: 'VIP', label: 'Sofa Configuration', icon: Armchair },
-            { num: 'Rs. 1200+', label: 'Starting Fare', icon: Bus },
+            { num: '~200 km', label: 'Via Prithvi Highway', icon: Navigation },
+            { num: 'VIP Sofa', label: '2+1 & 2+2 Configs', icon: Armchair },
+            { num: 'Rs 1,200+', label: 'Starting Fare', icon: Bus },
           ].map((s, i) => (
             <div key={i} className="text-center md:text-left">
               <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
@@ -79,7 +89,7 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════
-          ROUTE SHOWCASE — Image cards
+          ROUTE SHOWCASE — Schedule & Boarding Points
       ═══════════════════════════════════════════════════════ */}
       <section className="max-w-[90rem] mx-auto px-6 md:px-12 py-20">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-12">
@@ -93,63 +103,68 @@ export default function Home() {
               </span>
             </div>
           </div>
-          <div className="md:col-span-9">
-            <h2 className="text-3xl md:grid-cols-5xl font-display font-bold text-slate-800 mb-4">
-              Rest through the highway
-            </h2>
-            <p className="text-lg text-slate-500 max-w-xl leading-relaxed">
-              Save daylight hours by traveling overnight. Depart in the evening and arrive fresh at 5:30 AM.
-            </p>
+            <div className="md:col-span-9">
+              <h2 className="text-3xl md:text-5xl font-display font-bold text-slate-800 mb-4">
+                Pokhara to Kathmandu Night Bus Schedule &amp; Boarding Points
+              </h2>
+              <p className="text-lg text-slate-500 max-w-xl leading-relaxed">
+                Depart from Tourist Bus Park (Rashtriya Bank Chowk) in the evening and arrive fresh in Kathmandu by 5:30 AM.
+                The night journey via Prithvi Highway covers approximately 200 km with a rest stop along the way.
+              </p>
+            </div>
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Card 1 */}
+  
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {/* Card 1 — Departure */}
           <div className="img-card h-[400px] md:h-[500px] group cursor-pointer">
             <img
               src="/images/abc/1.jpeg"
-              alt="VIP Sofa Bus interior with comfortable seats"
+              alt="VIP Sofa Bus interior with comfortable reclining seats for the Pokhara to Kathmandu night route"
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors duration-700" />
             <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
               <p className="text-[0.6875rem] font-semibold text-[#E31837] uppercase tracking-[0.15em] mb-2">
-                Departs 7:00 PM
+                Departs 7:00 PM &bull; Arrive by 6:45 PM
               </p>
-              <h3 className="text-2xl md:text-3xl font-display font-bold text-slate-800 mb-2">
+              <h3 className="text-2xl md:text-3xl font-display font-bold text-white mb-2">
                 Pokhara → Kathmandu
               </h3>
-              <p className="text-slate-500 text-sm mb-4">
-                Board at Tourist Bus Park (Rashtriya Bank Chowk)
+              <p className="text-white/80 text-sm mb-4">
+                Board at Tourist Bus Park (Rashtriya Bank Chowk), Pokhara
               </p>
             </div>
           </div>
 
-          {/* Card 2 */}
+          {/* Card 2 — Drop-off */}
           <div className="img-card h-[400px] md:h-[500px] group cursor-pointer">
             <img
               src="/images/abc/2.jpeg"
-              alt="Night Tourist Bus exterior"
+              alt="Night Tourist Bus on the Prithvi Highway between Pokhara and Kathmandu"
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors duration-700" />
             <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
               <p className="text-[0.6875rem] font-semibold text-[#E31837] uppercase tracking-[0.15em] mb-2">
-                Arrives 5:30 AM
+                Arrives ~5:30 AM
               </p>
-              <h3 className="text-2xl md:text-3xl font-display font-bold text-slate-800 mb-2">
-                Drop-off Locations
+              <h3 className="text-2xl md:text-3xl font-display font-bold text-white mb-2">
+                Kathmandu Drop-off Points
               </h3>
-              <p className="text-slate-500 text-sm mb-4">
-                Thankot, Kalanki, Swayambhu, Balaju, Sorakhutte
+              <p className="text-white/80 text-sm mb-4">
+                Thankot · Kalanki · Swayambhu · Balaju · Sorakhutte
               </p>
             </div>
           </div>
+        </div>
+
+        <div className="h-[400px] md:h-[500px]">
+           <RouteMap />
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════
-          HOW IT WORKS
+          HOW IT WORKS — Booking Steps
       ═══════════════════════════════════════════════════════ */}
       <section className="max-w-[90rem] mx-auto px-6 md:px-12 py-20 section-border">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-14">
@@ -159,13 +174,13 @@ export default function Home() {
                 <Zap className="w-2.5 h-2.5 text-slate-800/60" />
               </div>
               <span className="text-[0.8125rem] font-medium text-slate-500 tracking-wide">
-                How It Works
+                How to Book
               </span>
             </div>
           </div>
           <div className="md:col-span-9">
             <h2 className="text-3xl md:text-5xl font-display font-bold text-slate-800">
-              Book in 4 simple steps
+              Book Your Night Bus in 4 Simple Steps
             </h2>
           </div>
         </div>
@@ -175,25 +190,25 @@ export default function Home() {
             {
               step: '01',
               title: 'Search',
-              desc: 'Select Pokhara to Kathmandu.',
+              desc: 'Select Pokhara to Kathmandu and your travel date.',
               icon: MapPin,
             },
             {
               step: '02',
               title: 'Select Seat',
-              desc: 'Choose your VIP Sofa seat (2/1 or 2/2 config).',
+              desc: 'Choose your preferred seat — VIP Sofa (2+1), Deluxe (2+2), or Microbus.',
               icon: Armchair,
             },
             {
               step: '03',
               title: 'Confirm & Pay',
-              desc: 'Fill your details and make secure payment.',
+              desc: 'Fill your details and pay via eSewa, Khalti, Fonepay, or card.',
               icon: Shield,
             },
             {
               step: '04',
-              title: 'Sleep',
-              desc: 'Board at 6:30 PM. Sleep through the journey!',
+              title: 'Travel',
+              desc: 'Arrive by 6:45 PM at Tourist Bus Park. Sleep through the journey and wake up in Kathmandu!',
               icon: Moon,
             },
           ].map((item, i) => (
@@ -219,9 +234,58 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════
-          FEATURES — Premium amenities (Shader Cards)
+          BUS AMENITIES — What's included on board
       ═══════════════════════════════════════════════════════ */}
-      <FeaturesCards />
+      <section className="max-w-[90rem] mx-auto px-6 md:px-12 py-20">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-14">
+          <div className="md:col-span-3">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-5 h-5 rounded-full border border-slate-200 flex items-center justify-center">
+                <Bus className="w-2.5 h-2.5 text-slate-800/60" />
+              </div>
+              <span className="text-[0.8125rem] font-medium text-slate-500 tracking-wide">
+                On-Board Amenities
+              </span>
+            </div>
+          </div>
+          <div className="md:col-span-9">
+            <h2 className="text-3xl md:text-5xl font-display font-bold text-slate-800 mb-4">
+              What&apos;s Included on Your Night Bus
+            </h2>
+            <p className="text-lg text-slate-500 max-w-xl leading-relaxed">
+              Travel in comfort with premium amenities across all our bus types. Amenities vary by vehicle — details shown during seat selection.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          {[
+            { icon: Armchair, title: 'Sofa Reclining Seats', desc: 'Wide, padded seats that recline for sleeping' },
+            { icon: Wind, title: 'Air Conditioning', desc: 'Climate-controlled cabin for comfortable travel' },
+            { icon: Wifi, title: 'Free WiFi', desc: 'Stay connected throughout the journey' },
+            { icon: Plug, title: 'Charging Ports', desc: 'USB & power outlets at every seat' },
+            { icon: Bath, title: 'Onboard Toilet', desc: 'Available on select VIP buses' },
+            { icon: Snowflake, title: 'Blankets', desc: 'Warm blankets for the mountain highway' },
+            { icon: Coffee, title: 'Rest Stop', desc: 'Scheduled break for refreshments' },
+            { icon: Luggage, title: 'Luggage Storage', desc: 'Secure compartment for your bags' },
+          ].map((amenity, i) => (
+            <div
+              key={i}
+              className="bg-white rounded-2xl p-6 border border-slate-100 hover:border-[#E31837]/20 hover:shadow-lg hover:shadow-red-500/5 transition-all duration-300 group"
+            >
+              <div className="w-10 h-10 rounded-xl bg-[#E31837]/5 border border-[#E31837]/10 flex items-center justify-center mb-4 group-hover:bg-[#E31837]/10 transition-colors">
+                <amenity.icon className="w-5 h-5 text-[#E31837]" />
+              </div>
+              <h3 className="text-sm font-display font-semibold text-slate-800 mb-1">
+                {amenity.title}
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                {amenity.desc}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* ═══════════════════════════════════════════════════════
           SCENIC PARALLAX BANNER
@@ -232,13 +296,14 @@ export default function Home() {
       >
         <div className="max-w-3xl py-24">
           <p className="text-[0.6875rem] font-semibold text-[#E31837] uppercase tracking-[0.25em] mb-4">
-            Maximize Your Time
+            Save Your Daylight
           </p>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-white leading-tight mb-6">
-            Wake up fresh in Kathmandu
+            Wake Up Fresh in Kathmandu
           </h2>
           <p className="text-white/90 text-lg leading-relaxed mb-8">
-            Why lose a day to travel? Our night service ensures you don't miss a single hour of your vacation.
+            Why lose a day to travel? Our night service via Prithvi Highway ensures you arrive by 5:30 AM,
+            ready for your next adventure — whether it&apos;s a meeting, a flight, or exploring the Kathmandu Valley.
           </p>
         </div>
       </section>
@@ -260,7 +325,7 @@ export default function Home() {
           </div>
           <div className="md:col-span-9">
             <h2 className="text-3xl md:text-5xl font-display font-bold text-slate-800">
-              What travelers say
+              What Travelers Say About Our Night Bus
             </h2>
           </div>
         </div>

@@ -15,7 +15,7 @@ export default function Footer() {
             Your Journey Awaits
           </p>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-white mb-6">
-            Ready to explore?
+            Book Your Pokhara to Kathmandu Night Bus
           </h2>
           <Link href="/" className="btn-accent">
             Book Your Ride

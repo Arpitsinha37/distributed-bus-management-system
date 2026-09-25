@@ -41,7 +41,7 @@ export default function Header() {
         <div className="hidden md:flex items-center gap-8">
           <Link href="/blog" className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${isDark ? "text-slate-600 hover:text-[#E31837]" : "text-white/80 hover:text-white"}`}>Content</Link>
           <Link
-            href="/content/about"
+            href="/about"
             className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${isDark ? 'text-slate-600 hover:text-[#E31837]' : 'text-white/80 hover:text-white'}`}
           >
             About
@@ -53,7 +53,7 @@ export default function Header() {
             Track
           </Link>
           <Link
-            href="/content/contact"
+            href="/contact"
             className={`text-[0.8125rem] font-medium transition-colors duration-300 tracking-wide ${isDark ? 'text-slate-600 hover:text-[#E31837]' : 'text-white/80 hover:text-white'}`}
           >
             Contact
@@ -108,7 +108,7 @@ export default function Header() {
             Book
           </Link>
           <Link
-            href="/content/about"
+            href="/about"
             onClick={() => setMobileOpen(false)}
             className="block text-[0.9375rem] text-slate-600 hover:text-[#E31837] transition-colors"
           >
@@ -122,7 +122,7 @@ export default function Header() {
             Track
           </Link>
           <Link
-            href="/content/contact"
+            href="/contact"
             onClick={() => setMobileOpen(false)}
             className="block text-[0.9375rem] text-slate-600 hover:text-[#E31837] transition-colors"
           >

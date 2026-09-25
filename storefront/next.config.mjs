@@ -15,6 +15,27 @@ const nextConfig = {
     images: {
         unoptimized: true,
     },
+    async redirects() {
+        return [
+            // Fix inconsistent /content/ URLs → canonical paths
+            {
+                source: '/content/about',
+                destination: '/about',
+                permanent: true, // 301
+            },
+            {
+                source: '/content/contact',
+                destination: '/contact',
+                permanent: true, // 301
+            },
+            // Catch any other /content/ pages and redirect
+            {
+                source: '/content/:slug',
+                destination: '/:slug',
+                permanent: true,
+            },
+        ];
+    },
     webpack: (config) => {
         // Alias react-router-dom to our Next.js compatibility shim
         // so NRT pages work without rewriting their imports
