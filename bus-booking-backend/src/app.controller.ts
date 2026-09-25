@@ -12,9 +12,6 @@ export class AppController {
   async seedSchedulesAlternate() {
     const prisma = new PrismaClient();
     try {
-      // First, delete all existing schedules so we can cleanly insert
-      await prisma.schedule.deleteMany();
-      
       const SET_A = [1, 3, 5]; // Mon, Wed, Fri
       const SET_B = [0, 2, 4, 6]; // Sun, Tue, Thu, Sat
 
@@ -60,16 +57,28 @@ export class AppController {
         });
 
         if (route && bus) {
-          await prisma.schedule.create({
-            data: {
-              routeId: route.id,
-              busId: bus.id,
-              departureTime: s.time,
-              fare: s.fare,
-              daysOfWeek: s.days
-            }
+          const existing = await prisma.schedule.findFirst({
+            where: { routeId: route.id, busId: bus.id }
           });
-          results.push(`Seeded: ${s.origin}-${s.destination} at ${s.time} via ${s.busReg}`);
+          
+          if (existing) {
+             await prisma.schedule.update({
+               where: { id: existing.id },
+               data: { daysOfWeek: s.days, departureTime: s.time, fare: s.fare }
+             });
+             results.push(`Updated: ${s.origin}-${s.destination} at ${s.time} via ${s.busReg}`);
+          } else {
+             await prisma.schedule.create({
+               data: {
+                 routeId: route.id,
+                 busId: bus.id,
+                 departureTime: s.time,
+                 fare: s.fare,
+                 daysOfWeek: s.days
+               }
+             });
+             results.push(`Created: ${s.origin}-${s.destination} at ${s.time} via ${s.busReg}`);
+          }
         } else {
           results.push(`Failed: Missing route or bus for ${s.origin}-${s.destination} via ${s.busReg}`);
         }
