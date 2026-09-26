@@ -22,6 +22,9 @@ interface ScheduleItem {
     route?: RouteOption;
     bus?: BusOption;
     fareTiers?: FareTier[];
+    rotationDays?: number;
+    rotationOffset?: number;
+    rotationStartDate?: string;
 }
 
 export default function SchedulesPage() {
@@ -175,11 +178,19 @@ export default function SchedulesPage() {
                                 </td>
                                 <td className="px-5 py-3.5">
                                     <div className="flex gap-0.5 flex-wrap">
-                                        {s.daysOfWeek.length === 0 ? <span className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-500 text-[10px] uppercase rounded font-medium">Daily</span> : s.daysOfWeek.map(d => (
-                                            <span key={d} className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-500 text-[10px] uppercase rounded font-medium">
-                                                {days[d]}
+                                        {s.rotationDays && s.rotationDays > 0 ? (
+                                            <span className="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] uppercase rounded font-medium">
+                                                {s.rotationDays}-Day Rotation (Offset {s.rotationOffset})
                                             </span>
-                                        ))}
+                                        ) : s.daysOfWeek?.length === 0 ? (
+                                            <span className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-500 text-[10px] uppercase rounded font-medium">Daily</span>
+                                        ) : (
+                                            s.daysOfWeek?.map(d => (
+                                                <span key={d} className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-500 text-[10px] uppercase rounded font-medium">
+                                                    {days[d]}
+                                                </span>
+                                            ))
+                                        )}
                                     </div>
                                 </td>
                                 <td className="px-5 py-3.5">

@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional, IsBoolean, IsDateString } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsBoolean, IsDateString, IsArray } from 'class-validator';
 
 export class CreateCouponDto {
   @IsString()
@@ -31,4 +31,8 @@ export class CreateCouponDto {
   @IsString()
   @IsOptional()
   siteId?: string;
+
+  @IsArray()
+  @IsOptional()
+  scheduleIds?: string[];
 }

@@ -33,6 +33,18 @@ export class CreateScheduleDto {
   @IsOptional()
   isActive?: boolean;
 
+  @IsNumber()
+  @IsOptional()
+  rotationDays?: number;
+
+  @IsString()
+  @IsOptional()
+  rotationStartDate?: string;
+
+  @IsNumber()
+  @IsOptional()
+  rotationOffset?: number;
+
   @IsArray()
   @IsOptional()
   @ValidateNested({ each: true })

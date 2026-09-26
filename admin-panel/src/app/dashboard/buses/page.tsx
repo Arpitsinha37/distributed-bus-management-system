@@ -98,6 +98,11 @@ export default function BusManagementPage() {
     );
 }
 
+// ── Predefined options ─────────────────────────────────────
+
+const BUS_TYPES = ['AC Seater', 'Non-AC Seater', 'AC Sleeper', 'Deluxe', 'Super Deluxe', 'VIP Sofa', 'Tourist', 'Micro'];
+const AMENITY_OPTIONS = ['WiFi', 'AC', 'Charging', 'Blanket', 'Water Bottle', 'TV/Entertainment', 'Reclining Seats', 'Reading Light', 'Snacks', 'First Aid'];
+
 // ════════════════════════════════════════════════════════════
 // Buses Tab
 // ════════════════════════════════════════════════════════════
@@ -106,50 +111,52 @@ function BusesTab() {
     const { accessToken } = useStore();
     const [buses, setBuses] = useState<BusItem[]>([]);
     const [layouts, setLayouts] = useState<SeatLayoutItem[]>([]);
-    const [expiringDocs, setExpiringDocs] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [editing, setEditing] = useState<BusItem | null>(null);
     const [search, setSearch] = useState('');
     const [form, setForm] = useState({
-        registrationNo: '', type: 'AC Seater', amenities: '', seatLayoutId: '',
-        brand: '', model: '', manufacturingYear: '', ownerName: '', ownerPhone: '',
-        rcNumber: '', insuranceNo: '', insuranceExpiry: '', fitnessExpiry: '', permitExpiry: ''
+        registrationNo: '', type: 'AC Seater', amenities: [] as string[], seatLayoutId: '',
+        customAmenity: ''
     });
 
     const fetchData = async () => {
         try {
-            const [busRes, layoutRes, expiringRes] = await Promise.all([
+            const [busRes, layoutRes] = await Promise.all([
                 apiGet<{ data: BusItem[] }>('/fleet/buses'),
                 apiGet<{ data: SeatLayoutItem[] }>('/fleet/seat-layouts'),
-                apiGet<{ data: any[] }>('/fleet/buses/expiring'),
             ]);
             setBuses(busRes.data || []);
             setLayouts(layoutRes.data || []);
-            setExpiringDocs(expiringRes.data || []);
         } catch { }
         setLoading(false);
     };
 
     useEffect(() => { fetchData(); }, []);
 
+    const toggleAmenity = (amenity: string) => {
+        setForm(f => ({
+            ...f,
+            amenities: f.amenities.includes(amenity)
+                ? f.amenities.filter(a => a !== amenity)
+                : [...f.amenities, amenity]
+        }));
+    };
+
+    const addCustomAmenity = () => {
+        const custom = form.customAmenity.trim();
+        if (custom && !form.amenities.includes(custom)) {
+            setForm(f => ({ ...f, amenities: [...f.amenities, custom], customAmenity: '' }));
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const body = {
             registrationNo: form.registrationNo,
             type: form.type,
-            amenities: form.amenities.split(',').map(a => a.trim()).filter(Boolean),
+            amenities: form.amenities,
             seatLayoutId: form.seatLayoutId,
-            brand: form.brand || undefined,
-            model: form.model || undefined,
-            manufacturingYear: form.manufacturingYear ? Number(form.manufacturingYear) : undefined,
-            ownerName: form.ownerName || undefined,
-            ownerPhone: form.ownerPhone || undefined,
-            rcNumber: form.rcNumber || undefined,
-            insuranceNo: form.insuranceNo || undefined,
-            insuranceExpiry: form.insuranceExpiry ? new Date(form.insuranceExpiry).toISOString() : undefined,
-            fitnessExpiry: form.fitnessExpiry ? new Date(form.fitnessExpiry).toISOString() : undefined,
-            permitExpiry: form.permitExpiry ? new Date(form.permitExpiry).toISOString() : undefined,
         };
         try {
             if (editing) {
@@ -180,25 +187,18 @@ function BusesTab() {
         setForm({
             registrationNo: bus.registrationNo,
             type: bus.type,
-            amenities: bus.amenities?.join(', ') || '',
+            amenities: bus.amenities || [],
             seatLayoutId: bus.seatLayoutId,
-            brand: bus.brand || '', model: bus.model || '',
-            manufacturingYear: bus.manufacturingYear?.toString() || '',
-            ownerName: bus.ownerName || '', ownerPhone: bus.ownerPhone || '',
-            rcNumber: bus.rcNumber || '', insuranceNo: bus.insuranceNo || '',
-            insuranceExpiry: bus.insuranceExpiry ? bus.insuranceExpiry.split('T')[0] : '',
-            fitnessExpiry: bus.fitnessExpiry ? bus.fitnessExpiry.split('T')[0] : '',
-            permitExpiry: bus.permitExpiry ? bus.permitExpiry.split('T')[0] : '',
+            customAmenity: ''
         });
         setShowModal(true);
     };
 
     const openCreate = () => {
         setEditing(null);
-        setForm({ 
-            registrationNo: '', type: 'AC Seater', amenities: '', seatLayoutId: layouts[0]?.id || '',
-            brand: '', model: '', manufacturingYear: '', ownerName: '', ownerPhone: '',
-            rcNumber: '', insuranceNo: '', insuranceExpiry: '', fitnessExpiry: '', permitExpiry: ''
+        setForm({
+            registrationNo: '', type: 'AC Seater', amenities: [], seatLayoutId: layouts[0]?.id || '',
+            customAmenity: ''
         });
         setShowModal(true);
     };
@@ -210,20 +210,6 @@ function BusesTab() {
 
     return (
         <>
-            {expiringDocs.length > 0 && (
-                <div className="mb-5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex items-start gap-3">
-                    <div className="bg-amber-100 dark:bg-amber-900/40 p-2 rounded-lg text-amber-600 dark:text-amber-400">
-                        <AlertTriangle className="w-5 h-5" />
-                    </div>
-                    <div>
-                        <h4 className="font-bold text-amber-800 dark:text-amber-300">Action Required: Documents Expiring Soon</h4>
-                        <p className="text-sm text-amber-700 dark:text-amber-400/80 mt-1">
-                            {expiringDocs.length} bus(es) have documents (insurance, fitness, or permit) expiring in the next 30 days.
-                        </p>
-                    </div>
-                </div>
-            )}
-
             <div className="flex items-center justify-between mb-5">
                 <div className="relative flex-1 max-w-md">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -302,88 +288,89 @@ function BusesTab() {
                             <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
                         </div>
                         <form onSubmit={handleSubmit} className="space-y-6">
-                            
-                            {/* Basic Details */}
+
+                            {/* Registration No */}
                             <div>
-                                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3 uppercase tracking-wider">Basic Details</h3>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Registration No *</label>
-                                        <input type="text" value={form.registrationNo} onChange={(e) => setForm({ ...form, registrationNo: e.target.value })} required placeholder="BA-01-KA-1234" className="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-red-500/30" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bus Type *</label>
-                                        <input type="text" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} required placeholder="AC Sleeper..." className="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-red-500/30" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Brand</label>
-                                        <input type="text" value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} placeholder="Tata, Ashok Leyland..." className="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm outline-none" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Model / Mfg Year</label>
-                                        <div className="flex gap-2">
-                                            <input type="text" value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} placeholder="Model" className="w-2/3 px-3 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm outline-none" />
-                                            <input type="number" value={form.manufacturingYear} onChange={(e) => setForm({ ...form, manufacturingYear: e.target.value })} placeholder="YYYY" className="w-1/3 px-3 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm outline-none" />
-                                        </div>
-                                    </div>
-                                </div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Registration No *</label>
+                                <input type="text" value={form.registrationNo} onChange={(e) => setForm({ ...form, registrationNo: e.target.value })} required placeholder="BA-01-KA-1234" className="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-red-500/30" />
                             </div>
-                            {/* Layout & Amenities */}
+
+                            {/* Bus Type — Tag Selector */}
                             <div>
-                                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3 uppercase tracking-wider">Features</h3>
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Seat Layout *</label>
-                                        {layouts.length === 0 ? (
-                                            <p className="text-sm text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-lg">No seat layouts yet. Create one in the "Seat Layouts" tab first.</p>
-                                        ) : (
-                                            <select value={form.seatLayoutId} onChange={(e) => setForm({ ...form, seatLayoutId: e.target.value })} required className="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm outline-none">
-                                                <option value="">Select a layout...</option>
-                                                {layouts.map(l => (
-                                                    <option key={l.id} value={l.id}>{l.name} ({l.totalSeats} seats)</option>
-                                                ))}
-                                            </select>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amenities (comma-separated)</label>
-                                        <input type="text" value={form.amenities} onChange={(e) => setForm({ ...form, amenities: e.target.value })} placeholder="WiFi, AC, Charging, Blanket" className="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-red-500/30" />
-                                    </div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bus Type *</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {BUS_TYPES.map(t => (
+                                        <button
+                                            key={t}
+                                            type="button"
+                                            onClick={() => setForm({ ...form, type: t })}
+                                            className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-all ${form.type === t
+                                                ? 'bg-red-600 text-white shadow-sm'
+                                                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                            }`}
+                                        >
+                                            {t}
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
 
-                            {/* Ownership & Documents */}
+                            {/* Seat Layout */}
                             <div>
-                                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3 uppercase tracking-wider">Ownership & Documents</h3>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Owner Name</label>
-                                        <input type="text" value={form.ownerName} onChange={(e) => setForm({ ...form, ownerName: e.target.value })} className="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm outline-none" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Owner Phone</label>
-                                        <input type="text" value={form.ownerPhone} onChange={(e) => setForm({ ...form, ownerPhone: e.target.value })} className="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm outline-none" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">RC Number</label>
-                                        <input type="text" value={form.rcNumber} onChange={(e) => setForm({ ...form, rcNumber: e.target.value })} className="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm outline-none" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Insurance No</label>
-                                        <input type="text" value={form.insuranceNo} onChange={(e) => setForm({ ...form, insuranceNo: e.target.value })} className="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm outline-none" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Insurance Expiry</label>
-                                        <input type="date" value={form.insuranceExpiry} onChange={(e) => setForm({ ...form, insuranceExpiry: e.target.value })} className="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm outline-none" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fitness Expiry</label>
-                                        <input type="date" value={form.fitnessExpiry} onChange={(e) => setForm({ ...form, fitnessExpiry: e.target.value })} className="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm outline-none" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Route Permit Expiry</label>
-                                        <input type="date" value={form.permitExpiry} onChange={(e) => setForm({ ...form, permitExpiry: e.target.value })} className="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm outline-none" />
-                                    </div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Seat Layout *</label>
+                                {layouts.length === 0 ? (
+                                    <p className="text-sm text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-lg">No seat layouts yet. Create one in the &quot;Seat Layouts&quot; tab first.</p>
+                                ) : (
+                                    <select value={form.seatLayoutId} onChange={(e) => setForm({ ...form, seatLayoutId: e.target.value })} required className="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm outline-none">
+                                        <option value="">Select a layout...</option>
+                                        {layouts.map(l => (
+                                            <option key={l.id} value={l.id}>{l.name} ({l.totalSeats} seats)</option>
+                                        ))}
+                                    </select>
+                                )}
+                            </div>
+
+                            {/* Amenities — Toggle Chips */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Amenities</label>
+                                <div className="flex flex-wrap gap-2 mb-3">
+                                    {AMENITY_OPTIONS.map(a => (
+                                        <button
+                                            key={a}
+                                            type="button"
+                                            onClick={() => toggleAmenity(a)}
+                                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${form.amenities.includes(a)
+                                                ? 'bg-green-600 text-white border-green-600 shadow-sm'
+                                                : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-green-400'
+                                            }`}
+                                        >
+                                            {form.amenities.includes(a) ? '✓ ' : ''}{a}
+                                        </button>
+                                    ))}
+                                    {/* Show custom amenities that aren't in predefined list */}
+                                    {form.amenities.filter(a => !AMENITY_OPTIONS.includes(a)).map(a => (
+                                        <button
+                                            key={a}
+                                            type="button"
+                                            onClick={() => toggleAmenity(a)}
+                                            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-green-600 text-white border border-green-600 shadow-sm transition-all"
+                                        >
+                                            ✓ {a}
+                                        </button>
+                                    ))}
+                                </div>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={form.customAmenity}
+                                        onChange={(e) => setForm({ ...form, customAmenity: e.target.value })}
+                                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomAmenity(); } }}
+                                        placeholder="Add custom amenity..."
+                                        className="flex-1 px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-green-500/30"
+                                    />
+                                    <button type="button" onClick={addCustomAmenity} className="px-3 py-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 rounded-lg text-sm font-medium">
+                                        <Plus className="w-4 h-4" />
+                                    </button>
                                 </div>
                             </div>
 

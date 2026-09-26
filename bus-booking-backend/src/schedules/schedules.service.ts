@@ -8,10 +8,11 @@ export class SchedulesService {
   constructor(private prisma: PrismaService) {}
 
   create(dto: CreateScheduleDto) {
-    const { fareTiers, ...rest } = dto;
+    const { fareTiers, rotationStartDate, ...rest } = dto;
     return this.prisma.schedule.create({ 
       data: {
         ...rest,
+        ...(rotationStartDate ? { rotationStartDate: new Date(rotationStartDate) } : {}),
         fareTiers: {
           create: fareTiers || [],
         }
@@ -40,7 +41,7 @@ export class SchedulesService {
 
   async update(id: string, dto: Partial<CreateScheduleDto>) {
     await this.findOne(id);
-    const { fareTiers, ...rest } = dto;
+    const { fareTiers, rotationStartDate, ...rest } = dto;
     
     // If fareTiers is provided, we can replace them entirely.
     if (fareTiers !== undefined) {
@@ -51,6 +52,9 @@ export class SchedulesService {
       where: { id },
       data: {
         ...rest,
+        ...(rotationStartDate !== undefined && {
+          rotationStartDate: rotationStartDate ? new Date(rotationStartDate) : null
+        }),
         ...(fareTiers !== undefined && {
           fareTiers: {
             create: fareTiers,

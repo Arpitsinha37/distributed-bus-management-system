@@ -139,6 +139,12 @@ model Schedule {
   busId         String
   departureTime String // "07:00"
   daysOfWeek    Int[] // 0=Sun..6=Sat; empty array = runs every day
+  
+  // Rotation Logic
+  rotationDays  Int       @default(0) // 0 means use daysOfWeek, 2 means 2-day rotation
+  rotationStartDate DateTime? @db.Date
+  rotationOffset Int      @default(0) // 0 or 1 etc for phase-shifting
+
   fare          Decimal  @db.Decimal(10, 2)
   isActive      Boolean  @default(true)
   createdAt     DateTime @default(now())
@@ -312,6 +318,7 @@ model Coupon {
   validTo          DateTime
   isActive         Boolean  @default(true)
   siteId           String? // null = global coupon across all sites
+  scheduleIds      String[] @default([]) // empty = applies to all schedules
   createdAt        DateTime @default(now())
 }
 

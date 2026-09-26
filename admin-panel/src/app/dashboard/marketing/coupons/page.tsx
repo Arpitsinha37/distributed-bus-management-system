@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '@/lib/store';
 import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api';
-import { Plus, Pencil, Trash2, Search, Ticket, X, Calendar, Percent, DollarSign } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Ticket, X, Calendar, Percent, DollarSign, Bus } from 'lucide-react';
 import ErrorBanner from '@/components/ErrorBanner';
 
 interface CouponItem {
@@ -18,29 +18,44 @@ interface CouponItem {
     validTo: string;
     isActive: boolean;
     siteId: string | null;
+    scheduleIds: string[];
+}
+
+interface ScheduleOption {
+    id: string;
+    departureTime: string;
+    fare: number;
+    route?: { originCity: string; destinationCity: string };
+    bus?: { registrationNo: string; type: string };
 }
 
 export default function CouponsPage() {
     const { accessToken } = useStore();
     const [coupons, setCoupons] = useState<CouponItem[]>([]);
+    const [schedules, setSchedules] = useState<ScheduleOption[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [editing, setEditing] = useState<CouponItem | null>(null);
     const [search, setSearch] = useState('');
+    const [scheduleSearch, setScheduleSearch] = useState('');
     
     const [form, setForm] = useState({
         code: '', discountType: 'PERCENTAGE', discountValue: 0,
-        maxUses: '', minBookingAmount: '', validFrom: '', validTo: '', isActive: true
+        maxUses: '', minBookingAmount: '', validFrom: '', validTo: '', isActive: true,
+        scheduleIds: [] as string[]
     });
 
     const fetchAll = async () => {
         setLoading(true);
         setError(null);
         try {
-            const res = await apiGet<{ data: CouponItem[] } | CouponItem[]>('/coupons', accessToken!);
-            // Handle if data is wrapped in { data: [] } or just []
-            setCoupons(Array.isArray(res) ? res : res.data || []);
+            const [couponRes, scheduleRes] = await Promise.all([
+                apiGet<{ data: CouponItem[] } | CouponItem[]>('/coupons', accessToken!),
+                apiGet<{ data: ScheduleOption[] }>('/schedules?includeInactive=true', accessToken!),
+            ]);
+            setCoupons(Array.isArray(couponRes) ? couponRes : couponRes.data || []);
+            setSchedules(scheduleRes.data || []);
         } catch (err: any) {
             setError(err.message || 'Failed to load coupons');
         }
@@ -59,6 +74,7 @@ export default function CouponsPage() {
                 minBookingAmount: form.minBookingAmount ? Number(form.minBookingAmount) : null,
                 validFrom: new Date(form.validFrom).toISOString(),
                 validTo: new Date(form.validTo).toISOString(),
+                scheduleIds: form.scheduleIds,
             };
             if (editing) await apiPut(`/coupons/${editing.id}`, payload, accessToken!);
             else await apiPost('/coupons', payload, accessToken!);
@@ -82,10 +98,32 @@ export default function CouponsPage() {
             minBookingAmount: c.minBookingAmount ? String(c.minBookingAmount) : '',
             validFrom: new Date(c.validFrom).toISOString().slice(0, 16),
             validTo: new Date(c.validTo).toISOString().slice(0, 16),
-            isActive: c.isActive
+            isActive: c.isActive,
+            scheduleIds: c.scheduleIds || []
         });
         setShowModal(true);
     };
+
+    const toggleSchedule = (scheduleId: string) => {
+        setForm(f => ({
+            ...f,
+            scheduleIds: f.scheduleIds.includes(scheduleId)
+                ? f.scheduleIds.filter(id => id !== scheduleId)
+                : [...f.scheduleIds, scheduleId]
+        }));
+    };
+
+    const getScheduleLabel = (s: ScheduleOption) => {
+        const route = s.route ? `${s.route.originCity} → ${s.route.destinationCity}` : 'Unknown route';
+        const bus = s.bus ? `${s.bus.registrationNo} (${s.bus.type})` : '';
+        return `${route} • ${bus} • ${s.departureTime}`;
+    };
+
+    const filteredSchedules = schedules.filter(s => {
+        if (!scheduleSearch) return true;
+        const label = getScheduleLabel(s).toLowerCase();
+        return label.includes(scheduleSearch.toLowerCase());
+    });
 
     const filtered = coupons.filter(c =>
         (c.code || '').toLowerCase().includes(search.toLowerCase())
@@ -101,7 +139,7 @@ export default function CouponsPage() {
                     <p className="text-gray-500 text-sm mt-1">Manage discount codes and promotional campaigns</p>
                 </div>
                 <button
-                    onClick={() => { setEditing(null); setForm({ code: '', discountType: 'PERCENTAGE', discountValue: 0, maxUses: '', minBookingAmount: '', validFrom: '', validTo: '', isActive: true }); setShowModal(true); }}
+                    onClick={() => { setEditing(null); setForm({ code: '', discountType: 'PERCENTAGE', discountValue: 0, maxUses: '', minBookingAmount: '', validFrom: '', validTo: '', isActive: true, scheduleIds: [] }); setShowModal(true); }}
                     className="flex items-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium text-sm transition-colors"
                 >
                     <Plus className="w-4 h-4" /> Create Coupon
@@ -124,7 +162,7 @@ export default function CouponsPage() {
                             <th className="text-left px-5 py-3 font-medium">Discount</th>
                             <th className="text-left px-5 py-3 font-medium">Validity</th>
                             <th className="text-left px-5 py-3 font-medium">Usage</th>
-                            <th className="text-left px-5 py-3 font-medium">Min Amount</th>
+                            <th className="text-left px-5 py-3 font-medium">Applies To</th>
                             <th className="text-left px-5 py-3 font-medium">Status</th>
                             <th className="text-right px-5 py-3 font-medium">Actions</th>
                         </tr>
@@ -149,8 +187,14 @@ export default function CouponsPage() {
                                 <td className="px-5 py-3.5 text-gray-600 dark:text-gray-300">
                                     {c.usedCount} / {c.maxUses === null ? '∞' : c.maxUses}
                                 </td>
-                                <td className="px-5 py-3.5 text-gray-600 dark:text-gray-300">
-                                    {c.minBookingAmount ? c.minBookingAmount : 'None'}
+                                <td className="px-5 py-3.5">
+                                    {(!c.scheduleIds || c.scheduleIds.length === 0) ? (
+                                        <span className="px-2 py-0.5 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 rounded-full text-xs font-medium">All Buses</span>
+                                    ) : (
+                                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded-full text-xs font-medium">
+                                            {c.scheduleIds.length} schedule{c.scheduleIds.length > 1 ? 's' : ''}
+                                        </span>
+                                    )}
                                 </td>
                                 <td className="px-5 py-3.5">
                                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${c.isActive ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
@@ -186,7 +230,7 @@ export default function CouponsPage() {
                                     <select value={form.discountType} onChange={e => setForm({ ...form, discountType: e.target.value as 'PERCENTAGE' | 'FLAT' })} required
                                         className="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm outline-none">
                                         <option value="PERCENTAGE">Percentage (%)</option>
-                                        <option value="FLAT">Flat Amount ($)</option>
+                                        <option value="FLAT">Flat Amount (Rs.)</option>
                                     </select>
                                 </div>
                                 <div>
@@ -229,6 +273,59 @@ export default function CouponsPage() {
                                     <option value="active">Active</option>
                                     <option value="inactive">Inactive</option>
                                 </select>
+                            </div>
+
+                            {/* Schedule Assignment */}
+                            <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        <Bus className="w-4 h-4 inline mr-1" />
+                                        Apply to Specific Schedules
+                                    </label>
+                                    {form.scheduleIds.length > 0 && (
+                                        <button type="button" onClick={() => setForm({ ...form, scheduleIds: [] })} className="text-xs text-gray-500 hover:text-red-500">
+                                            Clear all
+                                        </button>
+                                    )}
+                                </div>
+                                <p className="text-xs text-gray-500 mb-3">
+                                    {form.scheduleIds.length === 0
+                                        ? 'Applies to ALL buses/schedules. Select specific schedules below to restrict.'
+                                        : `Applied to ${form.scheduleIds.length} schedule${form.scheduleIds.length > 1 ? 's' : ''}`
+                                    }
+                                </p>
+
+                                {/* Search schedules */}
+                                <input
+                                    type="text"
+                                    value={scheduleSearch}
+                                    onChange={e => setScheduleSearch(e.target.value)}
+                                    placeholder="Search schedules by route or bus..."
+                                    className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm outline-none mb-2"
+                                />
+
+                                {/* Schedule list */}
+                                <div className="max-h-48 overflow-y-auto space-y-1 border border-gray-200 dark:border-gray-700 rounded-lg p-2 bg-gray-50 dark:bg-gray-800">
+                                    {filteredSchedules.length === 0 ? (
+                                        <p className="text-xs text-gray-400 text-center py-3">No schedules found</p>
+                                    ) : filteredSchedules.map(s => (
+                                        <label
+                                            key={s.id}
+                                            className={`flex items-center gap-2 px-2.5 py-2 rounded-lg cursor-pointer transition-colors text-xs ${form.scheduleIds.includes(s.id)
+                                                ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
+                                                : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400'
+                                            }`}
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                checked={form.scheduleIds.includes(s.id)}
+                                                onChange={() => toggleSchedule(s.id)}
+                                                className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                                            />
+                                            <span className="truncate">{getScheduleLabel(s)}</span>
+                                        </label>
+                                    ))}
+                                </div>
                             </div>
 
                             <div className="pt-2">

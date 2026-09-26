@@ -112,8 +112,22 @@ export class TripsService {
       date.setUTCDate(date.getUTCDate() + i);
       const dayOfWeek = date.getUTCDay();
       for (const schedule of schedules) {
-        if (schedule.daysOfWeek.length === 0 || schedule.daysOfWeek.includes(dayOfWeek)) {
-          await this.ensureTripExists(schedule.id, date);
+        if (schedule.rotationDays > 0 && schedule.rotationStartDate) {
+          // Bus rotation mode
+          const diffMs = date.getTime() - new Date(schedule.rotationStartDate).getTime();
+          const diffDays = Math.floor(diffMs / (1000 * 3600 * 24));
+          
+          if (diffDays >= 0) {
+            // Apply offset to shift by N days
+            if ((diffDays + schedule.rotationOffset) % schedule.rotationDays === 0) {
+              await this.ensureTripExists(schedule.id, date);
+            }
+          }
+        } else {
+          // Standard weekly mode
+          if (schedule.daysOfWeek.length === 0 || schedule.daysOfWeek.includes(dayOfWeek)) {
+            await this.ensureTripExists(schedule.id, date);
+          }
         }
       }
     }
