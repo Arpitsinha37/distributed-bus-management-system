@@ -161,6 +161,7 @@ const CityInput = ({ label, placeholder, value, onChange, excludeCity }) => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         placeholder={`Search ${placeholder?.toLowerCase() || 'city'}...`}
+                        aria-label={placeholder || 'City'}
                         className="w-full bg-slate-50 rounded-full px-5 py-3 text-base text-slate-800 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#DC143C]/20 focus:bg-white border border-slate-200 focus:border-[#DC143C]/40 transition-all"
                         autoComplete="off"
                         autoCorrect="off"
@@ -294,6 +295,7 @@ const CityInput = ({ label, placeholder, value, onChange, excludeCity }) => {
 
             <input
                 type="text"
+                aria-label={placeholder || 'Select city'}
                 value={searchTerm}
                 onChange={(e) => {
                     if (!isMobile) {

@@ -87,6 +87,7 @@ export default function Header() {
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className={`p-2 transition-colors ${isDark ? 'text-slate-600 hover:text-[#E31837]' : 'text-white/80 hover:text-white'}`}
+            aria-label="Toggle mobile menu"
           >
             {mobileOpen ? (
               <X className="w-6 h-6" />
