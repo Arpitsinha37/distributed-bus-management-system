@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Bus,
   MapPin,
@@ -43,10 +44,10 @@ export default function Home() {
           HERO SECTION — Full viewport with stunning mountain image
       ═══════════════════════════════════════════════════════ */}
       <section
-        className="hero-image flex flex-col items-center justify-center text-center px-6"
-        style={{ backgroundImage: "url('/images/hero.jpg')" }}
+        className="hero-image relative flex flex-col items-center justify-center text-center px-6 overflow-hidden"
       >
-        <div className="pt-32 pb-16 md:pt-40 md:pb-16 max-w-5xl mx-auto w-full">
+        <Image src="/images/hero.jpg" alt="Pokhara to Kathmandu Night Tourist Bus" fill priority sizes="100vw" className="object-cover -z-10" />
+        <div className="pt-32 pb-16 md:pt-40 md:pb-16 max-w-5xl mx-auto w-full z-10">
           <p className="text-[0.6875rem] font-semibold text-[#E31837] uppercase tracking-[0.25em] mb-6">
             Pokhara — Kathmandu &bull; Book Online
           </p>
@@ -116,13 +117,15 @@ export default function Home() {
   
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             {/* Card 1 — Departure */}
-          <div className="img-card h-[400px] md:h-[500px] group cursor-pointer">
-            <img
+          <div className="img-card relative h-[400px] md:h-[500px] group cursor-pointer overflow-hidden rounded-2xl">
+            <Image
               src="/images/abc/1.jpeg"
               alt="VIP Sofa Bus interior with comfortable reclining seats for the Pokhara to Kathmandu night route"
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
             />
-            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors duration-700" />
+            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors duration-700 z-0" />
             <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
               <p className="text-[0.6875rem] font-semibold text-[#E31837] uppercase tracking-[0.15em] mb-2">
                 Departs 7:00 PM &bull; Arrive by 6:45 PM
@@ -137,13 +140,15 @@ export default function Home() {
           </div>
 
           {/* Card 2 — Drop-off */}
-          <div className="img-card h-[400px] md:h-[500px] group cursor-pointer">
-            <img
+          <div className="img-card relative h-[400px] md:h-[500px] group cursor-pointer overflow-hidden rounded-2xl">
+            <Image
               src="/images/abc/2.jpeg"
               alt="Night Tourist Bus on the Prithvi Highway between Pokhara and Kathmandu"
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
             />
-            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors duration-700" />
+            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors duration-700 z-0" />
             <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
               <p className="text-[0.6875rem] font-semibold text-[#E31837] uppercase tracking-[0.15em] mb-2">
                 Arrives ~5:30 AM
@@ -291,10 +296,10 @@ export default function Home() {
           SCENIC PARALLAX BANNER
       ═══════════════════════════════════════════════════════ */}
       <section
-        className="parallax-banner flex items-center justify-center text-center px-6"
-        style={{ backgroundImage: "url('/images/abc/3.jpeg')" }}
+        className="parallax-banner relative flex items-center justify-center text-center px-6 overflow-hidden"
       >
-        <div className="max-w-3xl py-24">
+        <Image src="/images/abc/3.jpeg" alt="Wake Up Fresh in Kathmandu" fill sizes="100vw" className="object-cover -z-10" />
+        <div className="max-w-3xl py-24 z-10">
           <p className="text-[0.6875rem] font-semibold text-[#E31837] uppercase tracking-[0.25em] mb-4">
             Save Your Daylight
           </p>
