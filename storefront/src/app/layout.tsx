@@ -29,9 +29,6 @@ export const metadata: Metadata = {
   description:
     'Book Pokhara to Kathmandu VIP sofa night bus online. Departs 7:00 PM from Tourist Bus Park, arrives ~5:30 AM. Choose your seat, pay easily. From Rs 1,200.',
   metadataBase: new URL(SITE_URL),
-  alternates: {
-    canonical: '/',
-  },
   openGraph: {
     title: 'Pokhara to Kathmandu Night Bus Ticket – VIP Sofa from Rs 1,200',
     description: 'Book your VIP sofa night bus online. Departs 7:00 PM, arrives ~5:30 AM. Real-time seat selection, instant confirmation. Pay with eSewa, Khalti, or card.',

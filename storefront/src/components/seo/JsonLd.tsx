@@ -22,6 +22,8 @@ export default function JsonLd() {
       '@type': 'Country',
       name: 'Nepal',
     },
+    telephone: '+977-9800000000', // Add actual phone number
+    email: 'info@pokharatokathmandutouristbusbooking.com',
     priceRange: 'Rs 1,200–2,500',
     currenciesAccepted: 'NPR',
     paymentAccepted: 'eSewa, Khalti, Fonepay, Credit Card, Cash',
