@@ -13,7 +13,8 @@ const nextConfig = {
         ignoreDuringBuilds: true,
     },
     images: {
-        unoptimized: true,
+        loader: 'cloudinary',
+        path: 'https://res.cloudinary.com/dealfp76k/image/upload/',
     },
     async redirects() {
         return [
