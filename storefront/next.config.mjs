@@ -13,8 +13,7 @@ const nextConfig = {
         ignoreDuringBuilds: true,
     },
     images: {
-        loader: 'cloudinary',
-        path: 'https://res.cloudinary.com/dealfp76k/image/upload/',
+        // Vercel edge image optimization enabled
     },
     async redirects() {
         return [
