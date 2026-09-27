@@ -164,12 +164,32 @@ export default function BookingFlow() {
           </div>
 
           {/* Date & Quick Dates */}
-          <div className="flex-[1.5] flex flex-col justify-center relative">
+          <div className="flex-[1.5] flex flex-col justify-center relative border-b md:border-b-0 md:border-r border-gray-200 min-h-[5rem]">
             {date ? (
-              <CustomCalendar 
-                selectedDate={dayjs(date).toDate()} 
-                onChange={(d) => setDate(dayjs(d).format('YYYY-MM-DD'))} 
-              />
+              <>
+                <CustomCalendar 
+                  selectedDate={dayjs(date).toDate()} 
+                  onChange={(d) => setDate(dayjs(d).format('YYYY-MM-DD'))} 
+                />
+                <div className="absolute bottom-1.5 left-14 md:left-16 right-4 flex gap-1.5 overflow-x-auto scrollbar-hide pointer-events-auto z-10">
+                  {[0, 1, 2].map(days => {
+                    const d = dayjs().add(days, 'day');
+                    const label = days === 0 ? 'Today' : days === 1 ? 'Tmrw' : d.format('MMM D');
+                    const value = d.format('YYYY-MM-DD');
+                    const isSelected = date === value;
+                    return (
+                      <button
+                        key={value}
+                        onClick={(e) => { e.stopPropagation(); setDate(value); }}
+                        type="button"
+                        className={`text-[0.65rem] font-bold px-2 py-0.5 rounded-md transition-colors shrink-0 ${isSelected ? 'bg-nepal-red/10 text-nepal-red' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+                      >
+                        {label}
+                      </button>
+                    )
+                  })}
+                </div>
+              </>
             ) : (
               <div className="flex items-center justify-center h-full text-gray-400">Loading...</div>
             )}

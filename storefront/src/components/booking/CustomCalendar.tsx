@@ -132,11 +132,11 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ selectedDate, onChange 
                     <CalendarIcon className="w-5 h-5" />
                 </div>
 
-                <div className="w-full h-full bg-transparent text-base sm:text-xl font-bold text-slate-800 pl-14 md:pl-16 pr-6 pt-5 sm:pt-6 pb-1 flex items-center justify-between min-h-[4rem]">
-                    <span className="truncate">
+                <div className="w-full h-full bg-transparent text-base sm:text-xl font-bold text-slate-800 pl-14 md:pl-16 pr-6 pt-3 sm:pt-4 pb-4 sm:pb-5 flex items-start sm:items-center justify-between min-h-[4rem]">
+                    <span className="truncate mt-2 sm:mt-1">
                         {selectedDate ? format(selectedDate, 'MMM dd, yyyy') : 'Onward Date'}
                     </span>
-                    <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200 mt-3 sm:mt-1 ${isOpen ? 'rotate-180' : ''}`} />
                 </div>
                 
                 <label className="absolute left-14 md:left-16 transition-all duration-200 pointer-events-none truncate max-w-[calc(100%-4rem)] top-1 sm:top-2 text-[10px] sm:text-[0.65rem] font-bold text-slate-400 uppercase tracking-wider">

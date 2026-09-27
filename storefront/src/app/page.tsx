@@ -45,7 +45,7 @@ export default function Home() {
           HERO SECTION — Full viewport, centered
       ═══════════════════════════════════════════════════════ */}
       <section
-        className="hero-image relative flex flex-col items-center justify-center text-center px-6 overflow-hidden"
+        className="hero-image relative flex flex-col items-center justify-center text-center px-6"
       >
         <Image src="/images/hero.jpg" alt="Pokhara to Kathmandu Night Tourist Bus" fill priority sizes="100vw" className="object-cover -z-10" />
         <div className="pt-32 pb-16 md:pt-40 md:pb-16 max-w-5xl mx-auto w-full z-10 flex flex-col items-center">
