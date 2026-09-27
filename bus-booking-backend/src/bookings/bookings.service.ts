@@ -76,7 +76,21 @@ export class BookingsService {
       this.prisma.booking.count({ where }),
     ]);
 
-    return { data, total, page, limit };
+    return { 
+      data: data.map(b => {
+        if (b.portalTripId && !b.trip) {
+          try {
+            const decoded = Buffer.from(b.portalTripId, 'base64').toString('ascii');
+            const [origin, destination, dateStr, busno] = decoded.split('|');
+            (b as any).portalRoute = { origin, destination, date: dateStr, busno };
+          } catch (e) {}
+        }
+        return b;
+      }), 
+      total, 
+      page, 
+      limit 
+    };
   }
 
   // Step 1 of checkout: lock the chosen seats and create a PENDING booking.
@@ -85,61 +99,73 @@ export class BookingsService {
   async holdSeats(siteId: string, dto: HoldSeatsDto) {
     const holderId = `hold:${Date.now()}:${Math.random().toString(36).slice(2)}`;
 
+    // Check if this is a portal trip ID (base64 string usually contains | when decoded)
+    let isPortalTrip = false;
+    let decodedId = '';
+    try {
+      decodedId = Buffer.from(dto.tripId, 'base64').toString('ascii');
+      if (decodedId.includes('|')) isPortalTrip = true;
+    } catch (e) {}
+
     const acquired: string[] = [];
-    for (const seatNumber of dto.seatNumbers) {
-      const ok = await this.seatLock.acquire(dto.tripId, seatNumber, holderId);
-      if (!ok) {
-        await Promise.all(acquired.map((s) => this.seatLock.release(dto.tripId, s, holderId)));
-        throw new ConflictException(`Seat ${seatNumber} was just taken — pick another seat`);
+    if (!isPortalTrip) {
+      for (const seatNumber of dto.seatNumbers) {
+        const ok = await this.seatLock.acquire(dto.tripId, seatNumber, holderId);
+        if (!ok) {
+          await Promise.all(acquired.map((s) => this.seatLock.release(dto.tripId, s, holderId)));
+          throw new ConflictException(`Seat ${seatNumber} was just taken — pick another seat`);
+        }
+        acquired.push(seatNumber);
       }
-      acquired.push(seatNumber);
     }
 
     try {
       return await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        const trip = await tx.trip.findUniqueOrThrow({
-          where: { id: dto.tripId },
-          include: { schedule: { include: { fareTiers: true } } },
-        });
+        let totalFare = 0;
+        let farePerSeat = 1000;
 
-        // Guard: prevent booking if the bus has already departed today
-        const nepalNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kathmandu' }));
-        const travelDateStr = trip.travelDate.toISOString().split('T')[0];
-        const todayStr = nepalNow.toISOString().split('T')[0];
-        
-        if (travelDateStr === todayStr && trip.schedule.departureTime) {
-          const [hours, minutes] = trip.schedule.departureTime.split(':').map(Number);
-          const departureMinutes = hours * 60 + minutes;
-          const currentMinutes = nepalNow.getHours() * 60 + nepalNow.getMinutes();
-          if (currentMinutes > departureMinutes) {
-            throw new BadRequestException('This bus has already departed');
+        if (isPortalTrip) {
+          totalFare = 1500 * dto.seatNumbers.length; // Fallback for portal MVP
+        } else {
+          const trip = await tx.trip.findUniqueOrThrow({
+            where: { id: dto.tripId },
+            include: { schedule: { include: { fareTiers: true } } },
+          });
+
+          // Guard: prevent booking if the bus has already departed today
+          const nepalNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kathmandu' }));
+          const travelDateStr = trip.travelDate.toISOString().split('T')[0];
+          const todayStr = nepalNow.toISOString().split('T')[0];
+          
+          if (travelDateStr === todayStr && trip.schedule.departureTime) {
+            const [hours, minutes] = trip.schedule.departureTime.split(':').map(Number);
+            const departureMinutes = hours * 60 + minutes;
+            const currentMinutes = nepalNow.getHours() * 60 + nepalNow.getMinutes();
+            if (currentMinutes > departureMinutes) {
+              throw new BadRequestException('This bus has already departed');
+            }
           }
+          farePerSeat = Number(trip.schedule.fare);
+          totalFare = farePerSeat * dto.seatNumbers.length;
         }
 
         const heldUntil = new Date(Date.now() + this.holdMinutes * 60_000);
 
-        // Guarded by status: AVAILABLE — if another request already flipped
-        // these rows (shouldn't happen given the Redis lock above, but this
-        // is the real correctness backstop), the count will be short and we
-        // roll back instead of overselling.
-        const updateResult = await tx.tripSeat.updateMany({
-          where: { tripId: dto.tripId, seatNumber: { in: dto.seatNumbers }, status: 'AVAILABLE' },
-          data: { status: 'HELD', heldUntil },
-        });
-        if (updateResult.count !== dto.seatNumbers.length) {
-          throw new ConflictException('One or more selected seats are no longer available');
+        if (!isPortalTrip) {
+          const updateResult = await tx.tripSeat.updateMany({
+            where: { tripId: dto.tripId, seatNumber: { in: dto.seatNumbers }, status: 'AVAILABLE' },
+            data: { status: 'HELD', heldUntil },
+          });
+          if (updateResult.count !== dto.seatNumbers.length) {
+            throw new ConflictException('One or more selected seats are no longer available');
+          }
         }
-
-        // Simple default total fare. We aren't doing complex fare calculations during hold yet
-        // since the frontend might not pass seat types. We'll use the base fare for now.
-        // In a real system, the frontend would pass the full calculate-fare result or seats array.
-        const totalFare = Number(trip.schedule.fare) * dto.seatNumbers.length;
 
         const booking = await tx.booking.create({
           data: {
             bookingRef: bookingRef(),
             siteId,
-            tripId: dto.tripId,
+            ...(isPortalTrip ? { portalTripId: dto.tripId } : { tripId: dto.tripId }),
             customerName: dto.customerName,
             customerPhone: dto.customerPhone,
             customerEmail: dto.customerEmail,
@@ -149,15 +175,19 @@ export class BookingsService {
           },
         });
 
-        await tx.tripSeat.updateMany({
-          where: { tripId: dto.tripId, seatNumber: { in: dto.seatNumbers } },
-          data: { bookingId: booking.id },
-        });
+        if (!isPortalTrip) {
+          await tx.tripSeat.updateMany({
+            where: { tripId: dto.tripId, seatNumber: { in: dto.seatNumbers } },
+            data: { bookingId: booking.id },
+          });
+        }
 
         return { ...booking, heldUntil };
       });
     } catch (err) {
-      await Promise.all(acquired.map((s) => this.seatLock.release(dto.tripId, s, holderId)));
+      if (!isPortalTrip) {
+        await Promise.all(acquired.map((s) => this.seatLock.release(dto.tripId, s, holderId)));
+      }
       throw err;
     }
   }
@@ -350,6 +380,16 @@ export class BookingsService {
       },
     });
     if (!booking) throw new NotFoundException('Booking not found');
+    
+    // If it's a portal trip, decode the portalTripId to get basic route info
+    if (booking.portalTripId && !booking.trip) {
+      try {
+        const decoded = Buffer.from(booking.portalTripId, 'base64').toString('ascii');
+        const [origin, destination, dateStr, busno] = decoded.split('|');
+        (booking as any).portalRoute = { origin, destination, date: dateStr, busno };
+      } catch (e) {}
+    }
+    
     return booking;
   }
 
@@ -365,15 +405,29 @@ export class BookingsService {
     
     if (!bookings.length) throw new NotFoundException('No bookings found.');
     
-    return bookings.map(b => ({
-       id: b.id,
-       ticketNo: b.bookingRef,
-       route: b.trip?.schedule?.route ? `${b.trip.schedule.route.origin} → ${b.trip.schedule.route.destination}` : null,
-       travelDate: b.trip?.travelDate ? new Date(b.trip.travelDate).toLocaleDateString() : null,
-       seatNumbers: b.seats.map(s => s.seatNumber),
-       passengerName: b.customerName,
-       amount: Number(b.totalFare)
-    }));
+    return bookings.map(b => {
+      let routeStr = b.trip?.schedule?.route ? `${b.trip.schedule.route.originCity} → ${b.trip.schedule.route.destinationCity}` : null;
+      let travelDateStr = b.trip?.travelDate ? new Date(b.trip.travelDate).toLocaleDateString() : null;
+      
+      if (b.portalTripId && !b.trip) {
+        try {
+          const decoded = Buffer.from(b.portalTripId, 'base64').toString('ascii');
+          const [origin, destination, dateStr] = decoded.split('|');
+          routeStr = `${origin} → ${destination}`;
+          travelDateStr = dateStr;
+        } catch (e) {}
+      }
+      
+      return {
+         id: b.id,
+         ticketNo: b.bookingRef,
+         route: routeStr,
+         travelDate: travelDateStr,
+         seatNumbers: b.seats.map(s => s.seatNumber),
+         passengerName: b.customerName,
+         amount: Number(b.totalFare)
+      };
+    });
   }
 
   async cancelBooking(bookingId: string) {

@@ -108,14 +108,26 @@ export class ReportingService {
       todayBookings,
       todayRevenue: todayRevenue._sum.totalFare || 0,
       totalCustomers,
-      recentBookings: recentBookings.map(b => ({
-          id: b.id,
-          ref: b.bookingRef,
-          customer: b.customerName,
-          route: `${b.trip.schedule.route.originCity} - ${b.trip.schedule.route.destinationCity}`,
-          amount: Number(b.totalFare),
-          date: b.createdAt
-      })),
+      recentBookings: recentBookings.map(b => {
+          let route = 'N/A';
+          if (b.trip) {
+              route = `${b.trip.schedule.route.originCity} - ${b.trip.schedule.route.destinationCity}`;
+          } else if (b.portalTripId) {
+              try {
+                  const decoded = Buffer.from(b.portalTripId, 'base64').toString('ascii');
+                  const [o, d] = decoded.split('|');
+                  route = `${o} - ${d}`;
+              } catch (e) {}
+          }
+          return {
+              id: b.id,
+              ref: b.bookingRef,
+              customer: b.customerName,
+              route,
+              amount: Number(b.totalFare),
+              date: b.createdAt
+          };
+      }),
       revenueByDay
     };
   }

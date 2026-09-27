@@ -39,10 +39,10 @@ export default function TicketClient({ booking }: { booking: any }) {
         visa: 'text-blue-600',
     };
 
-    const source = booking?.schedule?.route?.origin || '—';
-    const destination = booking?.schedule?.route?.destination || '—';
-    const travelDate = booking?.schedule?.departureTime ? dayjs(booking.schedule.departureTime).format('YYYY-MM-DD') : '—';
-    const departureTime = booking?.schedule?.departureTime ? dayjs(booking.schedule.departureTime).format('HH:mm') : '—';
+    const source = booking.portalRoute?.origin || booking?.schedule?.route?.originCity || booking?.schedule?.route?.origin || '—';
+    const destination = booking.portalRoute?.destination || booking?.schedule?.route?.destinationCity || booking?.schedule?.route?.destination || '—';
+    const travelDate = booking.portalRoute?.date || (booking?.schedule?.departureTime ? dayjs(booking.schedule.departureTime).format('YYYY-MM-DD') : (booking?.trip?.travelDate ? dayjs(booking.trip.travelDate).format('YYYY-MM-DD') : '—'));
+    const departureTime = booking.portalRoute?.time || booking.trip?.schedule?.departureTime || booking?.schedule?.departureTime ? dayjs(booking.schedule?.departureTime || booking.trip?.schedule?.departureTime).format('HH:mm') : '—';
     
     // In our new schema, customer name is stored in booking.customerName.
     const passengerName = booking.customerName || '—';

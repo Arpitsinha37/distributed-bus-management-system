@@ -96,23 +96,39 @@ export class PaymentsService {
     });
 
     return {
-      data: payments.map(p => ({
-        id: p.id,
-        ticketNo: p.booking.bookingRef,
-        method: p.gateway,
-        amount: Number(p.amount),
-        currency: 'NPR',
-        status: p.status.toLowerCase(),
-        transactionId: p.gatewayTxnId || undefined,
-        passengerName: p.booking.customerName,
-        passengerPhone: p.booking.customerPhone,
-        passengerEmail: p.booking.customerEmail || undefined,
-        route: p.booking.trip.schedule.route.originCity + ' - ' + p.booking.trip.schedule.route.destinationCity,
-        travelDate: p.booking.trip.travelDate.toISOString(),
-        seatNumbers: p.booking.seats.map(s => s.seatNumber),
-        createdAt: p.createdAt.toISOString(),
-        finalizedAt: (p.status === 'SUCCESS' || p.status === 'FAILED' || p.status === 'REFUNDED') ? p.updatedAt.toISOString() : undefined,
-      }))
+      data: payments.map(p => {
+        let route = 'N/A';
+        let travelDate = 'N/A';
+        if (p.booking.trip) {
+          route = `${p.booking.trip.schedule.route.originCity} - ${p.booking.trip.schedule.route.destinationCity}`;
+          travelDate = p.booking.trip.travelDate.toISOString();
+        } else if (p.booking.portalTripId) {
+          try {
+            const decoded = Buffer.from(p.booking.portalTripId, 'base64').toString('ascii');
+            const [o, d, dt] = decoded.split('|');
+            route = `${o} - ${d}`;
+            travelDate = dt;
+          } catch (e) {}
+        }
+        
+        return {
+          id: p.id,
+          ticketNo: p.booking.bookingRef,
+          method: p.gateway,
+          amount: Number(p.amount),
+          currency: 'NPR',
+          status: p.status.toLowerCase(),
+          transactionId: p.gatewayTxnId || undefined,
+          passengerName: p.booking.customerName,
+          passengerPhone: p.booking.customerPhone,
+          passengerEmail: p.booking.customerEmail || undefined,
+          route,
+          travelDate,
+          seatNumbers: p.booking.seats.map(s => s.seatNumber),
+          createdAt: p.createdAt.toISOString(),
+          finalizedAt: (p.status === 'SUCCESS' || p.status === 'FAILED' || p.status === 'REFUNDED') ? p.updatedAt.toISOString() : undefined,
+        };
+      })
     };
   }
 

@@ -125,7 +125,7 @@ export default function BookingFlow() {
         initial="initial"
         animate="animate"
         exit="exit"
-        className="w-full mx-auto relative"
+        className="w-full max-w-5xl mx-auto relative mt-8"
       >
         <div className="bg-white rounded-2xl shadow-lg relative flex flex-col md:flex-row items-stretch min-h-[100px] border border-gray-200/80">
           

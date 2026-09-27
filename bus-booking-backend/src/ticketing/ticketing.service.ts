@@ -33,16 +33,34 @@ export class TicketingService {
       data: { bookingId, qrCode },
     });
 
-    const driver = booking.trip.crew.find(c => c.role === 'DRIVER')?.crewMember;
-    const helper = booking.trip.crew.find(c => c.role === 'HELPER')?.crewMember;
+    const driver = booking.trip?.crew?.find(c => c.role === 'DRIVER')?.crewMember;
+    const helper = booking.trip?.crew?.find(c => c.role === 'HELPER')?.crewMember;
     const driverText = driver ? `\n👤 Driver: ${driver.name} (${driver.phone})` : '';
     const helperText = helper ? `\n👤 Helper: ${helper.name}` : '';
+
+    let origin = 'N/A';
+    let dest = 'N/A';
+    let busReg = 'N/A';
+    
+    if (booking.trip?.schedule?.route) {
+      origin = booking.trip.schedule.route.originCity;
+      dest = booking.trip.schedule.route.destinationCity;
+      busReg = booking.trip.bus?.registrationNo || 'N/A';
+    } else if (booking.portalTripId) {
+      try {
+        const decoded = Buffer.from(booking.portalTripId, 'base64').toString('ascii');
+        const [o, d, , busno] = decoded.split('|');
+        origin = o;
+        dest = d;
+        busReg = busno || 'N/A';
+      } catch (e) {}
+    }
 
     const smsText = `🎫 NEW ROAD TRAVELS
 Booking: ${booking.bookingRef}
 ━━━━━━━━━━━━━━━━━━
-📍 ${booking.trip.schedule.route.originCity} → ${booking.trip.schedule.route.destinationCity}
-🚌 Bus: ${booking.trip.bus.registrationNo}
+📍 ${origin} → ${dest}
+🚌 Bus: ${busReg}
 💺 Seats: ${booking.passengers.map(p => p.seatNumber).join(', ')}${driverText}${helperText}
 ━━━━━━━━━━━━━━━━━━
 Show this SMS at boarding.`;
@@ -51,7 +69,7 @@ Show this SMS at boarding.`;
       await this.notifications.sendEmail(
         booking.customerEmail,
         `Your ticket ${booking.bookingRef}`,
-        `Booked: ${booking.trip.schedule.route.originCity} to ${booking.trip.schedule.route.destinationCity}`,
+        `Booked: ${origin} to ${dest}`,
       );
     }
     await this.notifications.sendSms(booking.customerPhone, smsText);

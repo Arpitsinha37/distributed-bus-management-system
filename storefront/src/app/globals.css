@@ -127,7 +127,7 @@ h1, h2, h3, h4, h5, h6 {
 .hero-image {
   position: relative;
   width: 100%;
-  min-height: 70vh;
+  min-height: 100vh;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -138,10 +138,10 @@ h1, h2, h3, h4, h5, h6 {
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.45) 0%,
-    rgba(0, 0, 0, 0.15) 40%,
-    rgba(0, 0, 0, 0.35) 80%,
-    rgba(0, 0, 0, 0.6) 100%
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(0, 0, 0, 0.2) 30%,
+    rgba(0, 0, 0, 0.5) 70%,
+    rgba(255, 255, 255, 1) 100%
   );
   z-index: 1;
 }

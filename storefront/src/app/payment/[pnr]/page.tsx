@@ -36,7 +36,7 @@ export default function PaymentPage({ params }: { params: { pnr: string } }) {
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-neutral-100">
           <div className="bg-neutral-900 text-white p-8 text-center">
             <h2 className="text-2xl font-bold mb-2">Complete Payment</h2>
-            <p className="text-neutral-400">PNR: <span className="text-white font-mono">{booking.pnr}</span></p>
+            <p className="text-neutral-400">PNR: <span className="text-white font-mono">{booking.bookingRef || booking.pnr || params.pnr}</span></p>
           </div>
 
           <div className="p-8">
@@ -48,11 +48,18 @@ export default function PaymentPage({ params }: { params: { pnr: string } }) {
             <div className="space-y-4 mb-8">
               <div className="flex items-center gap-3 text-sm text-neutral-600">
                 <CheckCircle2 className="w-5 h-5 text-green-500" />
-                <span>{booking.passengerName} ({booking.contactPhone})</span>
+                <span>{booking.customerName} ({booking.customerPhone})</span>
               </div>
               <div className="flex items-center gap-3 text-sm text-neutral-600">
                 <CheckCircle2 className="w-5 h-5 text-green-500" />
-                <span>{booking.schedule.route.origin} to {booking.schedule.route.destination}</span>
+                <span>
+                  {booking.portalRoute 
+                    ? `${booking.portalRoute.origin} to ${booking.portalRoute.destination}`
+                    : booking.trip?.schedule?.route 
+                      ? `${booking.trip.schedule.route.originCity} to ${booking.trip.schedule.route.destinationCity}`
+                      : 'N/A'
+                  }
+                </span>
               </div>
             </div>
 

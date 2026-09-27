@@ -8,11 +8,11 @@ export default async function SeatSelectionPage({ params }: { params: { id: stri
   const siteId = headersList.get('x-site-id');
 
   try {
-    const res = await api.get(`/schedules/${params.id}`, {
+    const res = await api.get(`/trips/${params.id}`, {
       headers: { 'X-Site-Id': siteId }
     });
     
-    const schedule = res.data.data;
+    const schedule = res.data.data || res.data;
     if (!schedule) return notFound();
 
     return (

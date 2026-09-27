@@ -22,26 +22,24 @@ export default function BusFarePage() {
     <div className="w-full">
       {/* Hero */}
       <section
-        className="hero-image flex flex-col justify-end px-6 md:px-12"
+        className="hero-image flex flex-col items-center justify-center text-center px-6"
         style={{ backgroundImage: "url('/images/hero.jpg')" }} 
       >
-        <div className="max-w-[90rem] mx-auto w-full pb-28 md:pb-32 pt-32 md:pt-40">
+        <div className="pt-32 pb-16 md:pt-40 md:pb-16 max-w-5xl mx-auto w-full flex flex-col items-center">
           <p className="text-[0.6875rem] font-bold text-[#E31837] uppercase tracking-[0.25em] mb-5">
             Ticket Prices &amp; Fares
           </p>
-          <h1 className="text-[clamp(2.25rem,5vw,3.75rem)] font-display font-bold text-white leading-[1.1] tracking-tight mb-5 max-w-2xl">
+          <h1 className="text-[clamp(2rem,5vw,4.5rem)] font-display font-bold text-white leading-[1.05] tracking-tight mb-6 max-w-4xl">
             Compare fares, book instantly.
           </h1>
-          <p className="text-base md:text-lg text-white/80 max-w-lg leading-relaxed">
+          <p className="text-lg md:text-xl text-white/90 max-w-xl mx-auto leading-relaxed mb-10">
             VIP Sofa · Super Deluxe · Microbus — all prices, one place.
           </p>
+          <div className="w-full">
+            <BookingFlow />
+          </div>
         </div>
       </section>
-
-      {/* Booking bar */}
-      <div className="relative z-20 max-w-[90rem] mx-auto px-6 md:px-12 -mt-12 md:-mt-14 mb-8">
-        <BookingFlow />
-      </div>
 
       {/* Fare Table */}
       <section className="max-w-[90rem] mx-auto px-6 md:px-12 py-20 section-border">

@@ -23,7 +23,7 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     // In a real app we'd fetch this SSR, but for rapid client-side hydration we fetch here
     // or pass it via state context.
-    api.get(`/schedules/${params.id}`).then(res => setSchedule(res.data.data));
+    api.get(`/trips/${params.id}`).then(res => setSchedule(res.data.data || res.data));
   }, [params.id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,9 +32,17 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
     
     try {
       const res = await api.post('/bookings/hold', {
-        scheduleId: params.id,
-        seats,
-        ...formData,
+        tripId: params.id, // backend expects tripId, not scheduleId
+        seatNumbers: seats, // backend expects seatNumbers array
+        customerName: formData.passengerName,
+        customerPhone: formData.contactPhone,
+        customerEmail: formData.contactEmail,
+        passengers: seats.map(s => ({
+          name: formData.passengerName,
+          seatNumber: s,
+        })),
+        boardingPointId: formData.boardingPointId,
+        droppingPointId: formData.droppingPointId,
       });
 
       const pnr = res.data.pnr;

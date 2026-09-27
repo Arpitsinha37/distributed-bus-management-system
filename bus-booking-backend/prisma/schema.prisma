@@ -197,7 +197,8 @@ model Booking {
   id            String        @id @default(cuid())
   bookingRef    String        @unique // human-facing reference, e.g. BK-2K91X
   siteId        String // which storefront this came through
-  tripId        String
+  tripId        String?
+  portalTripId  String? // for third-party portal bookings
   customerName  String
   customerPhone String
   customerEmail String?
@@ -208,7 +209,7 @@ model Booking {
   updatedAt     DateTime      @updatedAt
 
   site       Site        @relation(fields: [siteId], references: [id])
-  trip       Trip        @relation(fields: [tripId], references: [id])
+  trip       Trip?       @relation(fields: [tripId], references: [id])
   customer   Customer?   @relation(fields: [customerId], references: [id])
   passengers Passenger[]
   seats      TripSeat[]
