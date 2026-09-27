@@ -25,6 +25,7 @@ import {
   Navigation
 } from 'lucide-react';
 import BookingFlow from '@/components/booking/BookingFlow';
+import { GlowCard } from '@/components/ui/spotlight-card';
 import RouteMap from '@/components/ui/RouteMap';
 
 /* Star-burst SVG icon */
@@ -172,22 +173,20 @@ export default function Home() {
           HOW IT WORKS — Booking Steps
       ═══════════════════════════════════════════════════════ */}
       <section className="max-w-[90rem] mx-auto px-6 md:px-12 py-20 section-border">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-14">
-          <div className="md:col-span-3">
-            <div className="flex items-center gap-3 mb-4">
+        <div className="mb-14 relative flex flex-col items-center">
+          <div className="w-full flex justify-start mb-6 md:absolute md:left-0 md:top-2 md:mb-0">
+            <div className="inline-flex items-center gap-3">
               <div className="w-5 h-5 rounded-full border border-slate-200 flex items-center justify-center">
                 <Zap className="w-2.5 h-2.5 text-slate-800/60" />
               </div>
               <span className="text-[0.8125rem] font-medium text-slate-500 tracking-wide">
-                How to Book
+                How It Works
               </span>
             </div>
           </div>
-          <div className="md:col-span-9">
-            <h2 className="text-3xl md:text-5xl font-display font-bold text-slate-800">
-              Book Your Night Bus in 4 Simple Steps
-            </h2>
-          </div>
+          <h2 className="text-3xl md:text-5xl font-display font-bold text-slate-800 text-center">
+            Book in 4 simple steps
+          </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -195,45 +194,47 @@ export default function Home() {
             {
               step: '01',
               title: 'Search',
-              desc: 'Select Pokhara to Kathmandu and your travel date.',
+              desc: 'Select Pokhara to Kathmandu.',
               icon: MapPin,
             },
             {
               step: '02',
               title: 'Select Seat',
-              desc: 'Choose your preferred seat — VIP Sofa (2+1), Deluxe (2+2), or Microbus.',
+              desc: 'Choose your VIP Sofa seat (2/1 or 2/2 config).',
               icon: Armchair,
             },
             {
               step: '03',
               title: 'Confirm & Pay',
-              desc: 'Fill your details and pay via eSewa, Khalti, Fonepay, or card.',
+              desc: 'Fill your details and make secure payment.',
               icon: Shield,
             },
             {
               step: '04',
-              title: 'Travel',
-              desc: 'Arrive by 6:45 PM at Tourist Bus Park. Sleep through the journey and wake up in Kathmandu!',
+              title: 'Sleep',
+              desc: 'Board at 6:30 PM. Sleep through the journey!',
               icon: Moon,
             },
           ].map((item, i) => (
-            <div
+            <GlowCard
               key={i}
-              className="glass rounded-2xl p-8 group hover:border-brand-green/20 transition-all duration-500"
+              customSize={true}
+              glowColor="red"
+              className="group cursor-pointer min-h-[300px]"
             >
-              <div className="w-10 h-10 rounded-xl bg-[#E31837]/10 border border-brand-green/20 flex items-center justify-center mb-6 group-hover:bg-[#E31837]/15 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-[#E31837]/10 border border-[#E31837]/20 flex items-center justify-center mb-6 transition-colors">
                 <item.icon className="w-4.5 h-4.5 text-[#E31837]" />
               </div>
-              <div className="text-3xl font-display font-bold text-slate-600 mb-4 group-hover:text-[#E31837] transition-colors duration-500">
+              <div className="text-3xl font-display font-bold text-slate-500 mb-4 transition-colors duration-500">
                 {item.step}
               </div>
-              <div className="text-lg font-display font-semibold text-white mb-2">
+              <div className="text-xl font-display font-bold text-white mb-3">
                 {item.title}
               </div>
-              <div className="text-[0.875rem] text-white/60 leading-relaxed">
+              <div className="text-[0.9375rem] text-slate-400 leading-relaxed">
                 {item.desc}
               </div>
-            </div>
+            </GlowCard>
           ))}
         </div>
       </section>
