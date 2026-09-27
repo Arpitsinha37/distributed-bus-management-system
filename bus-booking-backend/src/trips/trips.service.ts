@@ -91,11 +91,34 @@ export class TripsService {
     });
   }
 
-  // Pre-generates the next N days of trips every night so search stays fast
-  // and doesn't do first-request-of-the-day generation under load.
-  @Cron(CronExpression.EVERY_DAY_AT_2AM)
-  async generateUpcomingTrips(daysAhead = 30) {
-    // Left empty or keep for local schedules if needed
+  // Pre-generates the next N days of trips every 10 minutes so search stays fast
+  // and seat maps open instantly.
+  @Cron(CronExpression.EVERY_10_MINUTES)
+  async generateUpcomingTrips() {
+    this.logger.log('Pre-warming cache for upcoming 3 days of trips from external portal...');
+    const routes = [
+      { origin: 'Pokhara', destination: 'Kathmandu' },
+      { origin: 'Kathmandu', destination: 'Pokhara' }
+    ];
+    
+    // Today, tomorrow, day after
+    const datesToCache = [0, 1, 2].map(days => {
+      const d = new Date();
+      d.setDate(d.getDate() + days);
+      return d.toISOString().split('T')[0];
+    });
+
+    for (const route of routes) {
+      for (const date of datesToCache) {
+        try {
+          await this.busPortal.fetchTrips(route.origin, route.destination, date);
+          this.logger.log(`Warmed cache for ${route.origin} -> ${route.destination} on ${date}`);
+        } catch (e: any) {
+          this.logger.warn(`Failed to warm cache for ${route.origin} -> ${route.destination} on ${date}: ${e.message}`);
+        }
+      }
+    }
+    this.logger.log('Cache warm complete.');
   }
 
   // Public — powers the seat-map screen: every seat plus its live status.

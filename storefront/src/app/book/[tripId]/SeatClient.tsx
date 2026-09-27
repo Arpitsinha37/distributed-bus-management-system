@@ -60,23 +60,24 @@ export default function SeatClient({ trip }: { trip: TripDetail }) {
   }
 
   const seatsData = layout?.seats || [];
-  const columns = layout?.cols || 4; // Use cols from layout if exists
+  const columns = layout?.columns || layout?.cols || 4; // Use columns or cols
   const rows = layout?.rows || Math.ceil(seatsData.length / columns);
   
   const mappedSeats = [];
   for (let r = 0; r < rows; r++) {
     for (let c = 1; c <= columns; c++) {
       // Find seat in layout using CMS format (row, col) or fallback to index matching
-      const seatConfig = seatsData.find((s: any) => s.row === r && s.col === c);
+      const seatConfig = seatsData.find((s: any) => s.row === (r + 1) && (s.col === c || s.column === c));
       
       // Default label logic if not provided by CMS
       const defaultLabel = `${String.fromCharCode(65 + r)}${c}`;
-      const seatId = seatConfig?.label || defaultLabel;
+      const seatId = seatConfig?.label || seatConfig?.id || defaultLabel;
       
       const dbSeat = seatConfig ? trip.seats?.find((s: any) => s.seatNumber === seatId) : null;
       
       let bookingStatus = 'Yes';
-      if (!seatConfig || (seatConfig.type && seatConfig.type !== 'seat' && seatConfig.type !== 'sleeper')) {
+      const typeStr = seatConfig?.type?.toLowerCase() || 'seat';
+      if (!seatConfig || (typeStr !== 'seat' && typeStr !== 'sleeper')) {
         bookingStatus = 'na';
       } else if (dbSeat?.status === 'BOOKED' || dbSeat?.status === 'HELD') {
         bookingStatus = 'No';

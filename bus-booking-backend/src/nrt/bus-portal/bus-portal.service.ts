@@ -118,15 +118,36 @@ export class BusPortalService {
         return this.getData('fetchroute/');
     }
 
+    private cache = new Map<string, { expiresAt: number, data: any }>();
+
     /**
      * 2) Search trips between two locations on a date
      */
     async fetchTrips(from_location: string, to_location: string, date: string) {
-        return this.postUrlEncoded('fetchbus/', {
+        const cacheKey = `fetchbus:${from_location}:${to_location}:${date}`;
+        const cached = this.cache.get(cacheKey);
+        
+        // Cache for 3 minutes to instantly load seat maps right after search
+        if (cached && cached.expiresAt > Date.now()) {
+            this.logger.debug(`Returning cached trips for ${cacheKey}`);
+            return cached.data;
+        }
+
+        const data = await this.postUrlEncoded('fetchbus/', {
             from_location,
             to_location,
             date,
         });
+
+        // Cache the successful response
+        if (data && data.status === 'true') {
+            this.cache.set(cacheKey, {
+                expiresAt: Date.now() + 3 * 60 * 1000, // 3 minutes
+                data
+            });
+        }
+
+        return data;
     }
 
     /**
