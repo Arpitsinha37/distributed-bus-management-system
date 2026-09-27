@@ -66,10 +66,46 @@ Booking: ${booking.bookingRef}
 Show this SMS at boarding.`;
 
     if (booking.customerEmail) {
+      const htmlBody = `
+        <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; background: #f8fafc; padding: 20px; border-radius: 12px;">
+          <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+            <div style="text-align: center; border-bottom: 2px dashed #e2e8f0; padding-bottom: 20px; margin-bottom: 20px;">
+              <h2 style="color: #dc2626; margin: 0 0 8px 0;">New Road Travels</h2>
+              <h1 style="margin: 0; color: #1e293b; font-size: 24px;">Booking Confirmed!</h1>
+              <p style="color: #64748b; margin: 8px 0 0 0;">Your ticket has been issued successfully.</p>
+            </div>
+            
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+              <tr>
+                <td style="padding: 8px 0; color: #64748b; font-size: 12px; text-transform: uppercase;">PNR Number</td>
+                <td style="padding: 8px 0; color: #64748b; font-size: 12px; text-transform: uppercase; text-align: right;">Amount Paid</td>
+              </tr>
+              <tr>
+                <td style="padding: 0 0 16px 0; font-family: monospace; font-weight: bold; font-size: 16px;">${booking.bookingRef}</td>
+                <td style="padding: 0 0 16px 0; font-weight: bold; font-size: 18px; color: #16a34a; text-align: right;">रू ${booking.totalFare}</td>
+              </tr>
+              <tr>
+                <td colspan="2" style="padding: 8px 0; color: #64748b; font-size: 12px; text-transform: uppercase;">Travel Route</td>
+              </tr>
+              <tr>
+                <td colspan="2" style="padding: 0 0 16px 0; font-weight: bold; font-size: 16px;">${origin} to ${dest}</td>
+              </tr>
+            </table>
+
+            <div style="background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0;">
+              <p style="margin: 0; font-weight: bold; color: #0f172a;">${booking.customerName || 'Passenger'}</p>
+              <p style="margin: 8px 0 0 0; color: #dc2626; font-weight: bold; font-size: 14px;">
+                Seats: ${booking.passengers.map(p => p.seatNumber).join(', ')}
+              </p>
+            </div>
+          </div>
+        </div>
+      `;
+
       await this.notifications.sendEmail(
         booking.customerEmail,
-        `Your ticket ${booking.bookingRef}`,
-        `Booked: ${origin} to ${dest}`,
+        `Your Ticket Confirmed - ${booking.bookingRef}`,
+        htmlBody,
       );
     }
     await this.notifications.sendSms(booking.customerPhone, smsText);
