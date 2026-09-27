@@ -143,6 +143,7 @@ export default function BookingFlow() {
             <button
               type="button"
               onClick={handleSwap}
+              aria-label="Swap cities"
               className="absolute -bottom-5 left-1/2 md:-right-5 md:left-auto md:top-1/2 -translate-x-1/2 md:translate-x-0 md:-translate-y-1/2 z-10 w-10 h-10 bg-white border border-gray-200 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 shadow-sm transition-colors group"
             >
               <ArrowLeftRight className="w-4 h-4 group-hover:text-[#E31837] group-hover:rotate-180 transition-all duration-300" />
