@@ -303,8 +303,25 @@ export default function SearchResultsClient({
 
                                             <div className="text-center min-w-[60px]">
                                                 <p className="text-lg sm:text-xl font-bold text-slate-900 leading-tight">
-                                                    {/* Approximation of arrival time */}
-                                                    {format(new Date(new Date(`${date}T${bus.departureTime}`).getTime() + 6 * 60 * 60 * 1000), 'HH:mm')}
+                                                    {(() => {
+                                                        try {
+                                                            const timeString = bus.departureTime || '07:00';
+                                                            let hours = 0;
+                                                            let mins = 0;
+                                                            if (timeString.includes(':')) {
+                                                                const parts = timeString.split(/[:\s]/);
+                                                                hours = parseInt(parts[0], 10) || 0;
+                                                                mins = parseInt(parts[1], 10) || 0;
+                                                                if (timeString.toLowerCase().includes('pm') && hours < 12) hours += 12;
+                                                                if (timeString.toLowerCase().includes('am') && hours === 12) hours = 0;
+                                                            }
+                                                            const arrTime = new Date();
+                                                            arrTime.setHours(hours + 6, mins, 0, 0);
+                                                            return format(arrTime, 'HH:mm');
+                                                        } catch (e) {
+                                                            return '--:--';
+                                                        }
+                                                    })()}
                                                 </p>
                                                 <p className="text-[11px] text-slate-500 font-medium mt-0.5">{bus.route?.destination}</p>
                                             </div>
