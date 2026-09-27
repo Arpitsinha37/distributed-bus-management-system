@@ -56,7 +56,8 @@ export default function Home() {
             Sleep through the mountains.
           </h1>
           <p className="text-lg md:text-xl text-white/90 max-w-xl mx-auto leading-relaxed mb-6">
-            VIP Sofa seats · Departs 7 PM · Wake up in Kathmandu.
+            VIP Sofa seats · Departs 7 PM · Wake up in Kathmandu.<br/>
+            <span className="text-sm font-semibold opacity-80 uppercase tracking-widest mt-2 inline-block">Operated by New Road Travels</span>
           </p>
           
           <div className="flex items-center gap-4 text-sm text-white/90 mb-10 bg-black/20 px-6 py-2 rounded-full backdrop-blur-sm">

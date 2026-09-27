@@ -159,9 +159,9 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-16 pt-8 border-t border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-[0.75rem] text-slate-400">
-            &copy; {new Date().getFullYear()} Pokhara Travels. All rights reserved.
-          </p>
+          <div className="text-[0.75rem] text-slate-400">
+            &copy; {new Date().getFullYear()} Pokhara Travels. A service operated by <strong>New Road Travels</strong>. All rights reserved.
+          </div>
           <div className="text-[0.75rem] text-slate-400 flex flex-col items-center md:items-end">
             <span>Pokhara &mdash; Kathmandu &bull; Nepal</span>
             <span className="mt-1">
