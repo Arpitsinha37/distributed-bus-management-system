@@ -11,6 +11,7 @@ const formatDateStr = (d: string | undefined | null) => {
     if (!d) return '';
     try {
         const dateObj = new Date(d);
+        if (isNaN(dateObj.getTime())) return d;
         return dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
     } catch { return d; }
 };
@@ -50,6 +51,9 @@ export default function SearchResultsClient({
         if (!date) return today;
         try {
             const parsed = parseISO(date);
+            if (isNaN(parsed.getTime())) {
+                return today;
+            }
             parsed.setHours(0,0,0,0);
             return parsed;
         } catch (e) {
