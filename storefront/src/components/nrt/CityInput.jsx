@@ -294,6 +294,7 @@ const CityInput = ({ label, placeholder, value, onChange, excludeCity }) => {
             </div>
 
             <input
+                id={`city-input-${label.toLowerCase()}`}
                 type="text"
                 aria-label={placeholder || 'Select city'}
                 value={searchTerm}
@@ -313,7 +314,9 @@ const CityInput = ({ label, placeholder, value, onChange, excludeCity }) => {
                 className="w-full h-full bg-transparent focus:outline-none text-base sm:text-xl font-bold text-slate-800 cursor-pointer pl-12 pr-4 pt-5 sm:pt-6 pb-1 placeholder:text-slate-400"
             />
             {/* Label: Acts as placeholder when empty, moves up when active */}
-            <label className={`absolute left-12 transition-all duration-200 pointer-events-none truncate max-w-[calc(100%-4rem)]
+            <label 
+                htmlFor={`city-input-${label.toLowerCase()}`}
+                className={`absolute left-12 transition-all duration-200 pointer-events-none truncate max-w-[calc(100%-4rem)]
                 ${searchTerm || (!isMobile && isOpen)
                     ? 'top-1 sm:top-2 text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider'
                     : 'top-1/2 -translate-y-1/2 text-base sm:text-xl font-normal text-slate-500'

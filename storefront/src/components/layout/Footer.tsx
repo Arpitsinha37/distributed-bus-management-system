@@ -6,7 +6,7 @@ export default function Footer() {
     <footer className="relative bg-slate-50">
       {/* Scenic banner above footer */}
       <div
-        className="relative w-full h-[300px] md:h-[400px] bg-cover bg-center bg-fixed"
+        className="relative w-full h-[300px] md:h-[400px] bg-cover bg-center sm:bg-fixed"
         style={{ backgroundImage: "url('/images/scenic-road.jpg')" }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-slate-50 via-black/40 to-slate-50" />

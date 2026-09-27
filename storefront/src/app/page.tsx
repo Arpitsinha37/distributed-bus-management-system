@@ -48,7 +48,7 @@ export default function Home() {
       >
         <Image src="/images/hero.jpg" alt="Pokhara to Kathmandu Night Tourist Bus" fill priority sizes="100vw" className="object-cover -z-10" />
         <div className="pt-32 pb-16 md:pt-40 md:pb-16 max-w-5xl mx-auto w-full z-10">
-          <p className="text-[0.6875rem] font-semibold text-[#E31837] uppercase tracking-[0.25em] mb-6">
+          <p className="text-[0.6875rem] font-semibold text-red-400 uppercase tracking-[0.25em] mb-6 drop-shadow-md">
             Pokhara — Kathmandu &bull; Book Online
           </p>
           <h1 className="text-[clamp(2rem,5vw,4.5rem)] font-display font-bold text-white leading-[1.05] tracking-tight mb-6">
