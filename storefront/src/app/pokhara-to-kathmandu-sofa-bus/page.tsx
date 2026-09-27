@@ -22,22 +22,26 @@ export default function SofaBusPage() {
     <div className="w-full">
       {/* Hero */}
       <section
-        className="hero-image flex flex-col items-center justify-center text-center px-6"
-        style={{ backgroundImage: "url('/images/hero.jpg')" }} // Ideally a photo of sofa interior
+        className="hero-image flex flex-col justify-end px-6 md:px-12"
+        style={{ backgroundImage: "url('/images/hero.jpg')" }}
       >
-        <div className="pt-32 pb-16 md:pt-40 md:pb-16 max-w-5xl mx-auto w-full">
-          <p className="text-[0.6875rem] font-semibold text-[#E31837] uppercase tracking-[0.25em] mb-6">
+        <div className="max-w-[90rem] mx-auto w-full pb-28 md:pb-32 pt-32 md:pt-40">
+          <p className="text-[0.6875rem] font-bold text-[#E31837] uppercase tracking-[0.25em] mb-5">
             Luxury VIP Sofa Bus
           </p>
-          <h1 className="text-[clamp(2rem,5vw,4.5rem)] font-display font-bold text-white leading-[1.05] tracking-tight mb-6">
-            Pokhara to Kathmandu Sofa Bus Ticket
+          <h1 className="text-[clamp(2.25rem,5vw,3.75rem)] font-display font-bold text-white leading-[1.1] tracking-tight mb-5 max-w-2xl">
+            Travel in premium comfort.
           </h1>
-          <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed mb-10">
-            Experience premium comfort with our 2+1 VIP sofa buses. Reclining seats, extra legroom, AC, and WiFi make your journey between Pokhara and Kathmandu unforgettable.
+          <p className="text-base md:text-lg text-white/80 max-w-lg leading-relaxed">
+            2+1 reclining seats · AC & WiFi · Extra legroom · From Rs 1,500.
           </p>
-          <BookingFlow />
         </div>
       </section>
+
+      {/* Booking bar */}
+      <div className="relative z-20 max-w-[90rem] mx-auto px-6 md:px-12 -mt-12 md:-mt-14 mb-8">
+        <BookingFlow />
+      </div>
 
       {/* Sofa Bus Features */}
       <section className="max-w-[90rem] mx-auto px-6 md:px-12 py-20 section-border">

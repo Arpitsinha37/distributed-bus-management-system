@@ -42,29 +42,38 @@ export default function Home() {
   return (
     <div className="w-full">
       {/* ═══════════════════════════════════════════════════════
-          HERO SECTION — Full viewport with stunning mountain image
+          HERO SECTION — Compact, left-aligned, human copy
       ═══════════════════════════════════════════════════════ */}
       <section
-        className="hero-image relative flex flex-col items-center justify-center text-center px-6 overflow-hidden"
+        className="hero-image relative flex flex-col justify-end px-6 md:px-12 overflow-hidden"
       >
         <Image src="/images/hero.jpg" alt="Pokhara to Kathmandu Night Tourist Bus" fill priority sizes="100vw" className="object-cover -z-10" />
-        <div className="pt-32 pb-16 md:pt-40 md:pb-16 max-w-5xl mx-auto w-full z-10">
-          <p className="text-[0.6875rem] font-semibold text-red-400 uppercase tracking-[0.25em] mb-6 drop-shadow-md">
-            Pokhara — Kathmandu &bull; Book Online
+        <div className="max-w-[90rem] mx-auto w-full z-10 pb-28 md:pb-32 pt-32 md:pt-40">
+          <p className="text-[0.6875rem] font-bold text-[#E31837] uppercase tracking-[0.25em] mb-5 drop-shadow-md">
+            Nepal&apos;s #1 Night Bus
           </p>
-          <h1 className="text-[clamp(2rem,5vw,4.5rem)] font-display font-bold text-white leading-[1.05] tracking-tight mb-6">
-            Pokhara to Kathmandu Night Tourist Bus – Book Online
+          <h1 className="text-[clamp(2.25rem,5vw,3.75rem)] font-display font-bold text-white leading-[1.1] tracking-tight mb-5 max-w-2xl">
+            Sleep through the mountains.
           </h1>
-          <p className="text-lg md:text-xl text-white/90 max-w-xl mx-auto leading-relaxed mb-10">
-            Book VIP Sofa seats on our night bus from Tourist Bus Park, Pokhara.
-            Departs 7:00 PM, arrives Kathmandu ~5:30 AM. Choose your seat, pay with eSewa, Khalti, or card.
-            From Rs 1,200.
+          <p className="text-base md:text-lg text-white/80 max-w-lg leading-relaxed mb-6">
+            VIP Sofa seats · Departs 7 PM · Wake up in Kathmandu.
           </p>
-          
-          {/* Booking search bar now embedded seamlessly in the hero */}
-          <BookingFlow />
+          <div className="flex items-center gap-4 text-sm text-white/70">
+            <div className="flex items-center gap-1.5">
+              <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+              <span className="font-semibold text-white">4.8</span>
+              <span>from 2,000+ travelers</span>
+            </div>
+            <span className="text-white/30">·</span>
+            <span>eSewa & Khalti accepted</span>
+          </div>
         </div>
       </section>
+
+      {/* Booking bar — sits outside hero, overlaps upward */}
+      <div className="relative z-20 max-w-[90rem] mx-auto px-6 md:px-12 -mt-12 md:-mt-14 mb-8">
+        <BookingFlow />
+      </div>
 
       {/* ═══════════════════════════════════════════════════════
           STATS BAR — Key route info at a glance

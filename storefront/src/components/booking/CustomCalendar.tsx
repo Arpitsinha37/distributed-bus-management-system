@@ -140,7 +140,7 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ selectedDate, onChange 
                 </div>
                 
                 <label className="absolute left-14 md:left-16 transition-all duration-200 pointer-events-none truncate max-w-[calc(100%-4rem)] top-1 sm:top-2 text-[10px] sm:text-[0.65rem] font-bold text-slate-400 uppercase tracking-wider">
-                    Date of Journey
+                    Departure
                 </label>
             </div>
 

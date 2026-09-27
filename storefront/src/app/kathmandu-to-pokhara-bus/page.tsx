@@ -24,23 +24,26 @@ export default function KathmanduToPokharaPage() {
     <div className="w-full">
       {/* Hero */}
       <section
-        className="hero-image flex flex-col items-center justify-center text-center px-6"
+        className="hero-image flex flex-col justify-end px-6 md:px-12"
         style={{ backgroundImage: "url('/images/hero.jpg')" }}
       >
-        <div className="pt-32 pb-16 md:pt-40 md:pb-16 max-w-5xl mx-auto w-full">
-          <p className="text-[0.6875rem] font-semibold text-[#E31837] uppercase tracking-[0.25em] mb-6">
-            Kathmandu — Pokhara &bull; Book Online
+        <div className="max-w-[90rem] mx-auto w-full pb-28 md:pb-32 pt-32 md:pt-40">
+          <p className="text-[0.6875rem] font-bold text-[#E31837] uppercase tracking-[0.25em] mb-5">
+            Kathmandu → Pokhara
           </p>
-          <h1 className="text-[clamp(2rem,5vw,4.5rem)] font-display font-bold text-white leading-[1.05] tracking-tight mb-6">
-            Kathmandu to Pokhara Bus Ticket – Book Online
+          <h1 className="text-[clamp(2.25rem,5vw,3.75rem)] font-display font-bold text-white leading-[1.1] tracking-tight mb-5 max-w-2xl">
+            Night bus to the lakeside.
           </h1>
-          <p className="text-lg md:text-xl text-white/90 max-w-xl mx-auto leading-relaxed mb-10">
-            Travel from Kathmandu to Pokhara by night bus or day tourist bus. VIP Sofa, Deluxe, and Microbus options available.
-            Board from Sorakhutte, Balaju, Kalanki, or Thankot. From Rs 1,200.
+          <p className="text-base md:text-lg text-white/80 max-w-lg leading-relaxed">
+            VIP Sofa & Deluxe seats · Board from Kalanki or Sorakhutte · From Rs 1,200.
           </p>
-          <BookingFlow />
         </div>
       </section>
+
+      {/* Booking bar */}
+      <div className="relative z-20 max-w-[90rem] mx-auto px-6 md:px-12 -mt-12 md:-mt-14 mb-8">
+        <BookingFlow />
+      </div>
 
       {/* Stats */}
       <section className="max-w-[90rem] mx-auto px-6 md:px-12 py-16 section-border">

@@ -9,6 +9,7 @@ import {
   ArrowLeftRight,
   AlertCircle,
   X,
+  ChevronRight,
 } from 'lucide-react';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
@@ -124,9 +125,9 @@ export default function BookingFlow() {
         initial="initial"
         animate="animate"
         exit="exit"
-        className="w-full max-w-5xl mx-auto mt-12 mb-16 relative"
+        className="w-full mx-auto relative"
       >
-        <div className="bg-white rounded-[2.5rem] shadow-2xl relative flex flex-col md:flex-row items-stretch min-h-[100px] border border-gray-100">
+        <div className="bg-white rounded-2xl shadow-lg relative flex flex-col md:flex-row items-stretch min-h-[100px] border border-gray-200/80">
           
           {/* Origin */}
           <div className="flex-1 relative flex flex-col justify-center border-b md:border-b-0 md:border-r border-gray-200">
@@ -179,17 +180,14 @@ export default function BookingFlow() {
             <button
               onClick={handleSearch}
               disabled={loading}
-              className="w-full md:w-auto h-full bg-[#E31837] hover:bg-[#C9132E] text-white font-bold text-sm md:text-base tracking-wide px-10 py-4 rounded-full shadow-lg transition-transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 min-h-[3.5rem] md:min-h-[4rem]"
+              className="w-full md:w-auto h-full bg-[#E31837] hover:bg-[#C9132E] text-white font-semibold text-sm md:text-base px-10 py-4 rounded-xl shadow-md transition-all hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 min-h-[3.5rem] md:min-h-[4rem]"
             >
               {loading ? (
                 <span className="animate-pulse">Searching...</span>
               ) : (
                 <>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                  </svg>
-                  <span className="whitespace-nowrap">SEARCH BUSES</span>
+                  <span className="whitespace-nowrap">Search</span>
+                  <ChevronRight className="w-4 h-4" />
                 </>
               )}
             </button>

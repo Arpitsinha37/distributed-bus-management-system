@@ -138,7 +138,7 @@ const CustomCalendar = ({ selectedDate, onChange }) => {
                 <div className="flex items-center gap-2">
                     <div className="flex flex-col items-start">
                         <span className="text-xs font-medium text-slate-500 flex items-center gap-1">
-                            Date of Journey
+                            Departure
                             <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
                         </span>
                         {selectedDate ? (
