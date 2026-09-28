@@ -40,7 +40,7 @@ export default function Footer() {
       <div className="max-w-[90rem] mx-auto px-6 md:px-12 py-16 md:py-20">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8">
           {/* Brand */}
-          <div className="md:col-span-4">
+          <div className="md:col-span-3">
             <Link
               href="/"
               className="flex items-center gap-3 mb-6 group"
@@ -132,8 +132,49 @@ export default function Footer() {
             </ul>
           </div>
 
+          {/* Popular Routes (SEO) */}
+          <div className="md:col-span-2">
+            <h4 className="text-[0.6875rem] font-semibold text-slate-400 uppercase tracking-[0.15em] mb-5">
+              Popular Routes
+            </h4>
+            <ul className="space-y-3">
+              <li>
+                <Link
+                  href="/route/pokhara-to-kathmandu"
+                  className="text-[0.875rem] text-slate-600 hover:text-[#E31837] transition-colors duration-300"
+                >
+                  Pokhara to Kathmandu
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/route/kathmandu-to-pokhara"
+                  className="text-[0.875rem] text-slate-600 hover:text-[#E31837] transition-colors duration-300"
+                >
+                  Kathmandu to Pokhara
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/route/chitwan-to-kathmandu"
+                  className="text-[0.875rem] text-slate-600 hover:text-[#E31837] transition-colors duration-300"
+                >
+                  Chitwan to Kathmandu
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/route/pokhara-to-chitwan"
+                  className="text-[0.875rem] text-slate-600 hover:text-[#E31837] transition-colors duration-300"
+                >
+                  Pokhara to Chitwan
+                </Link>
+              </li>
+            </ul>
+          </div>
+
           {/* CTA */}
-          <div className="md:col-span-4 md:text-right">
+          <div className="md:col-span-3 lg:text-right">
             <h4 className="text-[0.6875rem] font-semibold text-slate-400 uppercase tracking-[0.15em] mb-5">
               Ready to Travel?
             </h4>

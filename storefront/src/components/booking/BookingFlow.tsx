@@ -23,13 +23,19 @@ const pageVariants: Variants = {
   exit: { opacity: 0, y: -30, transition: { duration: 0.4 } },
 };
 
-export default function BookingFlow() {
+export default function BookingFlow({ 
+  initialOrigin, 
+  initialDestination 
+}: { 
+  initialOrigin?: string, 
+  initialDestination?: string 
+} = {}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [origin, setOrigin] = useState('Pokhara');
-  const [destination, setDestination] = useState('Kathmandu');
+  const [origin, setOrigin] = useState(initialOrigin || 'Pokhara');
+  const [destination, setDestination] = useState(initialDestination || 'Kathmandu');
   const [date, setDate] = useState<string>('');
   const [availableCities, setAvailableCities] = useState<string[]>([]);
 
