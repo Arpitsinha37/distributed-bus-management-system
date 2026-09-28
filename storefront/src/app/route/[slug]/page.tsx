@@ -151,6 +151,95 @@ export default function RoutePage({ params }: Props) {
           </div>
         </div>
       </section>
+
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify([
+            {
+              "@context": "https://schema.org",
+              "@type": "TravelAgency",
+              "name": "New Road Travels",
+              "url": "https://pokharatokathmandutouristbusbooking.com/",
+              "telephone": "+977-9856068470",
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Tourist Bus Park",
+                "addressLocality": "Pokhara",
+                "addressRegion": "Gandaki",
+                "addressCountry": "NP"
+              },
+              "openingHours": "Mo-Su 06:00-21:00",
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": 4.8,
+                "reviewCount": 2000
+              },
+              "image": "https://pokharatokathmandutouristbusbooking.com/android-chrome-512x512.png",
+              "priceRange": "Rs 1200"
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "BusTrip",
+              "name": `${route.origin} to ${route.destination} Night Bus`,
+              "busName": "VIP Night Express",
+              "provider": {
+                "@type": "Organization",
+                "name": "New Road Travels"
+              },
+              "departureBusStop": {
+                "@type": "BusStation",
+                "name": `${route.origin} Tourist Bus Park`
+              },
+              "arrivalBusStop": {
+                "@type": "BusStation",
+                "name": `${route.destination} Bus Park`
+              }
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              "mainEntity": [
+                {
+                  "@type": "Question",
+                  "name": `How can I book a bus ticket from ${route.origin} to ${route.destination}?`,
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Use the search box above to select date, choose your seat, and pay securely."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": `What is the fare from ${route.origin} to ${route.destination}?`,
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Starting fare is NPR 1200 for a VIP sofa seat. Prices vary by class and date."
+                  }
+                }
+              ]
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                {
+                  "@type": "ListItem",
+                  "position": 1,
+                  "name": "Home",
+                  "item": "https://pokharatokathmandutouristbusbooking.com/"
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 2,
+                  "name": `${route.origin} to ${route.destination}`,
+                  "item": `https://pokharatokathmandutouristbusbooking.com/route/${params.slug}`
+                }
+              ]
+            }
+          ])
+        }}
+      />
     </div>
   );
 }
